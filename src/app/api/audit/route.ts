@@ -7,8 +7,20 @@ import type { AuditResponse } from "@/types/audit";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { url } = body;
+    let url = "";
+
+    try {
+      const body = await request.json();
+      url = body?.url || "";
+    } catch {
+      const text = await request.text();
+      try {
+        const body = JSON.parse(text);
+        url = body?.url || "";
+      } catch {
+        url = "";
+      }
+    }
 
     if (!url || typeof url !== "string") {
       return NextResponse.json(
@@ -123,13 +135,21 @@ Return ONLY valid JSON with this exact structure:
     console.error("Audit error:", error);
 
     if (error instanceof Error) {
-      if (error.message.includes("API key")) {
+      const message = error.message;
+
+      if (message.includes("invalid_api_key") || message.includes("Incorrect API key")) {
         return NextResponse.json(
-          { error: "Server configuration error: Missing API key" },
+          { error: "Invalid DashScope API key. Check your DASHSCOPE_API_KEY in .env" },
+          { status: 401 }
+        );
+      }
+      if (message.includes("Missing DASHSCOPE_API_KEY")) {
+        return NextResponse.json(
+          { error: "Missing DASHSCOPE_API_KEY. Add it to your .env file" },
           { status: 500 }
         );
       }
-      if (error.message.includes("Failed to fetch") || error.message.includes("timeout")) {
+      if (message.includes("Failed to fetch") || message.includes("timeout")) {
         return NextResponse.json(
           { error: "Failed to fetch the provided URL. Ensure it's accessible and try again." },
           { status: 502 }

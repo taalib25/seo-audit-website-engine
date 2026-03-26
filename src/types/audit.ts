@@ -8,7 +8,7 @@ export const MetaSchema = z.object({
   description: z.string().default(""),
   descriptionLength: z.number(),
   keywords: z.string().default(""),
-  ogTags: z.record(z.string()).default({}),
+  ogTags: z.record(z.string(), z.string()).default({}),
 });
 
 export const HeadingsSchema = z.object({

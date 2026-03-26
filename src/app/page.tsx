@@ -1,489 +1,310 @@
 "use client";
 
 import { useState } from "react";
-import type {
-  AuditResponse,
-  MetricsObject,
-  AIInsight,
-  Recommendation,
-  PromptLog,
-} from "@/types/audit";
+import type { AuditResponse, AIInsight, Recommendation } from "@/types/audit";
 
-type TabType = "metrics" | "insights" | "recommendations" | "prompts";
-type PromptTabType = "system" | "user" | "input" | "output";
+const STEPS = [
+  { label: "Fetching", detail: "Downloading HTML and extracting meta tags, links, images..." },
+  { label: "Analyzing", detail: "Counting words, measuring structure, checking accessibility..." },
+  { label: "Generating", detail: "AI analyzing SEO, UX, and conversion patterns..." },
+];
 
 export default function Home() {
   const [url, setUrl] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<"idle" | "loading" | "done">("idle");
+  const [stepIndex, setStepIndex] = useState(0);
+  const [error, setError] = useState("");
   const [result, setResult] = useState<AuditResponse | null>(null);
-  const [activeTab, setActiveTab] = useState<TabType>("metrics");
-  const [promptTab, setPromptTab] = useState<PromptTabType>("system");
+  const [showPrompt, setShowPrompt] = useState(false);
+
+  const cleanUrl = (v: string) => v.trim().replace(/^https?:\/\//, "").replace(/\/+$/, "") || "";
+  const hostname = (u: string) => { try { return new URL(u).hostname.replace("www.", ""); } catch { return u; } };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
+    const target = cleanUrl(url);
+    if (!target) return;
+
+    setStatus("loading");
+    setStepIndex(0);
+    setError("");
     setResult(null);
 
+    let step = 0;
+    const tick = setInterval(() => { if (step < 2) { step++; setStepIndex(step); } }, 2000);
+
     try {
-      const response = await fetch("/api/audit", {
+      const res = await fetch("/api/audit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url: `https://${target}` }),
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to analyze URL");
-      }
-
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      clearInterval(tick);
+      setStatus("done");
       setResult(data);
-      setActiveTab("metrics");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setLoading(false);
+      clearInterval(tick);
+      setError(err instanceof Error ? err.message : "Error");
+      setStatus("idle");
     }
   };
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4">
-          <h1 className="text-xl font-bold">AI Website Audit Engine</h1>
-          <p className="text-sm text-muted-foreground">
-            Deterministic metrics + Derived signals + AI insights
-          </p>
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-6">
+        <div className="animate-fade-in text-center max-w-2xl mx-auto">
+          <p className="text-6xl md:text-7xl font-bold text-white tracking-tight mb-4">{hostname(cleanUrl(url))}</p>
+          <p className="text-[#64748b] text-xl mb-20">Analyzing your website</p>
+
+          <div className="flex items-center justify-center gap-4 flex-wrap">
+            {STEPS.map((step, i) => {
+              const done = i < stepIndex;
+              const active = i === stepIndex;
+              return (
+                <div
+                  key={i}
+                  className={`flex items-center gap-3 px-6 py-4 rounded-2xl transition-all duration-700 ${
+                    active ? "bg-[#7c3aed]/20 border border-[#7c3aed]/40" :
+                    done ? "bg-[#13131a] border border-white/5" :
+                    "bg-[#13131a]/50 border border-white/5"
+                  }`}
+                >
+                  {done ? (
+                    <svg className="w-5 h-5 text-[#7c3aed]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : active ? (
+                    <span className="w-5 h-5 rounded-full border-2 border-[#7c3aed] border-t-transparent animate-spin" />
+                  ) : (
+                    <span className="w-5 h-5 rounded-full border-2 border-white/10" />
+                  )}
+                  <span className={`font-medium ${active ? "text-white" : done ? "text-white/50" : "text-white/20"}`}>
+                    {step.label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          {STEPS[stepIndex] && (
+            <p className="text-sm text-[#64748b] mt-8 animate-fade-in">{STEPS[stepIndex].detail}</p>
+          )}
         </div>
-      </header>
+      </div>
+    );
+  }
 
-      <main className="container mx-auto px-4 py-8">
-        {/* Input Form */}
-        <form onSubmit={handleSubmit} className="mb-8">
-          <div className="flex gap-2 max-w-2xl mx-auto">
-            <input
-              type="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="Enter URL (e.g., https://example.com)"
-              className="flex-1 px-4 py-2 border rounded-md bg-background"
-              required
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90 disabled:opacity-50"
-            >
-              {loading ? "Analyzing..." : "Audit"}
-            </button>
-          </div>
-        </form>
+  if (!result) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <header className="absolute top-0 left-0 p-8">
+          <span className="text-sm font-medium text-[#64748b]">Audit Engine</span>
+        </header>
 
-        {/* Error */}
-        {error && (
-          <div className="max-w-2xl mx-auto mb-8 p-4 bg-destructive/10 border border-destructive rounded-md text-destructive">
-            {error}
-          </div>
-        )}
-
-        {/* Loading */}
-        {loading && (
-          <div className="max-w-2xl mx-auto text-center py-8">
-            <p className="text-muted-foreground">
-              Scraping page, deriving signals, and generating AI insights...
-            </p>
-          </div>
-        )}
-
-        {/* Results */}
-        {result && (
-          <div className="max-w-4xl mx-auto">
-            {/* Dynamic Content Warning */}
-            {result.metrics.dynamicContentSuspected && (
-              <div className="flex items-center gap-3 p-4 bg-yellow-50 border border-yellow-200 rounded-md mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-yellow-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <span className="text-sm text-yellow-800">Dynamic content detected — metrics may be incomplete. This page appears to be JavaScript-heavy.</span>
-              </div>
-            )}
-
-            {/* Tabs */}
-            <div className="flex gap-2 mb-4 border-b">
-              <TabButton active={activeTab === "metrics"} onClick={() => setActiveTab("metrics")}>
-                Metrics
-              </TabButton>
-              <TabButton active={activeTab === "insights"} onClick={() => setActiveTab("insights")}>
-                Insights
-              </TabButton>
-              <TabButton
-                active={activeTab === "recommendations"}
-                onClick={() => setActiveTab("recommendations")}
+        <div className="flex-1 flex flex-col items-center justify-center px-6">
+          <form onSubmit={handleSubmit} className="w-full max-w-2xl">
+            <div className="relative">
+              <input
+                type="text"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="Enter website URL..."
+                className="w-full text-2xl py-6 px-8 pr-32 rounded-3xl bg-[#13131a] border border-white/5 text-white placeholder-[#64748b]/60 focus:outline-none focus:border-[#7c3aed] focus:ring-4 focus:ring-[#7c3aed]/10 transition-all"
+                autoFocus
+              />
+              <button
+                type="submit"
+                disabled={!url.trim()}
+                className="absolute right-3 top-1/2 -translate-y-1/2 px-6 py-3 rounded-2xl bg-[#7c3aed] text-white font-medium disabled:opacity-20 hover:bg-[#8b5cf6] transition-all"
               >
-                Recommendations
-              </TabButton>
-              <TabButton active={activeTab === "prompts"} onClick={() => setActiveTab("prompts")}>
-                Prompt Logs
-              </TabButton>
+                Analyze
+              </button>
             </div>
+          </form>
+          {error && <p className="mt-8 text-red-400 text-center">{error}</p>}
+        </div>
+      </div>
+    );
+  }
 
-            {/* Tab Content */}
-            {activeTab === "metrics" && <MetricsPanel metrics={result.metrics} />}
-            {activeTab === "insights" && <InsightsPanel insights={result.insights} />}
-            {activeTab === "recommendations" && (
-              <RecommendationsPanel recommendations={result.recommendations} />
-            )}
-            {activeTab === "prompts" && (
-              <PromptLogsPanel promptLog={result.promptLog} activeTab={promptTab} onTabChange={setPromptTab} />
-            )}
+  const m = result.metrics;
+  const imgAny = m.images as any;
+
+  return (
+    <div className="min-h-screen px-6 py-10">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex items-center justify-between mb-12">
+          <button onClick={() => { setStatus("idle"); setResult(null); setUrl(""); }} className="text-[#64748b] hover:text-white transition-colors text-sm">
+            ← New Audit
+          </button>
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-white">{hostname(result.url)}</h2>
+            <p className="text-sm text-[#64748b] mt-1">{result.url}</p>
+          </div>
+          <button onClick={() => setShowPrompt(!showPrompt)} className="text-sm text-[#64748b] hover:text-[#7c3aed] transition-colors">
+            {showPrompt ? "Hide" : "Show"} Log
+          </button>
+        </div>
+
+        {showPrompt && result.promptLog && (
+          <div className="mb-10 rounded-2xl bg-[#13131a] border border-white/5 p-5 animate-fade-in">
+            <pre className="text-xs text-[#64748b] overflow-auto max-h-64 font-mono">{JSON.stringify(result.promptLog, null, 2)}</pre>
           </div>
         )}
-      </main>
-    </div>
-  );
-}
 
-function TabButton({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`px-4 py-2 text-sm border-b-2 transition-colors ${
-        active
-          ? "border-primary text-foreground font-medium"
-          : "border-transparent text-muted-foreground hover:text-foreground"
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
-
-function MetricsPanel({ metrics }: { metrics: MetricsObject }) {
-  // Helper to get status label
-  const getStatus = (condition: boolean, okLabel = "OK", warnLabel = "Warning") =>
-    condition ? okLabel : warnLabel;
-
-  return (
-    <div className="space-y-6">
-      {/* Meta Tags */}
-      <div className="bg-white rounded-lg border shadow-sm">
-        <div className="p-4">
-          <h2 className="text-base font-semibold mb-3">Meta Tags</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <MetricStat
-              label="Title"
-              value={metrics.meta.title || "(empty)"}
-              status={metrics.meta.titleLength > 0 ? "good" : "warning"}
-              statusLabel={metrics.meta.titleLength > 0 ? "Present" : "Missing"}
-            />
-            <MetricStat
-              label="Title Length"
-              value={`${metrics.meta.titleLength} chars`}
-              status={metrics.meta.titleLength >= 30 && metrics.meta.titleLength <= 60 ? "good" : "warning"}
-              statusLabel={getStatus(metrics.meta.titleLength >= 30 && metrics.meta.titleLength <= 60, "Good length", "Should be 30-60 chars")}
-            />
-            <MetricStat
-              label="Description"
-              value={metrics.meta.description || "(empty)"}
-              status={metrics.meta.descriptionLength > 0 ? "good" : "warning"}
-              statusLabel={metrics.meta.descriptionLength > 0 ? "Present" : "Missing"}
-            />
-            <MetricStat
-              label="Description Length"
-              value={`${metrics.meta.descriptionLength} chars`}
-              status={metrics.meta.descriptionLength >= 120 && metrics.meta.descriptionLength <= 160 ? "good" : "warning"}
-              statusLabel={getStatus(metrics.meta.descriptionLength >= 120 && metrics.meta.descriptionLength <= 160, "Good length", "Should be 120-160 chars")}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Headings */}
-      <div className="bg-white rounded-lg border shadow-sm">
-        <div className="p-4">
-          <h2 className="text-base font-semibold mb-3">Headings (SEO Structure)</h2>
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
-            <MetricStat
-              label="H1"
-              value={metrics.headings.h1}
-              status={metrics.headings.h1 === 1 ? "good" : "warning"}
-              statusLabel={metrics.headings.h1 === 1 ? "Good" : metrics.headings.h1 === 0 ? "Missing" : "Multiple"}
-            />
-            <MetricStat label="H2" value={metrics.headings.h2} />
-            <MetricStat label="H3" value={metrics.headings.h3} />
-            <MetricStat label="H4" value={metrics.headings.h4} />
-            <MetricStat label="H5" value={metrics.headings.h5} />
-            <MetricStat label="H6" value={metrics.headings.h6} />
-          </div>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="bg-white rounded-lg border shadow-sm">
-        <div className="p-4">
-          <h2 className="text-base font-semibold mb-3">Content Analysis</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <MetricStat
-              label="Word Count"
-              value={metrics.wordCount}
-              status={metrics.wordCount >= 800 ? "good" : metrics.wordCount >= 400 ? "warning" : "bad"}
-              statusLabel={
-                metrics.wordCount >= 2000 ? "Deep content" :
-                metrics.wordCount >= 800 ? "Good depth" :
-                metrics.wordCount >= 400 ? "Moderate (could be deeper)" : "Thin content"
-              }
-            />
-            <MetricStat
-              label="CTA Count"
-              value={metrics.ctaCount}
-              status={metrics.ctaCount >= 3 ? "good" : "warning"}
-              statusLabel={metrics.ctaCount >= 3 ? `${metrics.ctaCount} CTAs found` : "Consider adding more CTAs"}
-            />
-            <div className="md:col-span-1">
-              <div className="text-xs text-muted-foreground mb-1">CTA Keywords Found</div>
-              <div className="flex flex-wrap gap-1">
-                {metrics.ctaKeywords.length > 0 ? (
-                  metrics.ctaKeywords.slice(0, 8).map((kw, i) => (
-                    <span key={i} className="badge badge-primary badge-sm">{kw}</span>
-                  ))
-                ) : (
-                  <span className="text-muted-foreground text-sm">None detected</span>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Links */}
-      <div className="bg-white rounded-lg border shadow-sm">
-        <div className="p-4">
-          <h2 className="text-base font-semibold mb-3">Links</h2>
-          <div className="grid grid-cols-3 gap-4">
-            <MetricStat
-              label="Internal Links"
-              value={metrics.links.internal}
-              status={metrics.links.internal >= 3 ? "good" : "warning"}
-            />
-            <MetricStat label="External Links" value={metrics.links.external} />
-            <MetricStat label="Total Links" value={metrics.links.total} />
-          </div>
-        </div>
-      </div>
-
-      {/* Images */}
-      <div className="bg-white rounded-lg border shadow-sm">
-        <div className="p-4">
-          <h2 className="text-base font-semibold mb-3">Images (Accessibility & SEO)</h2>
+        <section className="mb-12">
+          <h3 className="text-sm font-medium text-white/80 mb-5">Page Metrics</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <MetricStat label="Total Images" value={metrics.images.total} />
-            <MetricStat
-              label="With Alt Text"
-              value={metrics.images.withAlt}
-              status={metrics.images.missingAltPercent <= 30 ? "good" : "warning"}
+            <MetricBox
+              icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>}
+              label="Meta Title"
+              value={m.meta.title || "—"}
+              sublabel={`${m.meta.titleLength} chars`}
+              tip="Ideal length: 30-60 characters for good SEO"
             />
-            <MetricStat
-              label="Missing Alt"
-              value={metrics.images.missingAlt}
-              status={metrics.images.missingAlt === 0 ? "good" : "warning"}
+            <MetricBox
+              icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h7" /></svg>}
+              label="Word Count"
+              value={m.wordCount.toLocaleString()}
+              ok={m.wordCount >= 800}
+              tip="Aim for 800+ words for good content depth"
             />
-            <MetricStat
-              label="Missing Alt %"
-              value={`${metrics.images.missingAltPercent}%`}
-              status={metrics.images.missingAltPercent <= 30 ? "good" : "warning"}
-              statusLabel={metrics.images.missingAltPercent <= 30 ? "Good coverage" : `${metrics.images.missingAlt} images need alt text`}
+            <MetricBox
+              icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" /></svg>}
+              label="H1 Headings"
+              value={m.headings.h1}
+              ok={m.headings.h1 === 1}
+              tip="Exactly one H1 tag is recommended"
+            />
+            <MetricBox
+              icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" /></svg>}
+              label="CTAs Found"
+              value={m.ctaCount}
+              ok={m.ctaCount >= 3}
+              tip="3+ call-to-action elements recommended"
             />
           </div>
-        </div>
+        </section>
+
+        <section className="mb-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <MetricBox
+              icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>}
+              label="Internal Links"
+              value={m.links.internal}
+              ok={m.links.internal >= 3}
+              tip="Links to other pages on your site"
+            />
+            <MetricBox
+              icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>}
+              label="External Links"
+              value={m.links.external}
+              tip="Links to other websites"
+            />
+            <MetricBox
+              icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>}
+              label="Total Images"
+              value={m.images.total}
+              tip="Total images found on the page"
+            />
+            <MetricBox
+              icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>}
+              label="Missing Alt Text"
+              value={`${imgAny.missingAltPercent ?? 0}%`}
+              sublabel={`${imgAny.missingAlt ?? 0} images`}
+              ok={(imgAny.missingAltPercent ?? 100) <= 30}
+              tip="Aim for 100% alt text coverage for accessibility"
+            />
+          </div>
+        </section>
+
+        {result.insights.length > 0 && (
+          <section className="mb-12">
+            <h3 className="text-sm font-medium text-white/80 mb-4">Key Insights</h3>
+            <div className="bg-[#13131a] rounded-2xl border border-white/5 divide-y divide-white/5">
+              {[...result.insights].sort((a, b) => {
+                const o = { high: 0, medium: 1, low: 2 };
+                return o[a.severity] - o[b.severity];
+              }).map((insight, i) => <InsightRow key={i} insight={insight} />)}
+            </div>
+          </section>
+        )}
+
+        {result.recommendations.length > 0 && (
+          <section className="mb-10">
+            <h3 className="text-sm font-medium text-white/80 mb-4">Recommendations</h3>
+            <div className="bg-[#13131a] rounded-2xl border border-white/5 divide-y divide-white/5">
+              {[...result.recommendations].sort((a, b) => a.priority - b.priority).map((rec, i) => <RecommendationRow key={i} rec={rec} />)}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );
 }
 
-// Helper component for displaying metrics with status
-function MetricStat({
-  label,
-  value,
-  status = "neutral",
-  statusLabel,
-}: {
-  label: string;
-  value: string | number;
-  status?: "good" | "warning" | "bad" | "neutral";
-  statusLabel?: string;
-}) {
-  const statusColors = {
-    good: "text-green-600",
-    warning: "text-yellow-600",
-    bad: "text-red-600",
-    neutral: "",
-  };
-
-  return (
-    <div>
-      <div className="text-xs text-muted-foreground">{label}</div>
-      <div className="font-medium truncate" title={String(value)}>
-        {value}
-      </div>
-      {statusLabel && (
-        <div className={`text-xs mt-1 ${statusColors[status]}`}>{statusLabel}</div>
-      )}
-    </div>
-  );
-}
-
-function InsightsPanel({ insights }: { insights: AIInsight[] }) {
-  return (
-    <div className="space-y-4">
-      {insights.length === 0 ? (
-        <p className="text-muted-foreground">No insights generated.</p>
-      ) : (
-        insights.map((insight, index) => (
-          <div
-            key={index}
-            className={`card border-l-4 p-4 ${
-              insight.severity === "high" ? "border-l-error bg-error/5" :
-              insight.severity === "medium" ? "border-l-warning bg-warning/5" :
-              "border-l-success bg-success/5"
-            }`}
-          >
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
-              <SeverityBadge severity={insight.severity} />
-              <span className="text-xs text-muted-foreground font-mono">{insight.metricReferenced}</span>
-            </div>
-            <h3 className="font-semibold mb-2">{insight.summary}</h3>
-            <p className="text-sm mb-2">{insight.finding}</p>
-            <p className="text-sm text-muted-foreground mb-3">
-              <strong>Impact:</strong> {insight.impact}
-            </p>
-            <div className="alert alert-ghost p-2 text-xs">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span><strong>For the agency:</strong> Consider reviewing this area during the next optimization sprint. {insight.severity === "high" ? "This should be prioritized." : insight.severity === "medium" ? "This is a meaningful improvement opportunity." : "This is a minor optimization."}</span>
-            </div>
-          </div>
-        ))
-      )}
-    </div>
-  );
-}
-
-function SeverityBadge({ severity }: { severity: string }) {
-  const colors: Record<string, string> = {
-    high: "bg-destructive text-destructive-foreground",
-    medium: "bg-yellow-500 text-yellow-500-foreground",
-    low: "bg-green-500 text-green-500-foreground",
-  };
-
-  return (
-    <span
-      className={`px-2 py-0.5 text-xs rounded-full capitalize ${
-        colors[severity] || "bg-muted"
-      }`}
-    >
-      {severity}
-    </span>
-  );
-}
-
-function RecommendationsPanel({ recommendations }: { recommendations: Recommendation[] }) {
-  const sorted = [...recommendations].sort((a, b) => a.priority - b.priority);
-
-  const effortColor = (effort: string) => {
-    switch (effort) {
-      case "low": return "badge-success";
-      case "medium": return "badge-warning";
-      case "high": return "badge-error";
-      default: return "badge-ghost";
-    }
-  };
-
-  const categoryLabel = (category: string) => {
-    const labels: Record<string, string> = {
-      seo: "SEO",
-      messaging: "Messaging",
-      cta: "CTA",
-      content: "Content",
-      ux: "UX",
-    };
-    return labels[category] || category;
-  };
-
-  return (
-    <div className="space-y-4">
-      {sorted.length === 0 ? (
-        <p className="text-muted-foreground">No recommendations generated.</p>
-      ) : (
-        sorted.map((rec, index) => (
-          <div key={index} className="card border p-4">
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
-              <span className="badge badge-primary badge-sm">Priority {rec.priority}</span>
-              <span className="badge badge-ghost badge-sm capitalize">{categoryLabel(rec.category)}</span>
-              <span className={`badge badge-sm capitalize ${effortColor(rec.effort)}`}>{rec.effort} effort</span>
-              {rec.metricReferenced && (
-                <span className="text-xs text-muted-foreground font-mono ml-auto">{rec.metricReferenced}</span>
-              )}
-            </div>
-            <h3 className="font-semibold mb-2">{rec.title}</h3>
-            <p className="text-sm text-muted-foreground">{rec.description}</p>
-          </div>
-        ))
-      )}
-    </div>
-  );
-}
-
-function PromptLogsPanel({
-  promptLog,
-  activeTab,
-  onTabChange,
-}: {
-  promptLog: PromptLog;
-  activeTab: PromptTabType;
-  onTabChange: (tab: PromptTabType) => void;
+function MetricBox({ icon, label, value, sublabel, ok, tip }: {
+  icon: React.ReactNode; label: string; value: string | number; sublabel?: string; ok?: boolean; tip?: string;
 }) {
   return (
-    <div className="space-y-4">
-      <div className="flex gap-2 mb-4">
-        <TabButton active={activeTab === "system"} onClick={() => onTabChange("system")}>
-          System Prompt
-        </TabButton>
-        <TabButton active={activeTab === "user"} onClick={() => onTabChange("user")}>
-          User Prompt
-        </TabButton>
-        <TabButton active={activeTab === "input"} onClick={() => onTabChange("input")}>
-          Structured Input
-        </TabButton>
-        <TabButton active={activeTab === "output"} onClick={() => onTabChange("output")}>
-          Model Output
-        </TabButton>
-      </div>
-
-      <div className="p-4 border rounded-md bg-muted/50">
-        <div className="flex gap-4 text-xs text-muted-foreground mb-3">
-          <span>Model: {promptLog.executionMeta.model}</span>
-          <span>Timestamp: {new Date(promptLog.executionMeta.timestamp).toLocaleString()}</span>
+    <div className={`group relative p-5 rounded-2xl ${ok !== undefined ? (ok ? "bg-[#7c3aed]/10 border border-[#7c3aed]/20" : "bg-[#13131a] border border-white/5") : "bg-[#13131a] border border-white/5"} transition-all hover:border-[#7c3aed]/30`}>
+      {tip && (
+        <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-[#1e1e2e] text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+          {tip}
         </div>
+      )}
+      <div className="flex items-start justify-between mb-3">
+        <span className="text-[#64748b]">{icon}</span>
+        {ok !== undefined && (
+          <span className={`w-2 h-2 rounded-full ${ok ? "bg-[#7c3aed]" : "bg-amber-500"}`} />
+        )}
+      </div>
+      <p className="text-xs text-[#64748b] mb-1">{label}</p>
+      <p className="text-xl font-bold text-white truncate" title={String(value)}>{value}</p>
+      {sublabel && <p className="text-xs text-[#64748b]/60 mt-1">{sublabel}</p>}
+    </div>
+  );
+}
 
-        <pre className="whitespace-pre-wrap text-xs overflow-auto max-h-96 font-mono">
-          {activeTab === "system" && promptLog.systemPrompt}
-          {activeTab === "user" && promptLog.userPrompt}
-          {activeTab === "input" &&
-            JSON.stringify(promptLog.structuredInput, null, 2)}
-          {activeTab === "output" && promptLog.rawModelOutput}
-        </pre>
+function InsightRow({ insight }: { insight: AIInsight }) {
+  const colors = {
+    high: { dot: "bg-red-400", badge: "bg-red-500/10 text-red-400" },
+    medium: { dot: "bg-amber-400", badge: "bg-amber-500/10 text-amber-400" },
+    low: { dot: "bg-emerald-400", badge: "bg-emerald-500/10 text-emerald-400" },
+  }[insight.severity];
+
+  return (
+    <div className="px-5 py-4 flex items-start gap-3">
+      <span className={`w-2 h-2 rounded-full mt-2 ${colors.dot}`} />
+      <div className="flex-1">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-sm font-medium text-white">{insight.summary}</span>
+          <span className={`text-xs px-2 py-0.5 rounded-full ${colors.badge}`}>{insight.severity}</span>
+        </div>
+        <p className="text-sm text-[#64748b]">{insight.finding}</p>
+        <p className="text-xs text-[#7c3aed] mt-2">{insight.impact}</p>
+      </div>
+    </div>
+  );
+}
+
+function RecommendationRow({ rec }: { rec: Recommendation }) {
+  return (
+    <div className="px-5 py-4 flex items-start gap-3">
+      <span className="w-7 h-7 rounded-lg bg-[#7c3aed]/20 text-[#7c3aed] text-sm font-bold flex items-center justify-center flex-shrink-0">
+        {rec.priority}
+      </span>
+      <div className="flex-1">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-sm font-medium text-white">{rec.title}</span>
+          <span className="text-xs text-[#64748b] capitalize">{rec.category}</span>
+          <span className={`text-xs ${
+            rec.effort === "low" ? "text-emerald-400" : rec.effort === "medium" ? "text-amber-400" : "text-red-400"
+          }`}>· {rec.effort} effort</span>
+        </div>
+        <p className="text-sm text-[#64748b]">{rec.description}</p>
       </div>
     </div>
   );
