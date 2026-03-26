@@ -1,4 +1,10 @@
+import OpenAI from "openai";
 import type { MetricsObject, DerivedSignals, AIAnalysis } from "@/types/audit";
+
+const client = new OpenAI({
+  apiKey: process.env.DASHSCOPE_API_KEY,
+  baseURL: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+});
 
 const SYSTEM_PROMPT = `You are a senior web strategist at a performance marketing agency specializing in SEO, conversion optimization, and UX.
 
@@ -21,16 +27,37 @@ SEVERITY:
 OUTPUT:
 Return ONLY valid JSON matching the schema. Do not include markdown formatting or explanation.`;
 
-function createUserPrompt(
+function parseAIResponse(content: string): AIAnalysis {
+  let jsonStr = content.trim();
+  if (jsonStr.startsWith("```")) {
+    jsonStr = jsonStr.replace(/^```[a-z]*\s*/i, "").replace(/\s*```$/, "");
+  }
+
+  try {
+    return JSON.parse(jsonStr);
+  } catch (e) {
+    throw new Error(`Failed to parse AI response: ${(e as Error).message}`);
+  }
+}
+
+export async function analyzeWithAI(
   url: string,
   metrics: MetricsObject,
   signals: DerivedSignals
-): string {
-  const dynamicContentWarning = metrics.dynamicContentSuspected
-    ? "\n⚠️ WARNING: This page appears to be JS-heavy. Some content may not have been captured by static scraping. Metrics may be incomplete.\n"
-    : "";
+): Promise<AIAnalysis> {
+  if (!process.env.DASHSCOPE_API_KEY) {
+    throw new Error("Missing DASHSCOPE_API_KEY in environment");
+  }
 
-  return `Analyze the webpage: ${url}${dynamicContentWarning}
+  const response = await client.chat.completions.create({
+    model: "qwen-plus",
+    temperature: 0.1,
+    max_tokens: 2000,
+    messages: [
+      { role: "system", content: SYSTEM_PROMPT },
+      {
+        role: "user",
+        content: `Analyze the webpage: ${url}
 
 ## Metrics
 ${JSON.stringify(metrics, null, 2)}
@@ -41,120 +68,23 @@ ${JSON.stringify(signals, null, 2)}
 ## Content Sample
 ${metrics.bodyText.slice(0, 3000)}
 
-Generate structural insights for:
-- SEO
-- Messaging clarity
-- CTA usage
-- Content depth
-- UX
-
-Each insight must:
-- reference a metric or signal
-- include impact
+Generate structural insights for SEO, Messaging, CTA, Content depth, and UX.
+Each insight must reference a metric or signal and include impact.
 
 Then provide 3-5 prioritized recommendations with effort estimates.
+Priority 1 = highest, 5 = lowest. Include effort: low/medium/high.
 
-RECOMMENDATION RULES:
-- Priority 1 = highest, 5 = lowest
-- Tie priority to severity: high severity → priority 1-2, medium → 2-3, low → 4-5
-- Include effort estimate: low/medium/high
-- Make recommendations actionable for a web agency (specific steps they can take)
-- Each recommendation must reference a metric
-
-Return ONLY valid JSON with this exact structure:
+Return ONLY valid JSON:
 {
-  "insights": [
-    {
-      "summary": "...",
-      "finding": "...",
-      "impact": "...",
-      "metricReferenced": "...",
-      "severity": "high" | "medium" | "low"
-    }
-  ],
-  "recommendations": [
-    {
-      "title": "...",
-      "description": "...",
-      "priority": 1-5,
-      "category": "seo" | "messaging" | "cta" | "content" | "ux",
-      "effort": "low" | "medium" | "high",
-      "metricReferenced": "..."
-    }
-  ]
-}`;
-}
-
-export async function analyzeWithAI(
-  url: string,
-  metrics: MetricsObject,
-  signals: DerivedSignals
-): Promise<AIAnalysis> {
-  const apiKey = process.env.DASHSCOPE_API_KEY || process.env.OPENROUTER_API_KEY;
-
-  if (!apiKey) {
-    throw new Error(
-      "Missing API key. Set DASHSCOPE_API_KEY or OPENROUTER_API_KEY in environment."
-    );
-  }
-
-  const userPrompt = createUserPrompt(url, metrics, signals);
-
-  // Use Qwen model via DashScope or OpenRouter
-  const endpoint = "https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation";
-
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "qwen-plus",
-      input: {
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: userPrompt },
-        ],
+  "insights": [{ "summary": "...", "finding": "...", "impact": "...", "metricReferenced": "...", "severity": "high|medium|low" }],
+  "recommendations": [{ "title": "...", "description": "...", "priority": 1-5, "category": "seo|messaging|cta|content|ux", "effort": "low|medium|high", "metricReferenced": "..." }]
+}`,
       },
-      parameters: {
-        temperature: 0.1, // Low temperature for consistent structured output
-        max_tokens: 2000,
-      },
-    }),
+    ],
   });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`AI API error: ${response.status} - ${errorText}`);
-  }
+  const content = response.choices[0]?.message?.content;
+  if (!content) throw new Error("Empty response from AI");
 
-  const data = await response.json();
-
-  // Parse Qwen/DashScope response format
-  const content = data.output?.text || "";
-
-  if (!content) {
-    throw new Error("Empty response from AI model");
-  }
-
-  // Extract JSON from response (handle potential markdown wrapping)
-  let jsonStr = content.trim();
-  if (jsonStr.startsWith("```json")) {
-    jsonStr = jsonStr.replace(/^```json\s*/, "").replace(/\s*```$/, "");
-  } else if (jsonStr.startsWith("```")) {
-    jsonStr = jsonStr.replace(/^```\s*/, "").replace(/\s*```$/, "");
-  }
-
-  try {
-    const result = JSON.parse(jsonStr);
-    return {
-      insights: result.insights || [],
-      recommendations: result.recommendations || [],
-    };
-  } catch (e) {
-    throw new Error(
-      `Failed to parse AI response as JSON: ${(e as Error).message}\nRaw output: ${jsonStr}`
-    );
-  }
+  return parseAIResponse(content);
 }
