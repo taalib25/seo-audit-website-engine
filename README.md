@@ -1,58 +1,60 @@
 # AI Website Audit Engine
 
-A lightweight, single-page website audit tool that combines **deterministic metrics extraction**, **derived signal interpretation**, and **constrained LLM reasoning** — with full traceability from metrics → insights → recommendations.
-
-## Core Differentiator
-
-> A hybrid audit system combining deterministic extraction, derived signal interpretation, and constrained LLM reasoning — with full traceability.
+A lightweight, single-page website audit tool that combines **deterministic metrics extraction**, **derived signal interpretation**, and **constrained LLM reasoning** — with full traceability from metrics to insights to recommendations.
 
 ## Architecture
 
 ```
 [Frontend UI]
-       ↓
+       |
 POST /api/audit
-       ↓
-[Layer 1: Scraper] → Raw Metrics (axios + cheerio)
-       ↓
-[Layer 1.5: Signal Engine] → Derived Signals
-       ↓
-[Layer 2: AI Engine] → Structured Insights + Recommendations (Qwen)
-       ↓
-[Prompt Logger] → Full trace (input → prompt → output)
-       ↓
+       |
+[Layer 1: Scraper] ---------> Raw Metrics (axios + cheerio)
+       |
+[Layer 1.5: Signal Engine] --> Derived Signals
+       |
+[Layer 2: Multi-Model AI Pipeline]
+       |
+   +---+---+
+   |       |
+ [2A]   [2B]         ← PARALLEL
+ SEO    Content/UX
+ coder  qwen3.5
+   |       |
+   +---+---+
+       |
+     [2C]             ← SYNTHESIS
+   qwen3.5-plus
+   Merge + Rank
+       |
+[Prompt Logger] --> Full trace per layer
+       |
 [Response to UI]
 ```
 
 ## Tech Stack
 
 - **Framework:** Next.js 16 (App Router)
-- **Language:** TypeScript
+- **Language:** TypeScript (strict mode)
 - **Styling:** Tailwind CSS v4
-- **Scraping:** axios + cheerio (no JS rendering, fast)
-- **AI:** Qwen model via DashScope/OpenRouter (direct API, no SDK)
-- **Validation:** Zod schemas
+- **Scraping:** axios + cheerio (no JS rendering — fast, deterministic)
+- **AI:** Multi-model pipeline via DashScope (qwen3-coder-plus, qwen3.5-plus)
+- **Validation:** Zod schemas (input types + AI output validation)
 
 ## Getting Started
 
 ### Prerequisites
 
-- [Bun](https://bun.sh/) installed
-- API key for Qwen model (DashScope or OpenRouter)
+- [Bun](https://bun.sh/) installed (or npm/npx)
+- API key for DashScope (Qwen models)
 
 ### Installation
 
 ```bash
-# Install dependencies
 bun install
-
-# Copy environment example
-cp .env.local.example .env.local
-
-# Edit .env.local and add your API key
+cp .env.example .env
+# Edit .env and add your API key
 # DASHSCOPE_API_KEY=your_key_here
-# OR
-# OPENROUTER_API_KEY=your_key_here
 ```
 
 ### Development
@@ -65,99 +67,107 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ## AI Pipeline Design
 
-This system uses a **hybrid architecture** to ensure AI outputs are grounded in real data:
-
 ### Layer 1: Deterministic Extraction (No AI)
 
 ```
-HTML → cheerio parsing → MetricsObject
+HTML --> cheerio parsing --> MetricsObject
 ```
 
 Pure extraction with no interpretation:
 - Meta tags (title, description, OG tags)
-- Heading structure (H1-H6 counts)
+- Heading structure (H1-H6 counts + actual heading text)
 - Word count
-- CTA keyword detection
-- Link analysis (internal/external)
-- Image alt text coverage
+- CTA detection (scans actual `<a>` and `<button>` elements for 35+ action phrases, plus elements with CTA-like classes)
+- Link analysis (internal/external — relative paths correctly classified as internal)
+- Image analysis: count + alt text coverage
+
+Additional data collected for AI context (not displayed in UI):
+- Technical SEO: canonical, robots, viewport, language, charset, favicon, Schema.org/JSON-LD, Twitter Card
+- Performance: TTFB, script/stylesheet counts, render-blocking scripts, lazy loading, image dimensions
+- Forms, buttons (conversion path indicators)
 
 ### Layer 1.5: Signal Engine (Interpretation Layer)
 
 ```
-MetricsObject → DerivedSignals
+MetricsObject --> DerivedSignals
 ```
 
-Derived signals add interpretability:
-- **CTA Density:** low | moderate | high
+Transforms raw numbers into categorical assessments that the AI can reason about:
 - **Content Depth:** thin | moderate | deep
+- **CTA Density:** low | moderate | high
 - **Heading Structure:** valid | invalid
 - **Alt Text Coverage:** poor | good
-- **Internal Link Ratio:** 0-1
 - **Meta Optimization:** poor | average | good
+- Plus: heading hierarchy, schema.org presence, social meta completeness, technical SEO basics, performance indicator
 
-### Layer 2: AI Engine (Constrained Reasoning)
+### Layer 2: Multi-Model AI Pipeline (Parallel + Synthesis)
 
 ```
-Metrics + Signals → Qwen → Structured JSON
+Layer 2A (SEO/Technical)     Layer 2B (Content/UX)
+  qwen3-coder-plus              qwen3.5-plus
+  Strict JSON, fast             Deep reasoning
+         |                          |
+         +----------+----------+
+                    |
+            Layer 2C (Synthesis)
+              qwen3.5-plus
+            Merge + Rank + Validate
 ```
+
+**Why multi-model?** Each model is chosen for its strength:
+- **qwen3-coder-plus** (Layer 2A): Coding models produce the most reliable structured JSON. Handles technical SEO metrics where precision matters.
+- **qwen3.5-plus** (Layer 2B): Deep reasoning for nuanced content quality and messaging assessment.
+- **qwen3.5-plus** (Layer 2C): Balanced reasoning for final synthesis. Merges both analyses, deduplicates, and ranks recommendations by business impact.
+
+**Layers 2A and 2B run in parallel** — total latency = max(A, B) + C, not A + B + C.
 
 Key constraints:
-- Every insight MUST reference a specific metric or signal
-- Impact field explains WHY this matters (SEO, UX, conversions)
-- Severity levels: high | medium | low
-- Zod schema validation on output
+- Every insight MUST cite a specific metric value
+- Benchmark injection in prompts (e.g., "title 30-60 chars optimal", "TTFB under 600ms good") grounds AI against industry standards
+- **Zod schema validation on AI output** (with retry on validation failure)
+- Per-layer model fallback to qwen-plus if primary model unavailable
 
-### Why Direct API Calls (No SDK)?
+### Why This Architecture?
 
-We use direct `fetch()` calls instead of higher-level SDKs to ensure:
-- **Full transparency** of prompts sent
-- **Precise control** over inputs/outputs
-- **Accurate logging** for reproducibility
-- **No hidden abstractions** obscuring what the model receives
-
-This aligns with the "prompt logs / reasoning traces" requirement — what we log is exactly what was sent.
+The AI never sees raw HTML. It only receives structured, pre-interpreted data. This means:
+- **Grounded outputs** — insights reference real numbers, not hallucinated observations
+- **Reproducible** — same metrics always produce similar analysis
+- **Debuggable** — the Prompt Logger shows exactly what was sent and received per layer
+- **Token-efficient** — condensed metrics use ~500-800 tokens instead of dumping raw HTML
 
 ## Data Model
 
-### MetricsObject (Raw)
+### MetricsObject (Displayed in UI)
+
+```typescript
+{
+  wordCount: number;
+  headings: { h1, h2, h3 };
+  ctaCount: number;
+  links: { internal, external, total };
+  images: { total, missingAltPercent };
+  meta: { title, titleLength, description, descriptionLength };
+}
+```
+
+### MetricsObject (Full — sent to AI for richer analysis)
 
 ```typescript
 {
   url: string;
-  meta: { title, titleLength, description, descriptionLength, keywords, ogTags };
+  meta: { title, description, keywords, ogTags };
   headings: { h1, h2, h3, h4, h5, h6 };
+  headingTexts: { h1: string[], h2: string[] };
   wordCount: number;
-  bodyText: string;
   ctaCount: number;
   ctaKeywords: string[];
+  buttonCount: number;
+  formCount: number;
   links: { internal, external, total };
-  images: { total, withAlt, missingAlt, missingAltPercent };
-}
-```
-
-### DerivedSignals (Interpreted)
-
-```typescript
-{
-  ctaDensity: number;
-  ctaDensityLabel: "low" | "moderate" | "high";
-  contentDepth: "thin" | "moderate" | "deep";
-  headingStructure: "valid" | "invalid";
-  altTextCoverage: "poor" | "good";
-  internalLinkRatio: number;
-  metaOptimization: "poor" | "average" | "good";
-}
-```
-
-### AIInsight (Structured)
-
-```typescript
-{
-  summary: string;
-  finding: string;
-  impact: string;      // WHY this matters
-  metricReferenced: string;  // Exact values
-  severity: "high" | "medium" | "low";
+  images: { total, withAlt, missingAlt, missingAltPercent, withLazyLoading, withDimensions };
+  seo: { canonical, robotsMeta, viewport, lang, charset, favicon, schemaOrgTypes, twitterCard, scriptCount, stylesheetCount, renderBlockingScripts };
+  performance: { ttfbMs, redirected, finalUrl, htmlSize };
+  dynamicContentSuspected: boolean;
 }
 ```
 
@@ -165,54 +175,36 @@ This aligns with the "prompt logs / reasoning traces" requirement — what we lo
 
 ```typescript
 {
-  systemPrompt: string;
-  userPrompt: string;
+  systemPrompt: string;       // Exact system prompt sent to each model
+  userPrompt: string;         // Exact user message sent per layer
   structuredInput: { metrics, signals };
-  rawModelOutput: string;
+  rawModelOutput: string;     // Unprocessed responses from all 3 layers
   executionMeta: { model, timestamp, url };
 }
 ```
-
-## UI Structure
-
-1. **Metrics Panel** - Clean numbers from scraping
-2. **Signals Panel** - Derived interpretations
-3. **Insights Panel** - AI insights grouped by severity
-4. **Recommendations Panel** - Prioritized action items
-5. **Prompt Logs Panel** - 4 tabs (System | User | Input | Output)
 
 ## Trade-offs
 
 | Decision | Benefit | Trade-off |
 |----------|---------|-----------|
-| Cheerio over Puppeteer | Fast, lightweight | No JS rendering |
-| Direct API calls | Full transparency | More boilerplate |
-| No caching | Simple architecture | Repeated crawls cost more |
-| Single-page only | Focused scope | No site-wide analysis |
-| Structured outputs | Consistent JSON | May miss edge cases |
+| Cheerio over Puppeteer | Fast, lightweight, deterministic | No JS rendering — dynamic sites show limited content |
+| Multi-model pipeline (3 calls) | Each model plays to its strength; parallel = fast | More complex orchestration than single call |
+| Parallel Layers 2A+2B | Latency = max(A,B) + C, not A+B+C | Both calls must complete before synthesis begins |
+| Element-based CTA detection | Counts actual clickable CTAs, not body text mentions | May miss CTAs using unusual patterns (e.g., div with onclick) |
+| Condensed prompt (no body text) | ~75% fewer tokens, less noise | AI can't assess actual copy quality or tone |
+| Zod validation + retry | Catches malformed responses automatically | Adds one extra API call on validation failure |
+| Extra metrics for AI only | Richer AI analysis without cluttering UI | More data collected than displayed |
 
-## What Makes This Top-Tier
+## What I Would Improve With More Time
 
-### 1. AI is Not Magic
-
-```
-Extract → Interpret → Then use AI
-```
-
-The AI only sees structured data, not raw HTML. This grounds outputs in reality.
-
-### 2. Constrained Model
-
-- Schema validation (Zod)
-- Strict system prompts
-- Metric referencing required
-- Impact explanation mandatory
-
-### 3. Debuggable
-
-- Full prompt logs visible in UI
-- Structured input shows exactly what AI received
-- Timestamped execution metadata
+- **JS rendering** via Playwright for SPA/dynamic sites
+- **Caching layer** to avoid re-scraping the same URL within a time window
+- **Streaming responses** for real-time insight generation (stream Layer 2A/2B results as they arrive)
+- **Display extended metrics** — technical SEO, performance, derived signals in expandable sections
+- **Comparative analysis** — audit two URLs and diff their metrics
+- **Readability scoring** (Flesch-Kincaid) for content quality assessment
+- **Keyword density analysis** in titles and headings vs. page content
+- **Visual page analysis** — use a vision model to analyze a screenshot for UX layout issues
 
 ## API Reference
 
@@ -237,17 +229,17 @@ The AI only sees structured data, not raw HTML. This grounds outputs in reality.
 
 **Errors:**
 - `400` - Missing or invalid URL
+- `401` - Invalid API key
 - `500` - Server error (missing API key, etc.)
-- `502` - Failed to fetch URL
+- `502` - Failed to fetch target URL (403 blocked, timeout, etc.)
 
 ## Environment Variables
 
 | Variable | Description |
 |----------|-------------|
-| `DASHSCOPE_API_KEY` | API key for DashScope (Qwen) |
-| `OPENROUTER_API_KEY` | API key for OpenRouter (Qwen) |
+| `DASHSCOPE_API_KEY` | API key for DashScope (Qwen models) |
 
-Set at least one in `.env.local`.
+Set in `.env` file.
 
 ## License
 

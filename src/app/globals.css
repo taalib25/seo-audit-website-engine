@@ -4,21 +4,22 @@
 }
 
 :root {
-  --bg: #0a0a0f;
-  --bg-card: #13131a;
-  --primary: #7c3aed;
-  --primary-hover: #8b5cf6;
-  --primary-subtle: rgba(124, 58, 237, 0.1);
-  --primary-border: rgba(124, 58, 237, 0.2);
-  --primary-border-hover: rgba(124, 58, 237, 0.3);
-  --primary-border-strong: rgba(124, 58, 237, 0.4);
-  --text: #f1f5f9;
-  --text-muted: #64748b;
-  --text-muted-subtle: rgba(100, 116, 139, 0.6);
-  --border: #1e1e2e;
-  --border-subtle: rgba(255, 255, 255, 0.05);
+  --bg: #13111c;
+  --bg-card: #1a1825;
+  --bg-elevated: #211f2e;
+  --primary: #8b5cf6;
+  --primary-hover: #a78bfa;
+  --primary-subtle: rgba(139, 92, 246, 0.08);
+  --primary-border: rgba(139, 92, 246, 0.15);
+  --primary-border-hover: rgba(139, 92, 246, 0.25);
+  --primary-border-strong: rgba(139, 92, 246, 0.4);
+  --text: #e4e4e7;
+  --text-muted: #71717a;
+  --text-muted-subtle: rgba(113, 113, 122, 0.6);
+  --border: #27272a;
+  --border-subtle: rgba(255, 255, 255, 0.06);
   --border-hover: rgba(255, 255, 255, 0.1);
-  --success: #7c3aed;
+  --success: #10b981;
   --warning: #f59e0b;
   --error: #ef4444;
 }
@@ -49,14 +50,8 @@ body {
   color: white;
 }
 
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
 ::-webkit-scrollbar-thumb {
-  background: #2a2a3a;
+  background: var(--bg-elevated);
   border-radius: 3px;
 }
 
@@ -84,7 +79,23 @@ body {
 }
 
 .shimmer {
-  background: linear-gradient(90deg, transparent 0%, rgba(124, 58, 237, 0.15) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(107, 33, 168, 0.25) 50%, transparent 100%);
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
+}
+
+.glass {
+  background: rgba(26, 24, 37, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 8px 32px rgba(19, 17, 28, 0.6);
+}
+
+.glass {
+  background: rgba(39, 40, 57, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }

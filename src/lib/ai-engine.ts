@@ -1,90 +1,325 @@
 import OpenAI from "openai";
-import type { MetricsObject, DerivedSignals, AIAnalysis } from "@/types/audit";
+import type { MetricsObject, DerivedSignals } from "@/types/audit";
+import { AIAnalysisSchema, type AIAnalysis } from "@/types/audit";
 
 const client = new OpenAI({
   apiKey: process.env.DASHSCOPE_API_KEY,
   baseURL: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
 });
 
-const SYSTEM_PROMPT = `You are a senior web strategist at a performance marketing agency specializing in SEO, conversion optimization, and UX.
+// ============ MODEL CONFIGURATION ============
+// Each layer uses the model best suited to its task
+const MODELS = {
+  // Layer 2A: SEO/Technical — coding model for strict JSON, fast
+  seoTechnical: "qwen3-coder-plus",
+  // Layer 2B: Content/Messaging/UX — deep reasoning for nuanced analysis
+  contentUx: "qwen3.5-plus",
+  // Layer 2C: Synthesis — balanced reasoning + speed for final ranking
+  synthesis: "qwen3.5-plus",
+  // Fallback if any model fails
+  fallback: "qwen-plus",
+} as const;
 
-You will analyze structured webpage data.
+// ============ SYSTEM PROMPTS (per-layer) ============
+// Exported for prompt logging — single source of truth
 
-STRICT RULES:
-- Every insight MUST reference a specific metric or signal.
-- If no issue exists, explicitly state the area is healthy and explain why.
-- DO NOT give generic advice.
-- DO NOT infer beyond the provided data.
-- The "metricReferenced" field must contain exact values (e.g. "CTA count: 2", "Alt text missing: 50%").
-- The "impact" field must explain why this matters for SEO, UX, or conversions.
-- If the page appears to be JS-heavy or dynamic, note this in your analysis.
+const SEO_SYSTEM_PROMPT = `You are an SEO technical analyst. Analyze structured webpage metrics for technical SEO and on-page optimization issues.
 
-SEVERITY:
-- high → directly harms conversions/SEO
-- medium → meaningful improvement opportunity
-- low → minor optimization
+RULES:
+- Every insight MUST cite a specific metric value (e.g. "H1 count: 0", "Missing alt: 93%").
+- State when an area is healthy and why.
+- Never infer beyond provided data.
+- If dynamicContentSuspected is true, note metrics may be incomplete.
 
-OUTPUT:
-Return ONLY valid JSON matching the schema. Do not include markdown formatting or explanation.`;
+SEVERITY: high = directly harms SEO/indexing, medium = improvement opportunity, low = minor optimization.
 
-function parseAIResponse(content: string): AIAnalysis {
+Return ONLY valid JSON. No markdown wrapping.`;
+
+const CONTENT_SYSTEM_PROMPT = `You are a content strategist and UX analyst. Analyze webpage signals for messaging clarity, CTA effectiveness, content depth, and user experience.
+
+RULES:
+- Every insight MUST cite a specific metric value (e.g. "CTA count: 2", "Word count: 353").
+- Assess messaging quality, conversion path clarity, and content persuasiveness.
+- Never infer beyond provided data.
+
+SEVERITY: high = directly harms conversions/engagement, medium = improvement opportunity, low = minor optimization.
+
+Return ONLY valid JSON. No markdown wrapping.`;
+
+const SYNTHESIS_SYSTEM_PROMPT = `You synthesize SEO and content/UX analyses into a unified, prioritized action plan for a web agency.
+
+RULES:
+- Merge and deduplicate insights from both analyses.
+- Rank recommendations by business impact (SEO + conversions combined).
+- Priority 1 = highest impact. Tie priority to severity.
+- Every insight must cite a specific metric value.
+- Recommendations must be actionable for a web agency (specific steps).
+
+Return ONLY valid JSON. No markdown wrapping.`;
+
+// Composite prompt for logging — shows the full multi-layer strategy
+export const SYSTEM_PROMPT = `[MULTI-LAYER AI PIPELINE]
+
+Layer 2A — SEO/Technical Analysis (${MODELS.seoTechnical}):
+${SEO_SYSTEM_PROMPT}
+
+Layer 2B — Content/UX Analysis (${MODELS.contentUx}):
+${CONTENT_SYSTEM_PROMPT}
+
+Layer 2C — Synthesis & Ranking (${MODELS.synthesis}, same model — different role/prompt):
+${SYNTHESIS_SYSTEM_PROMPT}`;
+
+// ============ TYPES ============
+
+interface AnalysisResult {
+  analysis: AIAnalysis;
+  rawOutput: string;
+  userPrompt: string;
+  modelUsed: string;
+}
+
+// ============ HELPERS ============
+
+function buildCondensedMetrics(metrics: MetricsObject) {
+  return {
+    meta: {
+      title: metrics.meta.title,
+      description: metrics.meta.description,
+      keywords: metrics.meta.keywords || undefined,
+    },
+    headings: { h1: metrics.headings.h1, h2: metrics.headings.h2, h3: metrics.headings.h3 },
+    headingTexts: metrics.headingTexts,
+    wordCount: metrics.wordCount,
+    ctaCount: metrics.ctaCount,
+    ctaKeywords: metrics.ctaKeywords,
+    buttonCount: metrics.buttonCount,
+    formCount: metrics.formCount,
+    links: metrics.links,
+    images: {
+      total: metrics.images.total,
+      missingAltPercent: metrics.images.missingAltPercent,
+      withLazyLoading: metrics.images.withLazyLoading,
+      withDimensions: metrics.images.withDimensions,
+    },
+    seo: metrics.seo,
+    dynamicContentSuspected: metrics.dynamicContentSuspected || undefined,
+  };
+}
+
+function parseJSON(content: string): unknown {
   let jsonStr = content.trim();
   if (jsonStr.startsWith("```")) {
     jsonStr = jsonStr.replace(/^```[a-z]*\s*/i, "").replace(/\s*```$/, "");
   }
+  return JSON.parse(jsonStr);
+}
 
+async function callModel(
+  model: string,
+  systemPrompt: string,
+  userPrompt: string,
+  maxTokens: number,
+  fallbackModel?: string
+): Promise<{ content: string; model: string }> {
   try {
-    return JSON.parse(jsonStr);
-  } catch (e) {
-    throw new Error(`Failed to parse AI response: ${(e as Error).message}`);
+    const response = await client.chat.completions.create({
+      model,
+      temperature: 0.1,
+      max_tokens: maxTokens,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+    });
+    const content = response.choices[0]?.message?.content;
+    if (!content) throw new Error(`Empty response from ${model}`);
+    return { content, model };
+  } catch (err) {
+    if (fallbackModel) {
+      console.warn(`${model} failed, falling back to ${fallbackModel}:`, err);
+      const response = await client.chat.completions.create({
+        model: fallbackModel,
+        temperature: 0.1,
+        max_tokens: maxTokens,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+      });
+      const content = response.choices[0]?.message?.content;
+      if (!content) throw new Error(`Empty response from ${fallbackModel}`);
+      return { content, model: fallbackModel };
+    }
+    throw err;
   }
 }
+
+// ============ LAYER 2A: SEO/Technical Analysis ============
+
+function buildSeoPrompt(url: string, metrics: MetricsObject, signals: DerivedSignals): string {
+  const seoMetrics = {
+    meta: { title: metrics.meta.title, description: metrics.meta.description },
+    headings: { h1: metrics.headings.h1, h2: metrics.headings.h2, h3: metrics.headings.h3 },
+    headingTexts: metrics.headingTexts,
+    images: {
+      total: metrics.images.total,
+      missingAltPercent: metrics.images.missingAltPercent,
+      withLazyLoading: metrics.images.withLazyLoading,
+      withDimensions: metrics.images.withDimensions,
+    },
+    links: metrics.links,
+    seo: metrics.seo,
+    performance: metrics.performance,
+    dynamicContentSuspected: metrics.dynamicContentSuspected || undefined,
+  };
+
+  const seoSignals = {
+    headingStructure: signals.headingStructure,
+    headingHierarchy: signals.headingHierarchy,
+    altTextCoverage: signals.altTextCoverage,
+    metaOptimization: signals.metaOptimization,
+    schemaOrgPresence: signals.schemaOrgPresence,
+    socialMetaCompleteness: signals.socialMetaCompleteness,
+    technicalSeoBasics: signals.technicalSeoBasics,
+    performanceIndicator: signals.performanceIndicator,
+  };
+
+  return `Webpage: ${url}
+Metrics: ${JSON.stringify(seoMetrics)}
+Signals: ${JSON.stringify(seoSignals)}
+
+Benchmarks: title 30-60 chars optimal, description 120-160 chars, exactly 1 H1, alt text 100% coverage, TTFB under 600ms good / over 1500ms poor, 0 render-blocking scripts ideal, images should have lazy loading and width/height attributes.
+
+Analyze technical SEO: meta optimization, heading structure, alt text, structured data, canonical/robots, render-blocking resources, image optimization, TTFB.
+Return 2-3 insights focused on SEO/technical issues.
+
+Return JSON:
+{"insights":[{"summary":"...","finding":"...","impact":"...","metricReferenced":"...","severity":"high|medium|low"}]}`;
+}
+
+// ============ LAYER 2B: Content/UX Analysis ============
+
+function buildContentPrompt(url: string, metrics: MetricsObject, signals: DerivedSignals): string {
+  const contentMetrics = {
+    meta: { title: metrics.meta.title, description: metrics.meta.description },
+    headingTexts: metrics.headingTexts,
+    wordCount: metrics.wordCount,
+    ctaCount: metrics.ctaCount,
+    ctaKeywords: metrics.ctaKeywords,
+    buttonCount: metrics.buttonCount,
+    formCount: metrics.formCount,
+    links: { internal: metrics.links.internal, external: metrics.links.external },
+  };
+
+  const contentSignals = {
+    ctaDensity: signals.ctaDensity,
+    ctaDensityLabel: signals.ctaDensityLabel,
+    contentDepth: signals.contentDepth,
+    internalLinkRatio: signals.internalLinkRatio,
+  };
+
+  return `Webpage: ${url}
+Metrics: ${JSON.stringify(contentMetrics)}
+Signals: ${JSON.stringify(contentSignals)}
+
+Benchmarks: 800+ words for ranking competitiveness, 3-5 distinct CTAs per page, at least 1 lead capture form, H1 should align with meta title in theme, CTA keywords should be action-oriented (not generic "submit" or "click here").
+
+Analyze: messaging clarity (H1/H2 text quality, meta alignment), CTA effectiveness (count vs buttons, keyword quality), content depth (word count adequacy), UX concerns (form presence, navigation).
+Return 2-3 insights focused on content/messaging/CTA/UX.
+
+Return JSON:
+{"insights":[{"summary":"...","finding":"...","impact":"...","metricReferenced":"...","severity":"high|medium|low"}]}`;
+}
+
+// ============ LAYER 2C: Synthesis ============
+
+function buildSynthesisPrompt(
+  url: string,
+  seoInsights: string,
+  contentInsights: string,
+  signals: DerivedSignals
+): string {
+  return `Webpage: ${url}
+
+SEO/Technical Analysis:
+${seoInsights}
+
+Content/UX Analysis:
+${contentInsights}
+
+Signals Summary: ${JSON.stringify(signals)}
+
+Merge insights from both analyses (keep all, deduplicate if overlapping). Then produce 3-5 prioritized recommendations.
+Priority 1 = highest business impact. Include effort: low/medium/high.
+Each recommendation must reference a specific metric and be actionable for a web agency.
+
+Return JSON:
+{"insights":[{"summary":"...","finding":"...","impact":"...","metricReferenced":"...","severity":"high|medium|low"}],"recommendations":[{"title":"...","description":"...","priority":1-5,"category":"seo|messaging|cta|content|ux","effort":"low|medium|high","metricReferenced":"..."}]}`;
+}
+
+// ============ MAIN PIPELINE ============
 
 export async function analyzeWithAI(
   url: string,
   metrics: MetricsObject,
   signals: DerivedSignals
-): Promise<AIAnalysis> {
+): Promise<AnalysisResult> {
   if (!process.env.DASHSCOPE_API_KEY) {
     throw new Error("Missing DASHSCOPE_API_KEY in environment");
   }
 
-  const response = await client.chat.completions.create({
-    model: "qwen-plus",
-    temperature: 0.1,
-    max_tokens: 2000,
-    messages: [
-      { role: "system", content: SYSTEM_PROMPT },
-      {
-        role: "user",
-        content: `Analyze the webpage: ${url}
+  const seoPrompt = buildSeoPrompt(url, metrics, signals);
+  const contentPrompt = buildContentPrompt(url, metrics, signals);
 
-## Metrics
-${JSON.stringify(metrics, null, 2)}
+  // Layer 2A + 2B: Run in parallel
+  const [seoResult, contentResult] = await Promise.all([
+    callModel(MODELS.seoTechnical, SEO_SYSTEM_PROMPT, seoPrompt, 1500, MODELS.fallback),
+    callModel(MODELS.contentUx, CONTENT_SYSTEM_PROMPT, contentPrompt, 1500, MODELS.fallback),
+  ]);
 
-## Derived Signals
-${JSON.stringify(signals, null, 2)}
+  // Layer 2C: Synthesize
+  const synthesisPrompt = buildSynthesisPrompt(url, seoResult.content, contentResult.content, signals);
+  const synthesisResult = await callModel(MODELS.synthesis, SYNTHESIS_SYSTEM_PROMPT, synthesisPrompt, 3000, MODELS.fallback);
 
-## Content Sample
-${metrics.bodyText.slice(0, 3000)}
+  // Compose the full user prompt for logging (shows all 3 layers)
+  const fullUserPrompt = `[LAYER 2A — SEO/Technical → ${seoResult.model}]
+${seoPrompt}
 
-Generate structural insights for SEO, Messaging, CTA, Content depth, and UX.
-Each insight must reference a metric or signal and include impact.
+[LAYER 2B — Content/UX → ${contentResult.model}]
+${contentPrompt}
 
-Then provide 3-5 prioritized recommendations with effort estimates.
-Priority 1 = highest, 5 = lowest. Include effort: low/medium/high.
+[LAYER 2C — Synthesis → ${synthesisResult.model}]
+${synthesisPrompt}`;
 
-Return ONLY valid JSON:
-{
-  "insights": [{ "summary": "...", "finding": "...", "impact": "...", "metricReferenced": "...", "severity": "high|medium|low" }],
-  "recommendations": [{ "title": "...", "description": "...", "priority": 1-5, "category": "seo|messaging|cta|content|ux", "effort": "low|medium|high", "metricReferenced": "..." }]
-}`,
-      },
-    ],
-  });
+  // Raw output log shows all model responses
+  const fullRawOutput = `[LAYER 2A — ${seoResult.model}]
+${seoResult.content}
 
-  const content = response.choices[0]?.message?.content;
-  if (!content) throw new Error("Empty response from AI");
+[LAYER 2B — ${contentResult.model}]
+${contentResult.content}
 
-  return parseAIResponse(content);
+[LAYER 2C — ${synthesisResult.model}]
+${synthesisResult.content}`;
+
+  const modelsUsed = `${seoResult.model} + ${contentResult.model} → ${synthesisResult.model}`;
+
+  // Validate final synthesis output with Zod
+  try {
+    const analysis = AIAnalysisSchema.parse(parseJSON(synthesisResult.content));
+    return { analysis, rawOutput: fullRawOutput, userPrompt: fullUserPrompt, modelUsed: modelsUsed };
+  } catch (firstError) {
+    console.warn("Synthesis validation failed, retrying with repair prompt:", firstError);
+
+    const repairPrompt = `Your previous response had invalid JSON. Fix and return ONLY valid JSON:
+{"insights":[{"summary":"string","finding":"string","impact":"string","metricReferenced":"string","severity":"high|medium|low"}],"recommendations":[{"title":"string","description":"string","priority":1-5,"category":"seo|messaging|cta|content|ux","effort":"low|medium|high","metricReferenced":"string"}]}
+
+Previous response (fix this):
+${synthesisResult.content.slice(0, 1500)}`;
+
+    const retryResult = await callModel(MODELS.synthesis, SYNTHESIS_SYSTEM_PROMPT, repairPrompt, 3000, MODELS.fallback);
+    const analysis = AIAnalysisSchema.parse(parseJSON(retryResult.content));
+
+    const retryRawOutput = `${fullRawOutput}\n\n[RETRY — ${retryResult.model}]\n${retryResult.content}`;
+    return { analysis, rawOutput: retryRawOutput, userPrompt: fullUserPrompt, modelUsed: modelsUsed };
+  }
 }

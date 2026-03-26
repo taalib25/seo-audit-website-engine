@@ -20,6 +20,13 @@ export function deriveSignals(metrics: MetricsObject): DerivedSignals {
   const headingStructure: DerivedSignals["headingStructure"] =
     metrics.headings.h1 === 1 ? "valid" : "invalid";
 
+  // Heading Hierarchy: proper nesting check
+  const headingHierarchy: DerivedSignals["headingHierarchy"] =
+    metrics.headings.h1 >= 1 &&
+    (metrics.headings.h3 === 0 || metrics.headings.h2 >= 1)
+      ? "proper"
+      : "broken";
+
   // Alt Text Coverage
   const altTextCoverage: DerivedSignals["altTextCoverage"] =
     metrics.images.missingAltPercent > 30 ? "poor" : "good";
@@ -40,13 +47,50 @@ export function deriveSignals(metrics: MetricsObject): DerivedSignals {
         ? "average"
         : "poor";
 
+  // Schema.org Presence
+  const schemaOrgPresence: DerivedSignals["schemaOrgPresence"] =
+    metrics.seo.schemaOrgTypes.length > 0 ? "present" : "absent";
+
+  // Social Meta Completeness (OG + Twitter)
+  const hasOgTitle = !!metrics.meta.ogTags["title"];
+  const hasOgDesc = !!metrics.meta.ogTags["description"];
+  const hasOgImage = !!metrics.meta.ogTags["image"];
+  const hasTwitterCard = Object.keys(metrics.seo.twitterCard).length > 0;
+
+  const socialMetaCompleteness: DerivedSignals["socialMetaCompleteness"] =
+    hasOgTitle && hasOgDesc && hasOgImage && hasTwitterCard
+      ? "complete"
+      : hasOgTitle || hasOgDesc || hasTwitterCard
+        ? "partial"
+        : "missing";
+
+  // Technical SEO Basics (canonical + robots + viewport + lang)
+  let techScore = 0;
+  if (metrics.seo.canonical) techScore++;
+  if (metrics.seo.viewport) techScore++;
+  if (metrics.seo.lang) techScore++;
+  if (!metrics.seo.robotsMeta || !metrics.seo.robotsMeta.includes("noindex")) techScore++;
+
+  const technicalSeoBasics: DerivedSignals["technicalSeoBasics"] =
+    techScore >= 4 ? "good" : techScore >= 2 ? "needs-work" : "poor";
+
+  // Performance Indicator (by resource counts)
+  const totalResources = metrics.seo.scriptCount + metrics.seo.stylesheetCount;
+  const performanceIndicator: DerivedSignals["performanceIndicator"] =
+    totalResources < 10 ? "light" : totalResources < 25 ? "moderate" : "heavy";
+
   return {
     ctaDensity: Math.round(ctaDensity * 1000) / 1000,
     ctaDensityLabel,
     contentDepth,
     headingStructure,
+    headingHierarchy,
     altTextCoverage,
     internalLinkRatio: Math.round(internalLinkRatio * 100) / 100,
     metaOptimization,
+    schemaOrgPresence,
+    socialMetaCompleteness,
+    technicalSeoBasics,
+    performanceIndicator,
   };
 }
