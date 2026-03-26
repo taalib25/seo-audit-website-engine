@@ -34,6 +34,19 @@ export async function scrapeUrl(url: string): Promise<MetricsObject> {
 
   const $ = cheerio.load(html);
 
+  // Detect dynamic content indicators
+  const hasReactRoot = $('div[id="root"], div[data-reactroot], [data-reactid]').length > 0;
+  const hasVueApp = $('div[id="app"], [data-v-]').length > 0;
+  const hasAngularRoot = $('app-root, [ng-version]').length > 0;
+  const hasEmptyBody = $('body').text().trim().length < 100;
+  const scriptCount = $('script').length;
+  const hasFrameworkScripts = scriptCount > 10;
+
+  // Mark as dynamic if framework containers exist but minimal content
+  const dynamicContentSuspected =
+    (hasReactRoot || hasVueApp || hasAngularRoot) && hasEmptyBody ||
+    (hasFrameworkScripts && hasEmptyBody);
+
   // Extract meta tags
   const title = $("title").text().trim() || "";
   const description = $('meta[name="description"]').attr("content") || "";
@@ -145,5 +158,6 @@ export async function scrapeUrl(url: string): Promise<MetricsObject> {
       missingAlt: imagesMissingAlt,
       missingAltPercent: Math.round(missingAltPercent * 100) / 100,
     },
+    dynamicContentSuspected,
   };
 }
