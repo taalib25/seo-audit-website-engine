@@ -8,9 +8,19 @@
   --bg-card: #13131a;
   --primary: #7c3aed;
   --primary-hover: #8b5cf6;
+  --primary-subtle: rgba(124, 58, 237, 0.1);
+  --primary-border: rgba(124, 58, 237, 0.2);
+  --primary-border-hover: rgba(124, 58, 237, 0.3);
+  --primary-border-strong: rgba(124, 58, 237, 0.4);
   --text: #f1f5f9;
   --text-muted: #64748b;
+  --text-muted-subtle: rgba(100, 116, 139, 0.6);
   --border: #1e1e2e;
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-hover: rgba(255, 255, 255, 0.1);
+  --success: #7c3aed;
+  --warning: #f59e0b;
+  --error: #ef4444;
 }
 
 @theme inline {
