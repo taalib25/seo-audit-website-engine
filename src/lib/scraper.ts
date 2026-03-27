@@ -4,18 +4,19 @@ import type { MetricsObject } from "@/types/audit";
 
 const CTA_KEYWORDS = [
   // Purchase intent
-  "buy now", "order now", "shop now", "add to cart", "checkout",
+  "buy now", "buy a", "buy the", "order now", "shop now", "add to cart", "checkout", "check out",
+  "purchase", "get the deal",
   // Lead generation
-  "get started", "sign up", "subscribe", "register", "join now",
-  "request demo", "request a demo", "book a demo", "schedule a demo",
-  "book a call", "schedule a call", "start free trial", "try free",
+  "get started", "get your", "sign up", "subscribe", "register", "join now",
+  "request demo", "request a demo", "request a", "book a demo", "schedule a demo",
+  "book a call", "schedule a call", "start free trial", "try free", "try it free",
   // Contact / engagement
   "contact us", "get in touch", "let's talk", "talk to us",
-  "reach out", "send message", "submit",
+  "reach out", "send message", "submit", "show me", "show me how",
   // Content / navigation CTAs
   "learn more", "read more", "view more", "see more",
   "download", "watch video", "watch now", "view all",
-  "see our work", "view case study", "start a project",
+  "see our work", "view case study", "start a project", "explore",
   // B2B specific
   "get a quote", "request quote", "free consultation",
 ];
@@ -205,7 +206,14 @@ export async function scrapeUrl(url: string): Promise<MetricsObject> {
   const buttonCount = $("button").length;
 
   // --- Forms (conversion paths) ---
-  const formCount = $("form").length;
+  // Count <form> tags + JS-driven subscribe sections (email input + button, no <form> wrapper)
+  const formTagCount = $("form").length;
+  const pseudoFormCount = $('input[type="email"], input[placeholder*="email" i], input[placeholder*="Email" i]')
+    .filter((_, el) => {
+      // Only count if it's NOT already inside a <form> tag
+      return $(el).closest("form").length === 0;
+    }).length;
+  const formCount = formTagCount + pseudoFormCount;
 
   // List count — scannable content indicator (ul/ol with actual items)
   const listCount = $("ul, ol").filter((_, el) => $(el).find("li").length > 0).length;

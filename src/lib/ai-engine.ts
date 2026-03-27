@@ -21,41 +21,46 @@ const MODELS = {
 // ============ SYSTEM PROMPTS (per-layer) ============
 // Exported for prompt logging — single source of truth
 
-const SEO_SYSTEM_PROMPT = `You are an SEO technical analyst. Analyze structured webpage metrics for technical SEO and on-page optimization issues.
+const SEO_SYSTEM_PROMPT = `You are a senior SEO consultant auditing a page for a web agency. You produce sharp, specific insights — never generic advice.
 
 RULES:
-- Focus on QUALITY and STRATEGY, not just presence/absence (the UI already shows raw counts).
-- Every insight MUST reference a specific metric value as evidence.
-- DO NOT simply re-state a number — explain WHY it matters and what to do differently.
-- Assess copy quality: is the title keyword-rich and compelling? Is the H1 specific about the value prop?
-- If dynamicContentSuspected is true, note metrics may be incomplete due to JS rendering.
+- The UI already shows raw counts. Your job is INTERPRETATION: why does this specific combination of metrics matter for THIS page?
+- Every insight must cite a metric, but the insight is the strategic "so what", not the number itself.
+- Assess the ACTUAL copy provided (title text, H1 text, description text) — is it compelling? Keyword-rich? Does it differentiate?
+- If a metric is healthy, skip it. Only surface issues worth fixing.
+- If dynamicContentSuspected is true, note metrics may be incomplete.
 
-SEVERITY: high = directly harms SEO/indexing, medium = improvement opportunity, low = minor optimization.
+BAD: "63% of images are missing alt text, which harms SEO."
+GOOD: "63% missing alt on a page with 99 images — Google Image Search can't index the visual examples that are this page's core value."
 
-Return ONLY valid JSON. No markdown wrapping.`;
+SEVERITY: high = blocks indexing or directly loses traffic, medium = missed ranking opportunity, low = minor polish.
 
-const CONTENT_SYSTEM_PROMPT = `You are a content strategist and UX analyst. Analyze webpage signals for messaging clarity, CTA effectiveness, content depth, and user experience.
+Return ONLY valid JSON. No markdown.`;
 
-RULES:
-- Focus on QUALITY and STRATEGY, not just presence/absence (the UI already shows raw counts).
-- Every insight MUST reference a specific metric value as evidence.
-- DO NOT simply re-state a number — assess whether the CTAs are compelling, the copy is persuasive, the conversion path is clear.
-- Assess messaging quality: does the H1/H2 text communicate a clear value proposition?
-
-SEVERITY: high = directly harms conversions/engagement, medium = improvement opportunity, low = minor optimization.
-
-Return ONLY valid JSON. No markdown wrapping.`;
-
-const SYNTHESIS_SYSTEM_PROMPT = `You synthesize SEO and content/UX analyses into a unified, prioritized action plan for a web agency.
+const CONTENT_SYSTEM_PROMPT = `You are a conversion strategist auditing a page for a web agency. You evaluate messaging, CTAs, and content quality — not technical SEO.
 
 RULES:
-- Merge and deduplicate insights from both analyses.
-- Rank recommendations by business impact (SEO + conversions combined).
-- Priority 1 = highest impact. Tie priority to severity.
-- Every insight must cite a specific metric value.
-- Recommendations must be actionable for a web agency (specific steps).
+- The UI already shows raw counts. Your job is INTERPRETATION: is the messaging clear? Are CTAs compelling? Is the conversion path obvious?
+- Read the actual H1/H2 text and CTA keywords provided — assess whether they communicate a specific value proposition or are vague.
+- Look at the COMBINATION of metrics (e.g., high CTAs but 0 forms = no conversion path; many words but no lists = wall of text).
+- If a metric is healthy, skip it. Only surface issues worth fixing.
 
-Return ONLY valid JSON. No markdown wrapping.`;
+BAD: "The CTA density is high at 0.175, which could overwhelm users."
+GOOD: "11 CTAs but 0 forms — visitors see action prompts everywhere but have no way to actually convert. Adding one lead capture form could turn this traffic into leads."
+
+SEVERITY: high = directly loses conversions, medium = missed engagement opportunity, low = minor UX polish.
+
+Return ONLY valid JSON. No markdown.`;
+
+const SYNTHESIS_SYSTEM_PROMPT = `You merge SEO and content analyses into a single prioritized action plan for a web agency team.
+
+RULES:
+- Deduplicate overlapping insights. Drop any insight that just restates a number without strategic context.
+- Keep only the most actionable insights (max 4-5 total).
+- Recommendations must be specific enough that a developer or copywriter could execute them without further research. Include what to change, not just "improve X".
+- Priority 1 = highest business impact. Consider: does fixing this unlock traffic, conversions, or both?
+
+Return ONLY valid JSON. No markdown.`;
 
 // Composite prompt for logging — shows the full multi-layer strategy
 export const SYSTEM_PROMPT = `[MULTI-LAYER AI PIPELINE]
@@ -79,32 +84,6 @@ interface AnalysisResult {
 }
 
 // ============ HELPERS ============
-
-function buildCondensedMetrics(metrics: MetricsObject) {
-  return {
-    meta: {
-      title: metrics.meta.title,
-      description: metrics.meta.description,
-      keywords: metrics.meta.keywords || undefined,
-    },
-    headings: { h1: metrics.headings.h1, h2: metrics.headings.h2, h3: metrics.headings.h3 },
-    headingTexts: metrics.headingTexts,
-    wordCount: metrics.wordCount,
-    ctaCount: metrics.ctaCount,
-    ctaKeywords: metrics.ctaKeywords,
-    buttonCount: metrics.buttonCount,
-    formCount: metrics.formCount,
-    links: metrics.links,
-    images: {
-      total: metrics.images.total,
-      missingAltPercent: metrics.images.missingAltPercent,
-      withLazyLoading: metrics.images.withLazyLoading,
-      withDimensions: metrics.images.withDimensions,
-    },
-    seo: metrics.seo,
-    dynamicContentSuspected: metrics.dynamicContentSuspected || undefined,
-  };
-}
 
 function parseJSON(content: string): unknown {
   let jsonStr = content.trim();
@@ -189,17 +168,26 @@ function buildSeoPrompt(url: string, metrics: MetricsObject, signals: DerivedSig
     h1WordCount: signals.h1WordCount,
   };
 
-  return `Webpage: ${url}
-Metrics: ${JSON.stringify(seoMetrics)}
-Signals: ${JSON.stringify(seoSignals)}
+  const h1Text = metrics.headingTexts.h1[0] || "(no H1)";
+  const h2Samples = metrics.headingTexts.h2.slice(0, 3).join(" | ") || "(no H2s)";
 
-Benchmarks: title 30-60 chars optimal, description 120-160 chars, exactly 1 H1, alt text 100% coverage, TTFB under 600ms good / over 1500ms poor, 0 render-blocking scripts ideal, images should have lazy loading and width/height attributes.
+  return `PAGE: ${url}
 
-Analyze technical SEO: meta optimization, heading structure, alt text, structured data, canonical/robots, render-blocking resources, image optimization, TTFB.
-Return 2-3 insights focused on SEO/technical issues.
+COPY TO EVALUATE:
+- Title (${metrics.meta.titleLength} chars): "${metrics.meta.title}"
+- H1 (${signals.h1WordCount} words): "${h1Text}"
+- H2 samples: ${h2Samples}
+- Description (${metrics.meta.descriptionLength} chars): "${metrics.meta.description}"
 
-Return JSON:
-{"insights":[{"summary":"...","finding":"...","impact":"...","metricReferenced":"...","severity":"high|medium|low"}]}`;
+METRICS: ${JSON.stringify(seoMetrics)}
+SIGNALS: ${JSON.stringify(seoSignals)}
+
+BENCHMARKS: title 30-60 chars, description 120-160 chars, exactly 1 H1, alt text 100%, 0 render-blocking scripts.
+
+Return 2-3 insights. Focus on what a senior SEO would flag — not obvious counts.
+
+JSON format — each field serves a DIFFERENT purpose:
+{"insights":[{"summary":"≤10 word headline","finding":"specific evidence with numbers — NOT a restatement of summary","impact":"what business outcome this affects and why — NOT a restatement of finding","metricReferenced":"metric name","severity":"high|medium|low"}]}`;
 }
 
 // ============ LAYER 2B: Content/UX Analysis ============
@@ -227,17 +215,27 @@ function buildContentPrompt(url: string, metrics: MetricsObject, signals: Derive
     titleH1Overlap: signals.titleH1Overlap,
   };
 
-  return `Webpage: ${url}
-Metrics: ${JSON.stringify(contentMetrics)}
-Signals: ${JSON.stringify(contentSignals)}
+  const h1Text = metrics.headingTexts.h1[0] || "(no H1)";
+  const h2Samples = metrics.headingTexts.h2.slice(0, 3).join(" | ") || "(no H2s)";
+  const ctaList = metrics.ctaKeywords.slice(0, 8).join(", ") || "(none detected)";
 
-Benchmarks: 800+ words for ranking competitiveness, 3-5 distinct CTAs per page, at least 1 lead capture form, H1 should align with meta title in theme but NOT be identical (titleH1Overlap=true = keyword waste), 0 generic anchor text links ideal, at least 2 lists or 1 heading per 150 words for scannability.
+  return `PAGE: ${url}
 
-Analyze: messaging clarity (H1/H2 text quality, meta alignment), CTA effectiveness (count vs buttons, keyword quality), content depth (word count adequacy), UX concerns (form presence, navigation).
-Return 2-3 insights focused on content/messaging/CTA/UX.
+MESSAGING TO EVALUATE:
+- H1: "${h1Text}"
+- H2 samples: ${h2Samples}
+- CTA phrases found: ${ctaList}
+- Forms: ${metrics.formCount} | Buttons: ${metrics.buttonCount}
 
-Return JSON:
-{"insights":[{"summary":"...","finding":"...","impact":"...","metricReferenced":"...","severity":"high|medium|low"}]}`;
+METRICS: ${JSON.stringify(contentMetrics)}
+SIGNALS: ${JSON.stringify(contentSignals)}
+
+BENCHMARKS: 800+ words for ranking, 3-5 CTAs, at least 1 form, H1 should complement (not duplicate) the title, 0 generic anchor text.
+
+Return 2-3 insights. Focus on the CONVERSION PATH — can a visitor understand the value prop and take action? What's broken in that flow?
+
+JSON format — each field serves a DIFFERENT purpose:
+{"insights":[{"summary":"≤10 word headline","finding":"specific evidence with numbers — NOT a restatement of summary","impact":"what business outcome this affects and why — NOT a restatement of finding","metricReferenced":"metric name","severity":"high|medium|low"}]}`;
 }
 
 // ============ LAYER 2C: Synthesis ============
@@ -248,22 +246,22 @@ function buildSynthesisPrompt(
   contentInsights: string,
   signals: DerivedSignals
 ): string {
-  return `Webpage: ${url}
+  return `PAGE: ${url}
 
-SEO/Technical Analysis:
+SEO/TECHNICAL ANALYSIS:
 ${seoInsights}
 
-Content/UX Analysis:
+CONTENT/UX ANALYSIS:
 ${contentInsights}
 
-Signals Summary: ${JSON.stringify(signals)}
+SIGNALS: ${JSON.stringify(signals)}
 
-Merge insights from both analyses (keep all, deduplicate if overlapping). Then produce 3-5 prioritized recommendations.
-Priority 1 = highest business impact. Include effort: low/medium/high.
-Each recommendation must reference a specific metric and be actionable for a web agency.
+TASK:
+1. Merge insights from both analyses. Deduplicate overlapping ones. Drop any that just restate a number without strategic context. Keep 4-5 max.
+2. Produce 3-5 recommendations ranked by business impact. Each must tell the agency team EXACTLY what to do (not "improve alt text" but "add descriptive alt to the ${signals.altTextCoverage === "poor" ? "majority of" : "remaining"} images, prioritizing hero and product images").
 
-Return JSON:
-{"insights":[{"summary":"...","finding":"...","impact":"...","metricReferenced":"...","severity":"high|medium|low"}],"recommendations":[{"title":"...","description":"...","priority":1-5,"category":"short label e.g. seo/content/cta/performance/ux","effort":"low|medium|high","metricReferenced":"..."}]}`;
+JSON — each insight field serves a DIFFERENT purpose (summary ≠ finding ≠ impact):
+{"insights":[{"summary":"≤10 word headline","finding":"specific evidence with numbers","impact":"concrete business consequence","metricReferenced":"metric name","severity":"high|medium|low"}],"recommendations":[{"title":"action verb + what to change","description":"specific steps a developer or copywriter can execute","priority":1,"category":"seo|content|cta|ux|performance","effort":"low|medium|high","metricReferenced":"metric name"}]}`;
 }
 
 // ============ MAIN PIPELINE ============

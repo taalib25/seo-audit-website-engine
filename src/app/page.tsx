@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import type { AuditResponse, AIInsight, Recommendation } from "@/types/audit";
+import { useState, useEffect, useRef } from "react";
+import type { AuditResponse, AIInsight, Recommendation, DerivedSignals } from "@/types/audit";
 
 const STEPS = [
   { label: "Fetching", detail: "Downloading HTML and extracting meta tags, links, images..." },
@@ -17,9 +17,28 @@ export default function Home() {
   const [result, setResult] = useState<AuditResponse | null>(null);
   const [logOpen, setLogOpen] = useState(false);
   const [logTab, setLogTab] = useState<"system" | "user" | "input" | "output">("system");
+  const [elapsed, setElapsed] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (status === "loading") {
+      setElapsed(0);
+      timerRef.current = setInterval(() => setElapsed(s => s + 1), 1000);
+    } else {
+      if (timerRef.current) clearInterval(timerRef.current);
+    }
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [status]);
 
   const cleanUrl = (v: string) => v.trim().replace(/^https?:\/\//, "").replace(/\/+$/, "") || "";
-  const hostname = (u: string) => { try { return new URL(u).hostname.replace("www.", ""); } catch { return u; } };
+  const hostname = (u: string) => {
+    try {
+      const withProto = u.startsWith("http") ? u : "https://" + u;
+      return new URL(withProto).hostname.replace(/^www\./, "");
+    } catch {
+      return u.split("/")[0].replace(/^www\./, "");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,8 +79,13 @@ export default function Home() {
         </header>
         <div className="flex-1 flex flex-col items-center justify-center px-6">
           <div className="animate-fade-in text-center max-w-2xl mx-auto">
-            <p className="text-6xl md:text-7xl font-bold tracking-tight mb-4" style={{ color: '#fff' }}>{hostname(cleanUrl(url))}</p>
-            <p className="text-xl mb-20" style={{ color: 'var(--text-muted)' }}>Analyzing your website</p>
+            <p className="text-5xl md:text-6xl font-bold tracking-tight mb-4 max-w-2xl mx-auto break-all" style={{ color: '#fff' }}>{hostname(cleanUrl(url))}</p>
+            <p className="text-xl mb-2" style={{ color: 'var(--text-muted)' }}>Analyzing your website</p>
+            <p className="text-sm mb-20 tabular-nums" style={{ color: 'var(--text-muted)', opacity: 0.5 }}>
+              {elapsed < 30
+                ? `~${30 - elapsed}s remaining`
+                : "Almost there..."}
+            </p>
             <div className="flex items-center justify-center gap-4 flex-wrap">
               {STEPS.map((step, i) => {
                 const done = i < stepIndex;
@@ -145,6 +169,7 @@ export default function Home() {
   }
 
   const m = result.metrics;
+  const s = result.signals;
 
   return (
     <div className="min-h-screen flex flex-col px-6 py-10">
@@ -168,8 +193,8 @@ export default function Home() {
             </svg>
           </button>
           <div className="text-center">
-            <h2 className="text-5xl font-bold tracking-tight" style={{ color: '#fff' }}>{hostname(result.url)}</h2>
-            <p className="text-lg mt-3" style={{ color: 'var(--text-muted)' }}>{result.url}</p>
+            <h2 className="text-5xl font-bold tracking-tight break-all" style={{ color: '#fff' }}>{hostname(result.url)}</h2>
+            <p className="text-sm mt-3 max-w-lg mx-auto truncate" style={{ color: 'var(--text-muted)' }} title={result.url}>{result.url}</p>
           </div>
           <div className="w-12" />
         </div>
@@ -199,6 +224,22 @@ export default function Home() {
             <MetricCard value={`${Math.round(m.images.missingAltPercent)}%`} label="Missing Alt Text" ok={m.images.missingAltPercent <= 30} tip="Aim for 0% missing" />
             <MetricCard value={m.meta.titleLength} label="Title Length" ok={m.meta.titleLength >= 30 && m.meta.titleLength <= 60} tip="30–60 chars optimal" />
             <MetricCard value={m.meta.descriptionLength} label="Description Length" ok={m.meta.descriptionLength >= 120 && m.meta.descriptionLength <= 160} tip="120–160 chars optimal" />
+          </div>
+        </section>
+
+        {/* === TECHNICAL CHECKS (Deterministic — no AI) === */}
+        <section className="mb-10">
+          <h3 className="text-xs font-medium uppercase tracking-wider mb-3" style={{ color: 'var(--text-muted)' }}>Technical Checks</h3>
+          <div className="flex flex-wrap gap-2">
+            <HealthCheck label="Canonical" status={m.seo.canonical ? "pass" : "warn"} detail={m.seo.canonical ? "set" : "missing"} />
+            <HealthCheck label="Indexable" status={s.hasNoindex ? "fail" : "pass"} detail={s.hasNoindex ? "noindex!" : "yes"} />
+            <HealthCheck label="Viewport" status={m.seo.viewport ? "pass" : "fail"} detail={m.seo.viewport ? "set" : "missing"} />
+            <HealthCheck label="OG Tags" status={s.ogImagePresent ? "pass" : Object.keys(m.meta.ogTags).length > 0 ? "warn" : "fail"} detail={s.ogImagePresent ? "with image" : Object.keys(m.meta.ogTags).length > 0 ? "no image" : "missing"} />
+            <HealthCheck label="Scannability" status={s.contentScannability === "good" ? "pass" : s.contentScannability === "ok" ? "warn" : "fail"} detail={`${m.listCount} lists · ${m.headings.h2} H2s`} />
+            <HealthCheck label="Anchor Text" status={m.genericAnchorCount === 0 ? "pass" : m.genericAnchorCount <= 3 ? "warn" : "fail"} detail={m.genericAnchorCount === 0 ? "all specific" : `${m.genericAnchorCount} generic`} />
+            {m.dynamicContentSuspected && (
+              <HealthCheck label="JS Rendering" status="warn" detail="content may be incomplete" />
+            )}
           </div>
         </section>
 
@@ -324,21 +365,29 @@ function MetricCard({ value, label, ok, tip }: {
 
 function InsightRow({ insight }: { insight: AIInsight }) {
   const colors = {
-    high: { dot: '#ef4444', badge: 'rgba(239, 68, 68, 0.1)', text: '#ef4444' },
-    medium: { dot: '#f59e0b', badge: 'rgba(245, 158, 11, 0.1)', text: '#f59e0b' },
-    low: { dot: '#10b981', badge: 'rgba(16, 185, 129, 0.1)', text: '#10b981' },
+    high: { dot: '#ef4444', badge: 'rgba(239, 68, 68, 0.1)', text: '#ef4444', border: 'rgba(239, 68, 68, 0.3)' },
+    medium: { dot: '#f59e0b', badge: 'rgba(245, 158, 11, 0.1)', text: '#f59e0b', border: 'rgba(245, 158, 11, 0.3)' },
+    low: { dot: '#10b981', badge: 'rgba(16, 185, 129, 0.1)', text: '#10b981', border: 'rgba(16, 185, 129, 0.3)' },
   }[insight.severity];
 
   return (
-    <div className="px-6 py-5 flex items-start gap-4" style={{ borderColor: 'var(--border-subtle)' }}>
-      <span className="w-2.5 h-2.5 rounded-full mt-2 flex-shrink-0" style={{ background: colors.dot }} />
-      <div className="flex-1">
-        <div className="flex items-center gap-3 mb-2">
-          <span className="text-base font-medium" style={{ color: '#fff' }}>{insight.summary}</span>
-          <span className="text-xs px-2.5 py-1 rounded-full" style={{ background: colors.badge, color: colors.text }}>{insight.severity}</span>
+    <div className="px-6 py-6 flex items-start gap-4" style={{ borderColor: 'var(--border-subtle)' }}>
+      {/* Severity dot */}
+      <span className="w-2 h-2 rounded-full mt-2.5 flex-shrink-0" style={{ background: colors.dot }} />
+      <div className="flex-1 min-w-0">
+        {/* Level 1 — Headline: summary + badge */}
+        <div className="flex items-center gap-2.5 mb-2 flex-wrap">
+          <span className="text-base font-semibold leading-snug" style={{ color: '#fff' }}>{insight.summary}</span>
+          <span className="text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0" style={{ background: colors.badge, color: colors.text }}>{insight.severity}</span>
         </div>
-        <p className="text-base" style={{ color: 'var(--text-muted)' }}>{insight.finding}</p>
-        <p className="text-sm mt-3" style={{ color: 'var(--primary)' }}>{insight.impact}</p>
+        {/* Level 2 — Body: finding detail */}
+        <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.45)' }}>{insight.finding}</p>
+        {/* Level 3 — Callout: impact (left border, no purple) */}
+        {insight.impact && (
+          <div className="mt-3 pl-3 text-sm leading-relaxed" style={{ borderLeft: `2px solid ${colors.border}`, color: 'rgba(255,255,255,0.6)' }}>
+            {insight.impact}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -360,6 +409,25 @@ function RecommendationRow({ rec }: { rec: Recommendation }) {
         </div>
         <p className="text-base" style={{ color: 'var(--text-muted)' }}>{rec.description}</p>
       </div>
+    </div>
+  );
+}
+
+function HealthCheck({ label, status, detail }: { label: string; status: "pass" | "warn" | "fail"; detail: string }) {
+  const cfg = {
+    pass: { icon: "✓", color: "#10b981", bg: "rgba(16,185,129,0.08)", border: "rgba(16,185,129,0.2)" },
+    warn: { icon: "~", color: "#f59e0b", bg: "rgba(245,158,11,0.08)", border: "rgba(245,158,11,0.2)" },
+    fail: { icon: "✗", color: "#ef4444", bg: "rgba(239,68,68,0.08)", border: "rgba(239,68,68,0.2)" },
+  }[status];
+
+  return (
+    <div
+      className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm"
+      style={{ background: cfg.bg, border: `1px solid ${cfg.border}` }}
+    >
+      <span className="font-bold text-xs" style={{ color: cfg.color }}>{cfg.icon}</span>
+      <span style={{ color: '#fff' }}>{label}</span>
+      <span style={{ color: 'var(--text-muted)' }}>{detail}</span>
     </div>
   );
 }
