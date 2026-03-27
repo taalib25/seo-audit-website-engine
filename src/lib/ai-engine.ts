@@ -8,16 +8,14 @@ const client = new OpenAI({
 });
 
 // ============ MODEL CONFIGURATION ============
-// Each layer uses the model best suited to its task
 const MODELS = {
-  // Layer 2A: SEO/Technical — coding model for strict JSON, fast
-  seoTechnical: "qwen3-coder-plus",
-  // Layer 2B: Content/Messaging/UX — deep reasoning for nuanced analysis
-  contentUx: "qwen3.5-plus",
-  // Layer 2C: Synthesis — balanced reasoning + speed for final ranking
-  synthesis: "qwen3.5-plus",
+  // Layer 2A + 2B: qwen-turbo-latest — fast and cheap for focused sub-analyses
+  seoTechnical: "qwen-turbo-latest",
+  contentUx: "qwen-turbo-latest",
+  // Layer 2C: qwen-plus — balanced quality for final synthesis and prioritisation
+  synthesis: "qwen-plus",
   // Fallback if any model fails
-  fallback: "qwen-plus",
+  fallback: "qwen-turbo",
 } as const;
 
 // ============ SYSTEM PROMPTS (per-layer) ============
@@ -66,7 +64,7 @@ ${SEO_SYSTEM_PROMPT}
 Layer 2B — Content/UX Analysis (${MODELS.contentUx}):
 ${CONTENT_SYSTEM_PROMPT}
 
-Layer 2C — Synthesis & Ranking (${MODELS.synthesis}, same model — different role/prompt):
+Layer 2C — Synthesis & Ranking (${MODELS.synthesis}):
 ${SYNTHESIS_SYSTEM_PROMPT}`;
 
 // ============ TYPES ============
@@ -108,12 +106,18 @@ function buildCondensedMetrics(metrics: MetricsObject) {
 
 function parseJSON(content: string): unknown {
   let jsonStr = content.trim();
+  // Strip <think>...</think> blocks emitted by Qwen3 thinking models
+  jsonStr = jsonStr.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
   if (jsonStr.startsWith("```")) {
     jsonStr = jsonStr.replace(/^```[a-z]*\s*/i, "").replace(/\s*```$/, "");
   }
   return JSON.parse(jsonStr);
 }
 
+// Per-call timeout — abort if model doesn't respond in time
+const CALL_TIMEOUT_MS = 30_000;  // 30s for turbo layers; qwen-plus synthesis gets same budget
+
+/** Standard (non-streaming) model call */
 async function callModel(
   model: string,
   systemPrompt: string,
@@ -121,38 +125,41 @@ async function callModel(
   maxTokens: number,
   fallbackModel?: string
 ): Promise<{ content: string; model: string }> {
+  const attempt = async (m: string): Promise<string> => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), CALL_TIMEOUT_MS);
+    try {
+      const response = await client.chat.completions.create(
+        {
+          model: m,
+          temperature: 0.1,
+          max_tokens: maxTokens,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+        },
+        { signal: controller.signal }
+      );
+      const content = response.choices[0]?.message?.content;
+      if (!content) throw new Error(`Empty response from ${m}`);
+      return content;
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+
   try {
-    const response = await client.chat.completions.create({
-      model,
-      temperature: 0.1,
-      max_tokens: maxTokens,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ],
-    });
-    const content = response.choices[0]?.message?.content;
-    if (!content) throw new Error(`Empty response from ${model}`);
-    return { content, model };
+    return { content: await attempt(model), model };
   } catch (err) {
     if (fallbackModel) {
       console.warn(`${model} failed, falling back to ${fallbackModel}:`, err);
-      const response = await client.chat.completions.create({
-        model: fallbackModel,
-        temperature: 0.1,
-        max_tokens: maxTokens,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-      });
-      const content = response.choices[0]?.message?.content;
-      if (!content) throw new Error(`Empty response from ${fallbackModel}`);
-      return { content, model: fallbackModel };
+      return { content: await attempt(fallbackModel), model: fallbackModel };
     }
     throw err;
   }
 }
+
 
 // ============ LAYER 2A: SEO/Technical Analysis ============
 
@@ -254,7 +261,7 @@ Priority 1 = highest business impact. Include effort: low/medium/high.
 Each recommendation must reference a specific metric and be actionable for a web agency.
 
 Return JSON:
-{"insights":[{"summary":"...","finding":"...","impact":"...","metricReferenced":"...","severity":"high|medium|low"}],"recommendations":[{"title":"...","description":"...","priority":1-5,"category":"seo|messaging|cta|content|ux","effort":"low|medium|high","metricReferenced":"..."}]}`;
+{"insights":[{"summary":"...","finding":"...","impact":"...","metricReferenced":"...","severity":"high|medium|low"}],"recommendations":[{"title":"...","description":"...","priority":1-5,"category":"short label e.g. seo/content/cta/performance/ux","effort":"low|medium|high","metricReferenced":"..."}]}`;
 }
 
 // ============ MAIN PIPELINE ============
@@ -271,15 +278,15 @@ export async function analyzeWithAI(
   const seoPrompt = buildSeoPrompt(url, metrics, signals);
   const contentPrompt = buildContentPrompt(url, metrics, signals);
 
-  // Layer 2A + 2B: Run in parallel
+  // Layer 2A + 2B: qwen-turbo in parallel — fast, focused sub-analyses
   const [seoResult, contentResult] = await Promise.all([
-    callModel(MODELS.seoTechnical, SEO_SYSTEM_PROMPT, seoPrompt, 1500, MODELS.fallback),
-    callModel(MODELS.contentUx, CONTENT_SYSTEM_PROMPT, contentPrompt, 1500, MODELS.fallback),
+    callModel(MODELS.seoTechnical, SEO_SYSTEM_PROMPT, seoPrompt, 800, MODELS.fallback),
+    callModel(MODELS.contentUx, CONTENT_SYSTEM_PROMPT, contentPrompt, 800, MODELS.fallback),
   ]);
 
-  // Layer 2C: Synthesize
+  // Layer 2C: qwen-plus synthesis — merges, deduplicates and ranks by business impact
   const synthesisPrompt = buildSynthesisPrompt(url, seoResult.content, contentResult.content, signals);
-  const synthesisResult = await callModel(MODELS.synthesis, SYNTHESIS_SYSTEM_PROMPT, synthesisPrompt, 3000, MODELS.fallback);
+  const synthesisResult = await callModel(MODELS.synthesis, SYNTHESIS_SYSTEM_PROMPT, synthesisPrompt, 2000, MODELS.fallback);
 
   // Compose the full user prompt for logging (shows all 3 layers)
   const fullUserPrompt = `[LAYER 2A — SEO/Technical → ${seoResult.model}]
