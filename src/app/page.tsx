@@ -177,7 +177,7 @@ export default function Home() {
         {/* Header */}
         <header className="mb-8 flex items-center justify-between">
           <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)', opacity: 0.6 }}>AI Audit Engine</span>
-          <button onClick={() => setLogOpen(!logOpen)} className="text-base transition-colors" style={{ color: 'var(--text-muted)' }}>
+          <button onClick={() => setLogOpen(!logOpen)} className="px-4 py-2 rounded-xl text-sm font-medium transition-all" style={{ background: 'var(--primary-subtle)', border: '1px solid var(--primary-border)', color: 'var(--primary)' }}>
             {logOpen ? "Close Logger" : "View Prompt Log"}
           </button>
         </header>
