@@ -24,10 +24,11 @@ const MODELS = {
 const SEO_SYSTEM_PROMPT = `You are an SEO technical analyst. Analyze structured webpage metrics for technical SEO and on-page optimization issues.
 
 RULES:
-- Every insight MUST cite a specific metric value (e.g. "H1 count: 0", "Missing alt: 93%").
-- State when an area is healthy and why.
-- Never infer beyond provided data.
-- If dynamicContentSuspected is true, note metrics may be incomplete.
+- Focus on QUALITY and STRATEGY, not just presence/absence (the UI already shows raw counts).
+- Every insight MUST reference a specific metric value as evidence.
+- DO NOT simply re-state a number — explain WHY it matters and what to do differently.
+- Assess copy quality: is the title keyword-rich and compelling? Is the H1 specific about the value prop?
+- If dynamicContentSuspected is true, note metrics may be incomplete due to JS rendering.
 
 SEVERITY: high = directly harms SEO/indexing, medium = improvement opportunity, low = minor optimization.
 
@@ -36,9 +37,10 @@ Return ONLY valid JSON. No markdown wrapping.`;
 const CONTENT_SYSTEM_PROMPT = `You are a content strategist and UX analyst. Analyze webpage signals for messaging clarity, CTA effectiveness, content depth, and user experience.
 
 RULES:
-- Every insight MUST cite a specific metric value (e.g. "CTA count: 2", "Word count: 353").
-- Assess messaging quality, conversion path clarity, and content persuasiveness.
-- Never infer beyond provided data.
+- Focus on QUALITY and STRATEGY, not just presence/absence (the UI already shows raw counts).
+- Every insight MUST reference a specific metric value as evidence.
+- DO NOT simply re-state a number — assess whether the CTAs are compelling, the copy is persuasive, the conversion path is clear.
+- Assess messaging quality: does the H1/H2 text communicate a clear value proposition?
 
 SEVERITY: high = directly harms conversions/engagement, medium = improvement opportunity, low = minor optimization.
 
@@ -165,18 +167,12 @@ async function callModel(
 
 function buildSeoPrompt(url: string, metrics: MetricsObject, signals: DerivedSignals): string {
   const seoMetrics = {
-    meta: { title: metrics.meta.title, description: metrics.meta.description },
+    meta: { title: metrics.meta.title, titleLength: metrics.meta.titleLength, description: metrics.meta.description, descriptionLength: metrics.meta.descriptionLength },
     headings: { h1: metrics.headings.h1, h2: metrics.headings.h2, h3: metrics.headings.h3 },
     headingTexts: metrics.headingTexts,
-    images: {
-      total: metrics.images.total,
-      missingAltPercent: metrics.images.missingAltPercent,
-      withLazyLoading: metrics.images.withLazyLoading,
-      withDimensions: metrics.images.withDimensions,
-    },
+    images: { total: metrics.images.total, missingAltPercent: metrics.images.missingAltPercent },
     links: metrics.links,
-    seo: metrics.seo,
-    performance: metrics.performance,
+    seo: { canonical: metrics.seo.canonical, robotsMeta: metrics.seo.robotsMeta, lang: metrics.seo.lang, schemaOrgTypes: metrics.seo.schemaOrgTypes },
     dynamicContentSuspected: metrics.dynamicContentSuspected || undefined,
   };
 
@@ -188,7 +184,9 @@ function buildSeoPrompt(url: string, metrics: MetricsObject, signals: DerivedSig
     schemaOrgPresence: signals.schemaOrgPresence,
     socialMetaCompleteness: signals.socialMetaCompleteness,
     technicalSeoBasics: signals.technicalSeoBasics,
-    performanceIndicator: signals.performanceIndicator,
+    titleH1Overlap: signals.titleH1Overlap,
+    ogImagePresent: signals.ogImagePresent,
+    h1WordCount: signals.h1WordCount,
   };
 
   return `Webpage: ${url}
@@ -216,6 +214,8 @@ function buildContentPrompt(url: string, metrics: MetricsObject, signals: Derive
     buttonCount: metrics.buttonCount,
     formCount: metrics.formCount,
     links: { internal: metrics.links.internal, external: metrics.links.external },
+    genericAnchorCount: metrics.genericAnchorCount,
+    listCount: metrics.listCount,
   };
 
   const contentSignals = {
@@ -223,13 +223,15 @@ function buildContentPrompt(url: string, metrics: MetricsObject, signals: Derive
     ctaDensityLabel: signals.ctaDensityLabel,
     contentDepth: signals.contentDepth,
     internalLinkRatio: signals.internalLinkRatio,
+    contentScannability: signals.contentScannability,
+    titleH1Overlap: signals.titleH1Overlap,
   };
 
   return `Webpage: ${url}
 Metrics: ${JSON.stringify(contentMetrics)}
 Signals: ${JSON.stringify(contentSignals)}
 
-Benchmarks: 800+ words for ranking competitiveness, 3-5 distinct CTAs per page, at least 1 lead capture form, H1 should align with meta title in theme, CTA keywords should be action-oriented (not generic "submit" or "click here").
+Benchmarks: 800+ words for ranking competitiveness, 3-5 distinct CTAs per page, at least 1 lead capture form, H1 should align with meta title in theme but NOT be identical (titleH1Overlap=true = keyword waste), 0 generic anchor text links ideal, at least 2 lists or 1 heading per 150 words for scannability.
 
 Analyze: messaging clarity (H1/H2 text quality, meta alignment), CTA effectiveness (count vs buttons, keyword quality), content depth (word count adequacy), UX concerns (form presence, navigation).
 Return 2-3 insights focused on content/messaging/CTA/UX.

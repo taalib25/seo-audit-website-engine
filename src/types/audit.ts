@@ -72,6 +72,9 @@ export const MetricsSchema = z.object({
   ctaKeywords: z.array(z.string()),
   buttonCount: z.number(),
   formCount: z.number(),
+  listCount: z.number(),
+  genericAnchorCount: z.number(),
+  hasSemanticHtml: z.boolean(),
   links: LinksSchema,
   images: ImagesSchema,
   seo: SeoSchema,
@@ -96,6 +99,14 @@ export const DerivedSignalsSchema = z.object({
   socialMetaCompleteness: z.enum(["complete", "partial", "missing"]),
   technicalSeoBasics: z.enum(["good", "needs-work", "poor"]),
   performanceIndicator: z.enum(["light", "moderate", "heavy"]),
+  titleStatus: z.enum(["missing", "too-short", "ok", "too-long"]),
+  descriptionStatus: z.enum(["missing", "too-short", "ok", "too-long"]),
+  h1Status: z.enum(["missing", "multiple", "ok"]),
+  hasNoindex: z.boolean(),
+  titleH1Overlap: z.boolean(),
+  contentScannability: z.enum(["poor", "ok", "good"]),
+  ogImagePresent: z.boolean(),
+  h1WordCount: z.number(),
 });
 
 export type DerivedSignals = z.infer<typeof DerivedSignalsSchema>;
@@ -116,7 +127,7 @@ export const RecommendationSchema = z.object({
   title: z.string(),
   description: z.string(),
   priority: z.number().min(1).max(5),
-  category: z.enum(["seo", "messaging", "cta", "content", "ux"]),
+  category: z.string(),
   effort: z.enum(["low", "medium", "high"]),
   metricReferenced: z.string().optional(),
 });

@@ -47,6 +47,60 @@ export function deriveSignals(metrics: MetricsObject): DerivedSignals {
         ? "average"
         : "poor";
 
+  // Deterministic SEO checks — no AI needed for these
+  const titleStatus: DerivedSignals["titleStatus"] =
+    metrics.meta.titleLength === 0 ? "missing"
+    : metrics.meta.titleLength < 30 ? "too-short"
+    : metrics.meta.titleLength > 60 ? "too-long"
+    : "ok";
+
+  const descriptionStatus: DerivedSignals["descriptionStatus"] =
+    metrics.meta.descriptionLength === 0 ? "missing"
+    : metrics.meta.descriptionLength < 120 ? "too-short"
+    : metrics.meta.descriptionLength > 160 ? "too-long"
+    : "ok";
+
+  const h1Status: DerivedSignals["h1Status"] =
+    metrics.headings.h1 === 0 ? "missing"
+    : metrics.headings.h1 > 1 ? "multiple"
+    : "ok";
+
+  const hasNoindex = !!(
+    metrics.seo.robotsMeta &&
+    metrics.seo.robotsMeta.toLowerCase().includes("noindex")
+  );
+
+  // Title-H1 word overlap — similar = missed keyword diversification
+  const titleWords = new Set(
+    metrics.meta.title.toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/).filter(w => w.length > 2)
+  );
+  const h1Words = metrics.headingTexts.h1[0]
+    ? new Set(metrics.headingTexts.h1[0].toLowerCase().replace(/[^a-z0-9\s]/g, "").split(/\s+/).filter(w => w.length > 2))
+    : new Set<string>();
+  const overlapCount = [...titleWords].filter(w => h1Words.has(w)).length;
+  const titleH1Overlap = titleWords.size > 0 && h1Words.size > 0
+    ? overlapCount / Math.min(titleWords.size, h1Words.size) > 0.6
+    : false;
+
+  // Content scannability — lists + heading density
+  const headingDensity = metrics.wordCount > 0
+    ? (metrics.headings.h2 + metrics.headings.h3) / (metrics.wordCount / 100)
+    : 0;
+  const contentScannability: DerivedSignals["contentScannability"] =
+    (metrics.listCount >= 2 || headingDensity >= 1.5)
+      ? "good"
+      : (metrics.listCount >= 1 || headingDensity >= 0.5)
+        ? "ok"
+        : "poor";
+
+  // OG image present — required for good social share previews
+  const ogImagePresent = !!metrics.meta.ogTags["image"];
+
+  // H1 word count — too short = vague, too long = unfocused
+  const h1WordCount = metrics.headingTexts.h1[0]
+    ? metrics.headingTexts.h1[0].split(/\s+/).filter(w => w.length > 0).length
+    : 0;
+
   // Schema.org Presence
   const schemaOrgPresence: DerivedSignals["schemaOrgPresence"] =
     metrics.seo.schemaOrgTypes.length > 0 ? "present" : "absent";
@@ -92,5 +146,13 @@ export function deriveSignals(metrics: MetricsObject): DerivedSignals {
     socialMetaCompleteness,
     technicalSeoBasics,
     performanceIndicator,
+    titleStatus,
+    descriptionStatus,
+    h1Status,
+    hasNoindex,
+    titleH1Overlap,
+    contentScannability,
+    ogImagePresent,
+    h1WordCount,
   };
 }

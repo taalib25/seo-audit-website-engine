@@ -47,8 +47,14 @@ export async function scrapeUrl(url: string): Promise<MetricsObject> {
   const $ = cheerio.load(html);
 
   // --- SEO Technical Extractions ---
-  const canonical = $('link[rel="canonical"]').attr("href") || undefined;
-  const robotsMeta = $('meta[name="robots"]').attr("content") || undefined;
+  const canonicalRaw = $('link[rel="canonical"]').attr("href") || undefined;
+  const canonical = canonicalRaw
+    ? (canonicalRaw.startsWith("http") ? canonicalRaw : new URL(canonicalRaw, url).href)
+    : undefined;
+  const robotsMeta =
+    $('meta[name="robots"]').attr("content") ||
+    $('meta[name="googlebot"]').attr("content") ||
+    undefined;
   const viewport = $('meta[name="viewport"]').attr("content") || undefined;
   const lang = $("html").attr("lang") || undefined;
   const charset = $('meta[charset]').attr("charset") || $('meta[http-equiv="Content-Type"]').attr("content") || undefined;
@@ -95,8 +101,9 @@ export async function scrapeUrl(url: string): Promise<MetricsObject> {
   const hasEmptyBody = $("body").text().trim().length < 100;
   const hasFrameworkScripts = $("script").length > 10;
 
+  const hasNoHeadings = $("h1").length + $("h2").length + $("h3").length === 0;
   const dynamicContentSuspected =
-    ((hasReactRoot || hasVueApp || hasAngularRoot) && hasEmptyBody) ||
+    ((hasReactRoot || hasVueApp || hasAngularRoot) && (hasEmptyBody || hasNoHeadings)) ||
     (hasFrameworkScripts && hasEmptyBody);
 
   // --- Meta tags ---
@@ -139,38 +146,59 @@ export async function scrapeUrl(url: string): Promise<MetricsObject> {
   // --- Body text + word count ---
   $("script, style, noscript, iframe").remove();
   const bodyText = $("body").text().trim();
+  // Cap at 10k words — enough for accurate assessment, avoids memory issues on huge pages
   const wordCount = bodyText
+    .slice(0, 150_000)
     .split(/\s+/)
     .filter((w) => w.length > 0)
     .length;
 
-  // --- CTAs (count actual clickable elements, not body text matches) ---
+  // --- CTAs ---
+  // Count clickable action elements: keyword match on <a>/<button> text,
+  // plus submit inputs and role="button" elements not caught by text scan.
   let ctaCount = 0;
   const ctaKeywords: string[] = [];
+  const countedEls = new Set<object>();
 
+  // 1. Keyword scan on <a> and <button> text
   $("a, button").each((_, el) => {
     const text = $(el).text().trim().toLowerCase();
-    if (!text || text.length > 80) return; // skip empty or nav-paragraph elements
+    if (!text || text.length > 80) return;
 
     for (const keyword of CTA_KEYWORDS) {
       if (text.includes(keyword)) {
         ctaCount++;
-        if (!ctaKeywords.includes(keyword)) {
-          ctaKeywords.push(keyword);
-        }
-        break; // count each element only once
+        countedEls.add(el);
+        if (!ctaKeywords.includes(keyword)) ctaKeywords.push(keyword);
+        break;
       }
     }
   });
 
-  // Also count elements with CTA-like classes that weren't caught by text
-  $('a[class*="btn"], a[class*="cta"], a[class*="button"], a[role="button"]').each((_, el) => {
+  // 2. Submit/button inputs — always CTAs regardless of label
+  $('input[type="submit"], input[type="button"]').each((_, el) => {
+    ctaCount++;
+    countedEls.add(el);
+    const val = ($(el).attr("value") || "submit").toLowerCase();
+    if (!ctaKeywords.includes(val)) ctaKeywords.push(val);
+  });
+
+  // 3. role="button" elements not already counted (e.g. styled divs/spans)
+  $('[role="button"]').each((_, el) => {
+    if (countedEls.has(el)) return;
     const text = $(el).text().trim().toLowerCase();
+    if (!text || text.length > 80) return;
+    ctaCount++;
+    countedEls.add(el);
+  });
+
+  // 4. CTA-class links not caught by keyword scan
+  $('a[class*="btn"], a[class*="cta"], a[class*="button"]').each((_, el) => {
+    if (countedEls.has(el)) return;
+    const text = $(el).text().trim();
     if (!text) return;
-    const alreadyCounted = CTA_KEYWORDS.some(kw => text.includes(kw));
-    if (!alreadyCounted) {
-      ctaCount++;
-    }
+    ctaCount++;
+    countedEls.add(el);
   });
 
   // Button count (all button elements — for AI context)
@@ -179,22 +207,48 @@ export async function scrapeUrl(url: string): Promise<MetricsObject> {
   // --- Forms (conversion paths) ---
   const formCount = $("form").length;
 
+  // List count — scannable content indicator (ul/ol with actual items)
+  const listCount = $("ul, ol").filter((_, el) => $(el).find("li").length > 0).length;
+
+  // Generic anchor text — links whose anchor text provides no SEO context
+  const GENERIC_ANCHORS = ["click here", "here", "read more", "learn more", "more", "details", "this", "link", "info", "page"];
+  let genericAnchorCount = 0;
+  $("a[href]").each((_, el) => {
+    const text = $(el).text().trim().toLowerCase();
+    if (GENERIC_ANCHORS.includes(text)) genericAnchorCount++;
+  });
+
+  // Semantic HTML — proper use of landmark elements
+  const hasSemanticHtml = $("main, article, [role='main']").length > 0;
+
   // --- Links ---
   let internalLinks = 0;
   let externalLinks = 0;
   const baseUrl = new URL(url);
+  const baseHostname = baseUrl.hostname.replace(/^www\./, "");
 
   $("a[href]").each((_, el) => {
     const href = $(el).attr("href") || "";
-    if (href.startsWith("http")) {
-      if (href.includes(baseUrl.hostname)) {
-        internalLinks++;
-      } else {
-        externalLinks++;
+    if (href.startsWith("http://") || href.startsWith("https://")) {
+      try {
+        // Exact hostname comparison (strip www prefix for both)
+        const linkHostname = new URL(href).hostname.replace(/^www\./, "");
+        if (linkHostname === baseHostname || linkHostname.endsWith("." + baseHostname)) {
+          internalLinks++;
+        } else {
+          externalLinks++;
+        }
+      } catch {
+        // Malformed absolute URL — skip
       }
     } else if (href.startsWith("/")) {
       internalLinks++;
-    } else if (!href.startsWith("#") && !href.startsWith("mailto:") && !href.startsWith("tel:") && !href.startsWith("javascript:")) {
+    } else if (
+      !href.startsWith("#") &&
+      !href.startsWith("mailto:") &&
+      !href.startsWith("tel:") &&
+      !href.startsWith("javascript:")
+    ) {
       // Relative paths (about.html, ./page) are internal
       internalLinks++;
     }
@@ -240,6 +294,9 @@ export async function scrapeUrl(url: string): Promise<MetricsObject> {
     ctaKeywords,
     buttonCount,
     formCount,
+    listCount,
+    genericAnchorCount,
+    hasSemanticHtml,
     links: {
       internal: internalLinks,
       external: externalLinks,
