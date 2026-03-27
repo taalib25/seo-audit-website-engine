@@ -1,24 +1,17 @@
 @import "tailwindcss";
-@plugin "daisyui" {
-  themes: dark --default;
-}
 
 :root {
   --bg: #13111c;
   --bg-card: #1a1825;
   --bg-elevated: #211f2e;
   --primary: #8b5cf6;
-  --primary-hover: #a78bfa;
   --primary-subtle: rgba(139, 92, 246, 0.08);
   --primary-border: rgba(139, 92, 246, 0.15);
-  --primary-border-hover: rgba(139, 92, 246, 0.25);
   --primary-border-strong: rgba(139, 92, 246, 0.4);
   --text: #e4e4e7;
   --text-muted: #71717a;
-  --text-muted-subtle: rgba(113, 113, 122, 0.6);
   --border: #27272a;
   --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-hover: rgba(255, 255, 255, 0.1);
   --success: #10b981;
   --warning: #f59e0b;
   --error: #ef4444;
@@ -60,36 +53,8 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes pulse-dot {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.2); }
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
 .animate-fade-in {
   animation: fade-in 0.4s ease-out forwards;
-}
-
-.animate-pulse-dot {
-  animation: pulse-dot 1.4s ease-in-out infinite;
-}
-
-.shimmer {
-  background: linear-gradient(90deg, transparent 0%, rgba(107, 33, 168, 0.25) 50%, transparent 100%);
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite;
-}
-
-.glass {
-  background: rgba(26, 24, 37, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border-subtle);
-  box-shadow: 0 8px 32px rgba(19, 17, 28, 0.6);
 }
 
 .glass {
