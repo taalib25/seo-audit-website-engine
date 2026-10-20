@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "@aeo/core": "workspace:*",
+    "@aeo/engine": "workspace:*",
+    "@aeo/llm": "workspace:*",
+    "@aeo/prompt": "workspace:*",
     "@radix-ui/react-slot": "^1.2.3",
     "@tanstack/react-query": "^5.90.20",
     "@tanstack/react-router": "^1.168.60",

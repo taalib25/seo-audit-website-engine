@@ -11,7 +11,7 @@ export const Route = createFileRoute("/api/audits/")({
       try {
         const body: unknown = await request.json();
         const job = await createAudit(body);
-        return json({ id: job.id }, 202);
+        return json({ id: job.id, capabilityNotes: job.capabilityNotes }, 202);
       } catch (error) {
         if (error instanceof ZodError) return json({ error: "Invalid audit request." }, 400);
         return json({ error: "Audit could not be started." }, 400);

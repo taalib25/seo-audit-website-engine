@@ -34,6 +34,7 @@
       "dependencies": {
         "@aeo/core": "workspace:*",
         "@aeo/crawler": "workspace:*",
+        "@aeo/engine": "workspace:*",
         "@aeo/integrations": "workspace:*",
         "@aeo/llm": "workspace:*",
         "@aeo/prompt": "workspace:*",
@@ -51,6 +52,9 @@
       "version": "0.1.0",
       "dependencies": {
         "@aeo/core": "workspace:*",
+        "@aeo/engine": "workspace:*",
+        "@aeo/llm": "workspace:*",
+        "@aeo/prompt": "workspace:*",
         "@radix-ui/react-slot": "^1.2.3",
         "@tanstack/react-query": "^5.90.20",
         "@tanstack/react-router": "^1.168.60",
@@ -95,6 +99,23 @@
         "cheerio": "^1.2.0",
         "playwright-core": "^1.63.0",
         "robots-parser": "^3.0.1",
+      },
+      "devDependencies": {
+        "@types/node": "^22",
+        "typescript": "^5",
+        "vitest": "^3",
+      },
+    },
+    "packages/engine": {
+      "name": "@aeo/engine",
+      "version": "0.1.0",
+      "dependencies": {
+        "@aeo/core": "workspace:*",
+        "@aeo/crawler": "workspace:*",
+        "@aeo/integrations": "workspace:*",
+        "@aeo/llm": "workspace:*",
+        "@aeo/prompt": "workspace:*",
+        "zod": "^4.3.6",
       },
       "devDependencies": {
         "@types/node": "^22",
@@ -152,6 +173,8 @@
     "@aeo/core": ["@aeo/core@workspace:packages/core"],
 
     "@aeo/crawler": ["@aeo/crawler@workspace:packages/crawler"],
+
+    "@aeo/engine": ["@aeo/engine@workspace:packages/engine"],
 
     "@aeo/integrations": ["@aeo/integrations@workspace:packages/integrations"],
 
@@ -1374,6 +1397,8 @@
     "@aeo/core/@types/node": ["@types/node@22.20.5", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-U2+DNr+wSjpsTS/wZGYHq7GcwfuSmKiKvoPvK22zwTlRhU91yOniN4qRR5KhIjvif7ysw/dz/hKmfDH0Ris4aA=="],
 
     "@aeo/crawler/@types/node": ["@types/node@22.20.5", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-U2+DNr+wSjpsTS/wZGYHq7GcwfuSmKiKvoPvK22zwTlRhU91yOniN4qRR5KhIjvif7ysw/dz/hKmfDH0Ris4aA=="],
+
+    "@aeo/engine/@types/node": ["@types/node@22.20.5", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-U2+DNr+wSjpsTS/wZGYHq7GcwfuSmKiKvoPvK22zwTlRhU91yOniN4qRR5KhIjvif7ysw/dz/hKmfDH0Ris4aA=="],
 
     "@aeo/integrations/@types/node": ["@types/node@22.20.5", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-U2+DNr+wSjpsTS/wZGYHq7GcwfuSmKiKvoPvK22zwTlRhU91yOniN4qRR5KhIjvif7ysw/dz/hKmfDH0Ris4aA=="],
 

@@ -5,4 +5,7 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [tailwindcss(), tanstackStart(), react()],
+  // Browser automation is an optional runtime dependency. Keep its dynamic import
+  // out of the server bundle so deployments without browser support still build.
+  ssr: { external: ["playwright-core"] },
 });

@@ -7,7 +7,7 @@ export const Route = createFileRoute("/api/audits/$id")({
     GET: async ({ params }) => {
       const job = jobStore.get(params.id);
       if (!job) return json({ error: "Audit not found." }, 404);
-      return json({ status: job.status, ...(job.report ? { report: job.report } : {}), progress: job.progress, stage: job.stage });
+      return json({ status: job.status, ...(job.report ? { report: job.report } : {}), ...(job.prompt ? { prompt: job.prompt } : {}), traces: job.traces ?? [], usage: job.usage, capabilityNotes: job.capabilityNotes, progress: job.progress, stage: job.stage });
     },
   } },
 });

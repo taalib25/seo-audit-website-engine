@@ -1,23 +1,26 @@
 import type { AuditReport } from "@aeo/core";
+import type { EngineProgress } from "@aeo/engine";
+import type { PromptTrace, UsageSummary } from "@aeo/llm";
+import type { FixTask } from "@aeo/prompt";
 
 export type JobStatus = "queued" | "running" | "complete" | "failed";
-export interface AuditOptions { url: string; maxPages: number; render: boolean; llm: boolean; probe: boolean }
-export interface JobEvent { id: number; type: "progress" | "complete" | "error"; data: Record<string, unknown>; createdAt: string }
-export interface AuditJob { id: string; status: JobStatus; options: AuditOptions; report?: AuditReport; error?: string; progress: number; stage: string; events: JobEvent[]; createdAt: string }
+export interface AuditOptions { url: string; maxPages: number; render: boolean; llm: boolean; probe: boolean; renderer?: string; cdpEndpoint?: string }
+export interface JobEvent { id: number; type: "progress" | "complete" | "error" | "engine"; data: Record<string, unknown>; createdAt: string }
+export interface AuditJob { id: string; status: JobStatus; options: AuditOptions; report?: AuditReport; prompt?: { markdown: string; tasks: FixTask[] }; traces?: PromptTrace[]; usage?: UsageSummary; capabilityNotes: string[]; error?: string; progress: number; stage: string; events: JobEvent[]; createdAt: string }
 
 export interface JobStore {
-  create(options: AuditOptions): AuditJob;
+  create(options: AuditOptions, capabilityNotes?: string[]): AuditJob;
   get(id: string): AuditJob | undefined;
   addEvent(id: string, type: JobEvent["type"], data: Record<string, unknown>): JobEvent | undefined;
-  update(id: string, update: Partial<Pick<AuditJob, "status" | "report" | "error" | "progress" | "stage">>): void;
+  update(id: string, update: Partial<Pick<AuditJob, "status" | "report" | "prompt" | "traces" | "usage" | "error" | "progress" | "stage">>): void;
 }
 
-export interface AuditPipeline { run(job: AuditJob, progress: (stage: string, progress: number) => void): Promise<AuditReport> }
+export interface AuditPipeline { run(job: AuditJob, progress: (stage: string, progress: number) => void, engineEvent: (event: EngineProgress) => void): Promise<{ report: AuditReport; prompt: { markdown: string; tasks: FixTask[] }; traces: PromptTrace[]; usage: UsageSummary }> }
 
 export class MemoryJobStore implements JobStore {
   private readonly jobs = new Map<string, AuditJob>();
-  create(options: AuditOptions): AuditJob {
-    const job: AuditJob = { id: crypto.randomUUID(), status: "queued", options, progress: 0, stage: "Queued", events: [], createdAt: new Date().toISOString() };
+  create(options: AuditOptions, capabilityNotes: string[] = []): AuditJob {
+    const job: AuditJob = { id: crypto.randomUUID(), status: "queued", options, capabilityNotes, progress: 0, stage: "Queued", events: [], createdAt: new Date().toISOString() };
     this.jobs.set(job.id, job);
     return job;
   }
@@ -29,7 +32,7 @@ export class MemoryJobStore implements JobStore {
     job.events.push(event);
     return event;
   }
-  update(id: string, update: Partial<Pick<AuditJob, "status" | "report" | "error" | "progress" | "stage">>) {
+  update(id: string, update: Partial<Pick<AuditJob, "status" | "report" | "prompt" | "traces" | "usage" | "error" | "progress" | "stage">>) {
     const job = this.jobs.get(id);
     if (job) Object.assign(job, update);
   }

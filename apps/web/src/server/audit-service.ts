@@ -11,16 +11,29 @@ export const CreateAuditSchema = z.object({
   probe: z.boolean().default(false),
 }).strict();
 
-export async function createAudit(input: unknown, pipeline: AuditPipeline = { run: runPipeline }): Promise<AuditJob> {
-  const options = CreateAuditSchema.parse(input);
-  assertSafeUrl(options.url);
-  const job = jobStore.create(options);
+export async function createAudit(input: unknown, pipeline: AuditPipeline = { run: runPipeline }, env: NodeJS.ProcessEnv = process.env): Promise<AuditJob> {
+  const requested = CreateAuditSchema.parse(input);
+  assertSafeUrl(requested.url);
+  const capabilityNotes: string[] = [];
+  const options = { ...requested, maxPages: Math.min(requested.maxPages, 25) };
+  if (requested.maxPages > options.maxPages) capabilityNotes.push("Page limit capped at 25 for anonymous audits.");
+  const renderEnabled = env.ENABLE_BROWSER === "true";
+  if (options.render && !renderEnabled) { options.render = false; capabilityNotes.push("Rendering disabled: set ENABLE_BROWSER=true to enable it."); }
+  const llmEnabled = Boolean(env.OPENROUTER_API_KEY || env.LLM_API_KEY);
+  if (options.llm && !llmEnabled) { options.llm = false; capabilityNotes.push("LLM checks skipped: no LLM key configured."); }
+  const probeConfigured = Boolean(env.PROBE_QUERIES);
+  if (options.probe && (!llmEnabled || !probeConfigured)) {
+    options.probe = false;
+    capabilityNotes.push(!llmEnabled ? "AI visibility probes skipped: no LLM key configured." : "AI visibility probes skipped: PROBE_QUERIES is not configured.");
+  }
+  const renderer = renderEnabled ? (env.RENDERER ?? (env.CDP_ENDPOINT ? "cdp" : undefined)) : undefined;
+  const job = jobStore.create({ ...options, ...(renderer ? { renderer } : {}), ...(env.CDP_ENDPOINT ? { cdpEndpoint: env.CDP_ENDPOINT } : {}) }, capabilityNotes);
   auditQueue.enqueue(async () => {
     try {
       jobStore.update(job.id, { status: "running", stage: "Starting", progress: 5 });
       jobStore.addEvent(job.id, "progress", { stage: "Starting", progress: 5 });
-      const report = await pipeline.run(job, (stage, progress) => emitProgress(job.id, stage, progress));
-      jobStore.update(job.id, { status: "complete", stage: "Complete", progress: 100, report });
+      const result = await pipeline.run(job, (stage, progress) => emitProgress(job.id, stage, progress), (event) => { jobStore.addEvent(job.id, "engine", event as unknown as Record<string, unknown>); });
+      jobStore.update(job.id, { status: "complete", stage: "Complete", progress: 100, report: result.report, prompt: result.prompt, traces: result.traces, usage: result.usage });
       jobStore.addEvent(job.id, "complete", { progress: 100 });
     } catch {
       jobStore.update(job.id, { status: "failed", stage: "Failed", error: "Audit could not be completed" });
