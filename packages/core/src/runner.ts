@@ -59,8 +59,13 @@ export async function runAudit(
       jobs.push(() => execute(check, undefined, missing, () => check.run({ site, services, signal })));
     } else {
       for (const page of site.pages) {
+        // With render=auto only some pages are rendered; raw-vs-rendered checks must skip the rest.
+        const pageMissing =
+          check.requires.includes("rendered-dom") && page.renderedHtml === undefined && !missing.includes("rendered-dom")
+            ? [...missing, "rendered-dom" as const]
+            : missing;
         jobs.push(() =>
-          execute(check, page.finalUrl, missing, () =>
+          execute(check, page.finalUrl, pageMissing, () =>
             check.run(createPageContext(page, { site, services, signal })),
           ),
         );
