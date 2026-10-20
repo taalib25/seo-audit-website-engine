@@ -1,0 +1,4748 @@
+{
+  "schemaVersion": 1,
+  "id": "94f3ef5e-685d-4a98-a943-db7aef169fcd",
+  "startUrl": "https://www.eight25media.com/",
+  "origin": "https://www.eight25media.com",
+  "createdAt": "2026-10-20T12:22:15.387Z",
+  "durationMs": 1540,
+  "pagesCrawled": 3,
+  "capabilities": [
+    "crawl-graph",
+    "headers",
+    "llms-txt",
+    "raw-html",
+    "robots",
+    "sitemap"
+  ],
+  "scores": {
+    "overall": 77,
+    "pillars": [
+      {
+        "pillar": "seo",
+        "score": 88,
+        "passed": 60,
+        "warned": 14,
+        "failed": 7,
+        "skipped": 66
+      },
+      {
+        "pillar": "aeo",
+        "score": 100,
+        "passed": 3,
+        "warned": 0,
+        "failed": 0,
+        "skipped": 24
+      },
+      {
+        "pillar": "geo",
+        "score": 44,
+        "passed": 2,
+        "warned": 15,
+        "failed": 5,
+        "skipped": 7
+      }
+    ]
+  },
+  "results": [
+    {
+      "id": "seo.crawl.robots.fetchable",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "robots.txt reachable and parseable",
+      "status": "pass",
+      "score": 1,
+      "message": "robots.txt returned 200 and parsed successfully.",
+      "evidence": {
+        "groups": 1,
+        "sitemaps": [
+          "https://www.eight25media.com/sitemap_index.xml"
+        ]
+      },
+      "durationMs": 59
+    },
+    {
+      "id": "seo.crawl.robots.googlebot",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "deterministic",
+      "severity": "critical",
+      "title": "Important URLs not disallowed to Googlebot",
+      "status": "pass",
+      "score": 1,
+      "message": "No crawled or discovered target URL is disallowed to Googlebot.",
+      "evidence": {
+        "checked": 621
+      },
+      "durationMs": 59
+    },
+    {
+      "id": "seo.crawl.http.status",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "deterministic",
+      "severity": "critical",
+      "title": "Intended landing pages return success",
+      "url": "https://www.eight25media.com/",
+      "status": "pass",
+      "score": 1,
+      "message": "Page returns 200.",
+      "evidence": {
+        "status": 200,
+        "redirects": 0,
+        "finalUrl": "https://www.eight25media.com/"
+      },
+      "durationMs": 56
+    },
+    {
+      "id": "seo.crawl.http.status",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "deterministic",
+      "severity": "critical",
+      "title": "Intended landing pages return success",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "pass",
+      "score": 1,
+      "message": "Page returns 200.",
+      "evidence": {
+        "status": 200,
+        "redirects": 0,
+        "finalUrl": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page"
+      },
+      "durationMs": 55
+    },
+    {
+      "id": "seo.crawl.http.status",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "deterministic",
+      "severity": "critical",
+      "title": "Intended landing pages return success",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "warn",
+      "score": 0.5,
+      "message": "Page reaches 200 after a redirect.",
+      "evidence": {
+        "status": 200,
+        "redirects": 1,
+        "finalUrl": "https://www.eight25media.com/eight25-work/"
+      },
+      "durationMs": 55
+    },
+    {
+      "id": "seo.crawl.index.noindex",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "deterministic",
+      "severity": "critical",
+      "title": "Indexable page has no accidental noindex",
+      "url": "https://www.eight25media.com/",
+      "status": "pass",
+      "score": 1,
+      "message": "No noindex directive found.",
+      "evidence": {
+        "directives": [
+          "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+        ],
+        "noindex": false
+      },
+      "durationMs": 55
+    },
+    {
+      "id": "seo.crawl.index.noindex",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "deterministic",
+      "severity": "critical",
+      "title": "Indexable page has no accidental noindex",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "pass",
+      "score": 1,
+      "message": "No noindex directive found.",
+      "evidence": {
+        "directives": [
+          "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+        ],
+        "noindex": false
+      },
+      "durationMs": 33
+    },
+    {
+      "id": "seo.crawl.index.noindex",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "deterministic",
+      "severity": "critical",
+      "title": "Indexable page has no accidental noindex",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "pass",
+      "score": 1,
+      "message": "No noindex directive found.",
+      "evidence": {
+        "directives": [
+          "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+        ],
+        "noindex": false
+      },
+      "durationMs": 9
+    },
+    {
+      "id": "seo.crawl.canonical.present",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Canonical is singular and valid",
+      "url": "https://www.eight25media.com/",
+      "status": "pass",
+      "score": 1,
+      "message": "Canonical is singular, absolute, and target returned 200.",
+      "evidence": {
+        "count": 1,
+        "hrefs": [
+          "https://www.eight25media.com/"
+        ],
+        "absolute": true,
+        "targetStatus": 200
+      },
+      "durationMs": 50
+    },
+    {
+      "id": "seo.crawl.canonical.present",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Canonical is singular and valid",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "pass",
+      "score": 1,
+      "message": "Canonical is singular, absolute, and target returned 200.",
+      "evidence": {
+        "count": 1,
+        "hrefs": [
+          "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page/"
+        ],
+        "absolute": true,
+        "targetStatus": 200
+      },
+      "durationMs": 41
+    },
+    {
+      "id": "seo.crawl.canonical.present",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Canonical is singular and valid",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "pass",
+      "score": 1,
+      "message": "Canonical is singular, absolute, and target returned 200.",
+      "evidence": {
+        "count": 1,
+        "hrefs": [
+          "https://www.eight25media.com/eight25-work/"
+        ],
+        "absolute": true,
+        "targetStatus": 200
+      },
+      "durationMs": 25
+    },
+    {
+      "id": "seo.crawl.canonical.self-consistent",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Canonical agrees with sitemap and internal links",
+      "status": "pass",
+      "score": 1,
+      "message": "Canonical, sitemap, and internal link signals show no detected conflicts.",
+      "evidence": {
+        "pages": 3
+      },
+      "durationMs": 15
+    },
+    {
+      "id": "seo.crawl.sitemap.valid",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Sitemap is valid and accessible",
+      "status": "pass",
+      "score": 1,
+      "message": "Collected sitemap files returned 200 and are within URL limits. XML syntax and byte size are not present in the snapshot and are not inferred.",
+      "evidence": {
+        "count": 8,
+        "xmlAndBytesVerified": false
+      },
+      "durationMs": 12
+    },
+    {
+      "id": "seo.crawl.sitemap.url-quality",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Sitemap lists canonical indexable URLs only",
+      "status": "pass",
+      "score": 1,
+      "message": "All sampled sitemap URLs are same-host, live, indexable canonical URLs.",
+      "evidence": {
+        "total": 618,
+        "invalid": [],
+        "invalidPercent": 0
+      },
+      "durationMs": 12
+    },
+    {
+      "id": "seo.crawl.render.main-content",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Main content exists before client JS",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.crawl.render.main-content",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Main content exists before client JS",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.crawl.render.main-content",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Main content exists before client JS",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "geo.ai-crawl.openai.searchbot",
+      "pillar": "geo",
+      "category": "ai-access",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "OAI-SearchBot access policy",
+      "status": "warn",
+      "score": 0.5,
+      "message": "OAI-SearchBot is allowed only by wildcard/default behavior; make the policy explicit if desired.",
+      "evidence": {
+        "bot": "OAI-SearchBot",
+        "policy": "search/retrieval",
+        "urls": [
+          {
+            "url": "https://www.eight25media.com/",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          },
+          {
+            "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          },
+          {
+            "url": "https://www.eight25media.com/eight25-work/",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          }
+        ],
+        "explicit": false
+      },
+      "durationMs": 1
+    },
+    {
+      "id": "geo.ai-crawl.openai.gptbot",
+      "pillar": "geo",
+      "category": "ai-access",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "GPTBot training access policy",
+      "status": "warn",
+      "score": 0.5,
+      "message": "GPTBot inherits the wildcard policy; record an explicit choice if desired.",
+      "evidence": {
+        "bot": "GPTBot",
+        "policy": "training/operator-choice",
+        "urls": [
+          {
+            "url": "https://www.eight25media.com/",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          },
+          {
+            "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          },
+          {
+            "url": "https://www.eight25media.com/eight25-work/",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          }
+        ],
+        "explicit": false
+      },
+      "durationMs": 0
+    },
+    {
+      "id": "geo.ai-crawl.anthropic.searchbot",
+      "pillar": "geo",
+      "category": "ai-access",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Claude-SearchBot access policy",
+      "status": "warn",
+      "score": 0.5,
+      "message": "Claude-SearchBot is allowed only by wildcard/default behavior; make the policy explicit if desired.",
+      "evidence": {
+        "bot": "Claude-SearchBot",
+        "policy": "search/retrieval",
+        "urls": [
+          {
+            "url": "https://www.eight25media.com/",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          },
+          {
+            "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          },
+          {
+            "url": "https://www.eight25media.com/eight25-work/",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          }
+        ],
+        "explicit": false
+      },
+      "durationMs": 0
+    },
+    {
+      "id": "geo.ai-crawl.anthropic.claudebot",
+      "pillar": "geo",
+      "category": "ai-access",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "ClaudeBot training access policy",
+      "status": "warn",
+      "score": 0.5,
+      "message": "ClaudeBot inherits the wildcard policy; record an explicit choice if desired.",
+      "evidence": {
+        "bot": "ClaudeBot",
+        "policy": "training/operator-choice",
+        "urls": [
+          {
+            "url": "https://www.eight25media.com/",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          },
+          {
+            "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          },
+          {
+            "url": "https://www.eight25media.com/eight25-work/",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          }
+        ],
+        "explicit": false
+      },
+      "durationMs": 0
+    },
+    {
+      "id": "geo.ai-crawl.anthropic.user-fetch",
+      "pillar": "geo",
+      "category": "ai-access",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Claude-User access policy",
+      "status": "warn",
+      "score": 0.5,
+      "message": "Claude-User is allowed only by wildcard/default behavior; make the policy explicit if desired.",
+      "evidence": {
+        "bot": "Claude-User",
+        "policy": "search/retrieval",
+        "urls": [
+          {
+            "url": "https://www.eight25media.com/",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          },
+          {
+            "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          },
+          {
+            "url": "https://www.eight25media.com/eight25-work/",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          }
+        ],
+        "explicit": false
+      },
+      "durationMs": 0
+    },
+    {
+      "id": "geo.ai-crawl.perplexity.searchbot",
+      "pillar": "geo",
+      "category": "ai-access",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "PerplexityBot access policy",
+      "status": "warn",
+      "score": 0.5,
+      "message": "PerplexityBot is allowed only by wildcard/default behavior; make the policy explicit if desired.",
+      "evidence": {
+        "bot": "PerplexityBot",
+        "policy": "search/retrieval",
+        "urls": [
+          {
+            "url": "https://www.eight25media.com/",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          },
+          {
+            "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          },
+          {
+            "url": "https://www.eight25media.com/eight25-work/",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          }
+        ],
+        "explicit": false
+      },
+      "durationMs": 0
+    },
+    {
+      "id": "geo.ai-crawl.google.extended",
+      "pillar": "geo",
+      "category": "ai-access",
+      "kind": "deterministic",
+      "severity": "info",
+      "title": "Google-Extended training and grounding access",
+      "status": "warn",
+      "score": 0.5,
+      "message": "Google-Extended inherits the wildcard policy; record an explicit choice if desired.",
+      "evidence": {
+        "bot": "Google-Extended",
+        "policy": "training/operator-choice",
+        "urls": [
+          {
+            "url": "https://www.eight25media.com/",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          },
+          {
+            "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          },
+          {
+            "url": "https://www.eight25media.com/eight25-work/",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          }
+        ],
+        "explicit": false
+      },
+      "durationMs": 0
+    },
+    {
+      "id": "geo.ai-crawl.apple.extended",
+      "pillar": "geo",
+      "category": "ai-access",
+      "kind": "deterministic",
+      "severity": "info",
+      "title": "Applebot-Extended training access",
+      "status": "warn",
+      "score": 0.5,
+      "message": "Applebot-Extended inherits the wildcard policy; record an explicit choice if desired.",
+      "evidence": {
+        "bot": "Applebot-Extended",
+        "policy": "training/operator-choice",
+        "urls": [
+          {
+            "url": "https://www.eight25media.com/",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          },
+          {
+            "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          },
+          {
+            "url": "https://www.eight25media.com/eight25-work/",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          }
+        ],
+        "explicit": false
+      },
+      "durationMs": 0
+    },
+    {
+      "id": "geo.ai-crawl.commoncrawl.ccbot",
+      "pillar": "geo",
+      "category": "ai-access",
+      "kind": "deterministic",
+      "severity": "info",
+      "title": "CCBot training access",
+      "status": "warn",
+      "score": 0.5,
+      "message": "CCBot inherits the wildcard policy; record an explicit choice if desired.",
+      "evidence": {
+        "bot": "CCBot",
+        "policy": "training/operator-choice",
+        "urls": [
+          {
+            "url": "https://www.eight25media.com/",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          },
+          {
+            "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          },
+          {
+            "url": "https://www.eight25media.com/eight25-work/",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          }
+        ],
+        "explicit": false
+      },
+      "durationMs": 1
+    },
+    {
+      "id": "geo.ai-crawl.bytespider",
+      "pillar": "geo",
+      "category": "ai-access",
+      "kind": "deterministic",
+      "severity": "info",
+      "title": "Bytespider access policy",
+      "status": "warn",
+      "score": 0.5,
+      "message": "Bytespider inherits the wildcard policy; record an explicit choice if desired.",
+      "evidence": {
+        "bot": "Bytespider",
+        "policy": "training/operator-choice",
+        "urls": [
+          {
+            "url": "https://www.eight25media.com/",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          },
+          {
+            "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          },
+          {
+            "url": "https://www.eight25media.com/eight25-work/",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          }
+        ],
+        "explicit": false
+      },
+      "durationMs": 1
+    },
+    {
+      "id": "geo.ai-crawl.meta.externalagent",
+      "pillar": "geo",
+      "category": "ai-access",
+      "kind": "deterministic",
+      "severity": "info",
+      "title": "Meta-ExternalAgent access policy",
+      "status": "warn",
+      "score": 0.5,
+      "message": "Meta-ExternalAgent inherits the wildcard policy; record an explicit choice if desired.",
+      "evidence": {
+        "bot": "Meta-ExternalAgent",
+        "policy": "training/operator-choice",
+        "urls": [
+          {
+            "url": "https://www.eight25media.com/",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          },
+          {
+            "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          },
+          {
+            "url": "https://www.eight25media.com/eight25-work/",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          }
+        ],
+        "explicit": false
+      },
+      "durationMs": 1
+    },
+    {
+      "id": "geo.ai-crawl.amazonbot",
+      "pillar": "geo",
+      "category": "ai-access",
+      "kind": "deterministic",
+      "severity": "info",
+      "title": "Amazonbot access policy",
+      "status": "warn",
+      "score": 0.5,
+      "message": "Amazonbot inherits the wildcard policy; record an explicit choice if desired.",
+      "evidence": {
+        "bot": "Amazonbot",
+        "policy": "training/operator-choice",
+        "urls": [
+          {
+            "url": "https://www.eight25media.com/",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          },
+          {
+            "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          },
+          {
+            "url": "https://www.eight25media.com/eight25-work/",
+            "allowed": true,
+            "groupAgents": [
+              "*"
+            ]
+          }
+        ],
+        "explicit": false
+      },
+      "durationMs": 1
+    },
+    {
+      "id": "geo.ai-crawl.openai.user-fetch",
+      "pillar": "geo",
+      "category": "ai-access",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "ChatGPT-User request reachability",
+      "status": "skip",
+      "score": 1,
+      "message": "No verified provider request result is present in the snapshot.",
+      "evidence": {},
+      "durationMs": 1
+    },
+    {
+      "id": "geo.ai-crawl.ai-bot.rule-audit",
+      "pillar": "geo",
+      "category": "ai-access",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "AI bot rules cover current named tokens",
+      "status": "pass",
+      "score": 1,
+      "message": "Evaluated all named crawler tokens against the start URL and crawled pages.",
+      "evidence": {
+        "bots": [
+          {
+            "bot": "OAI-SearchBot",
+            "urls": [
+              {
+                "url": "https://www.eight25media.com/",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              },
+              {
+                "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              },
+              {
+                "url": "https://www.eight25media.com/eight25-work/",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              }
+            ]
+          },
+          {
+            "bot": "GPTBot",
+            "urls": [
+              {
+                "url": "https://www.eight25media.com/",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              },
+              {
+                "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              },
+              {
+                "url": "https://www.eight25media.com/eight25-work/",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              }
+            ]
+          },
+          {
+            "bot": "ChatGPT-User",
+            "urls": [
+              {
+                "url": "https://www.eight25media.com/",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              },
+              {
+                "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              },
+              {
+                "url": "https://www.eight25media.com/eight25-work/",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              }
+            ]
+          },
+          {
+            "bot": "ClaudeBot",
+            "urls": [
+              {
+                "url": "https://www.eight25media.com/",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              },
+              {
+                "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              },
+              {
+                "url": "https://www.eight25media.com/eight25-work/",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              }
+            ]
+          },
+          {
+            "bot": "Claude-SearchBot",
+            "urls": [
+              {
+                "url": "https://www.eight25media.com/",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              },
+              {
+                "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              },
+              {
+                "url": "https://www.eight25media.com/eight25-work/",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              }
+            ]
+          },
+          {
+            "bot": "Claude-User",
+            "urls": [
+              {
+                "url": "https://www.eight25media.com/",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              },
+              {
+                "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              },
+              {
+                "url": "https://www.eight25media.com/eight25-work/",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              }
+            ]
+          },
+          {
+            "bot": "PerplexityBot",
+            "urls": [
+              {
+                "url": "https://www.eight25media.com/",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              },
+              {
+                "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              },
+              {
+                "url": "https://www.eight25media.com/eight25-work/",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              }
+            ]
+          },
+          {
+            "bot": "Google-Extended",
+            "urls": [
+              {
+                "url": "https://www.eight25media.com/",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              },
+              {
+                "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              },
+              {
+                "url": "https://www.eight25media.com/eight25-work/",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              }
+            ]
+          },
+          {
+            "bot": "Applebot-Extended",
+            "urls": [
+              {
+                "url": "https://www.eight25media.com/",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              },
+              {
+                "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              },
+              {
+                "url": "https://www.eight25media.com/eight25-work/",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              }
+            ]
+          },
+          {
+            "bot": "CCBot",
+            "urls": [
+              {
+                "url": "https://www.eight25media.com/",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              },
+              {
+                "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              },
+              {
+                "url": "https://www.eight25media.com/eight25-work/",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              }
+            ]
+          },
+          {
+            "bot": "Bytespider",
+            "urls": [
+              {
+                "url": "https://www.eight25media.com/",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              },
+              {
+                "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              },
+              {
+                "url": "https://www.eight25media.com/eight25-work/",
+                "allowed": true,
+                "groupAgents": [
+                  "*"
+                ],
+                "specificity": 0
+              }
+            ]
+          }
+        ]
+      },
+      "durationMs": 0
+    },
+    {
+      "id": "seo.security.https",
+      "pillar": "seo",
+      "category": "security",
+      "kind": "deterministic",
+      "severity": "critical",
+      "title": "Canonical site uses HTTPS",
+      "status": "pass",
+      "score": 1,
+      "message": "Sampled pages return successful HTTPS responses; observed HTTP requests include redirect evidence.",
+      "evidence": {
+        "sampled": 3,
+        "httpUrls": [],
+        "unsuccessful": [],
+        "httpRequestsWithoutObservedRedirect": []
+      },
+      "durationMs": 0
+    },
+    {
+      "id": "seo.security.hsts",
+      "pillar": "seo",
+      "category": "security",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "HSTS enabled on HTTPS host",
+      "status": "pass",
+      "score": 1,
+      "message": "HSTS max-age meets the six-month target.",
+      "evidence": {
+        "value": "max-age=63072000",
+        "maxAge": 63072000
+      },
+      "durationMs": 0
+    },
+    {
+      "id": "seo.security.csp",
+      "pillar": "seo",
+      "category": "security",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Content Security Policy present",
+      "status": "pass",
+      "score": 1,
+      "message": "Enforced Content-Security-Policy header is present.",
+      "evidence": {
+        "policy": "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: ; script-src 'self' 'unsafe-inline' 'unsafe-eval' adservice.google.com adservice.google.ae www.google.com cdn.mxpnl.com snap.licdn.com connect.facebook.net visitor.reactful.com www.gstatic.com s.adroll.com googleads.g.doubleclick.net www.eight25media.com d.adroll.com blob: data: https://eight25media.activehosted.com https://static.hotjar.com https://*.hotjar.com https://js.hs-scripts.com https://js.hs-banner.com https://js.hscollectedforms.net https://js.hs-analytics.net https://forms.hubspot.com https://forms.hsforms.com https://tag.clearbitscripts.com https://x.clearbitjs.com https://sc.lfeeder.com https://*.metadata.io https://*.reactful.com https://cdn-cookieyes.com https://tracking-cdn.figpii.com https://j.6sc.co https://s3-us-west-2.amazonaws.com https://opps-widget.getwarmly.com https://a.usbrowserspeed.com https://a.remarketstats.com https://widget.cloudinary.com https://i.liadm.com https://upload-widget.cloudinary.com https://a.clickcertain.com https://d-code.liadm.com https://my.yoast.com https://yoast.com https://snap.licdn.com https://cdn.mxpnl.com google-analytics.com www.google-analytics.com ssl.google-analytics.com stats.g.doubleclick.net ajax.googleapis.com www.googletagmanager.com googletagmanager.com tagmanager.google.com; style-src 'self' 'unsafe-inline' data: https://unpkg.com https://www.eight25media.com https://snap.licdn.com https://cdn.mxpnl.com https://cdn-cookieyes.com fonts.googleapis.com www.googletagmanager.com tagmanager.google.com; img-src 'self' data: https://eight25media-web.s3.amazonaws.com https://eight25media.com https://px.ads.linkedin.com https://p.adsymptotic.com https://www.facebook.com https://connect.facebook.net d.adroll.com https://static.hotjar.com https://forms.hsforms.com https://js.hs-analytics.net https://track.hubspot.com https://cm.g.doubleclick.net https://x.bidswitch.net https://dsum-sec.casalemedia.com https://pixel.rubiconproject.com https://idsync.rlcdn.com https://us-u.openx.net https://sync.outbrain.com https://image2.pubmatic.com https://ups.analytics.yahoo.com https://sync.taboola.com https://ib.adnxs.com https://eb2.3lift.com https://pippio.com https://www.linkedin.com https://px4.ads.linkedin.com https://ipv4.d.adroll.com https://tr-rc.lfeeder.com https://www.eight25media.com/wp-content https://yoast.com https://d2iiunr5ws5ch1.cloudfront.net https://ipv6.6sc.co https://b.6sc.co https://x.adroll.com https://res.cloudinary.com https://images.vrts.app https://rp.liadm.com https://pixel.tapad.com https://ml314.com https://*.liadm.com https://match.adsrvr.org https://secure.adnxs.com https://dpm.demdex.net https://b.6sc.com https://snap.licdn.com https://cdn.mxpnl.com https://cdn-cookieyes.com secure.gravatar.com www.gravatar.com data: blob: google-analytics.com www.google-analytics.com ssl.google-analytics.com www.google.com www.googletagmanager.com; connect-src 'self' https://connect.facebook.net https://visitor.reactful.com https://www.eight25media.com d.adroll.com https://tracking.reactful.com https://static.hotjar.com https://*.hotjar.com wss://ws42.hotjar.com wss://*.hotjar.com https://js.hs-banner.com https://js.hs-scripts.com https://js.hscollectedforms.net https://js.hs-analytics.net https://forms.hubspot.com https://forms.hsforms.com https://cdn.linkedin.oribi.io https://content.hotjar.io https://www.facebook.com https://forms.hscollectedforms.net https://app.clearbit.com https://*.reactful.com https://*.metadata.io https://*.usbrowserspeed.com https://cdn-cookieyes.com https://log.cookieyes.com https://sessions.bugsnag.com https://tracking-settings.figpii.com https://metrics.hotjar.io wss://ws-mt1.pusher.com https://sockjs.pusher.com https://vc.hotjar.io https://c.6sc.co https://ipv6.6sc.co https://consentlog.cookieyes.com https://a.remarketstats.com https://pro.ip-api.com https://i.liadm.com https://a.clickcertain.com https://opps-api.getwarmly.com wss://opps-api.getwarmly.com https://api.giphy.com https://api.ipify.org https://px.ads.linkedin.com https://www.google.com https://idx.liadm.com https://rp.liadm.com https://*.liadm.com https://d-code.liadm.com https://my.yoast.com www.google-analytics.com stats.g.doubleclick.net ampcid.google.com analytics.google.com about: www.googletagmanager.com; font-src 'self' data: https://snap.licdn.com https://cdn.mxpnl.com https://cdn-cookieyes.com data: fonts.gstatic.com fonts.googleapis.com; object-src 'self' https://www.eight25media.com https://connect.facebook.net https://static.hotjar.com https://js.hs-scripts.com https://forms.hubspot.com https://js.hs-analytics.net https://forms.hsforms.com; media-src 'self' data: https://snap.licdn.com https://cdn.mxpnl.com https://cdn-cookieyes.com; frame-src 'self' googleads.g.doubleclick.net https://www.google.com https://www.facebook.com https://static.hotjar.com https://*.hotjar.com https://js.hs-scripts.com https://forms.hubspot.com https://js.hs-analytics.net https://forms.hsforms.com https://sidebar.bugherd.com https://www.youtube.com https://x.adroll.com https://www.eight25media.com www.googletagmanager.com; child-src 'self' www.googletagmanager.com; frame-ancestors * https://d.adroll.com https://js.hs-analytics.net https://forms.hsforms.com/=;"
+      },
+      "durationMs": 28
+    },
+    {
+      "id": "seo.security.headers.disclosure",
+      "pillar": "seo",
+      "category": "security",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Server does not expose unnecessary version details",
+      "status": "fail",
+      "score": 0,
+      "message": "Version or framework details are exposed in response headers.",
+      "evidence": {
+        "disclosed": [
+          {
+            "url": "https://www.eight25media.com/",
+            "header": "server",
+            "value": "cloudflare"
+          },
+          {
+            "url": "https://www.eight25media.com/",
+            "header": "x-powered-by",
+            "value": "WP Engine"
+          },
+          {
+            "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+            "header": "server",
+            "value": "cloudflare"
+          },
+          {
+            "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+            "header": "x-powered-by",
+            "value": "WP Engine"
+          },
+          {
+            "url": "https://www.eight25media.com/eight25-work/",
+            "header": "server",
+            "value": "cloudflare"
+          },
+          {
+            "url": "https://www.eight25media.com/eight25-work/",
+            "header": "x-powered-by",
+            "value": "WP Engine"
+          }
+        ],
+        "precise": [
+          {
+            "url": "https://www.eight25media.com/",
+            "header": "x-powered-by",
+            "value": "WP Engine"
+          },
+          {
+            "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+            "header": "x-powered-by",
+            "value": "WP Engine"
+          },
+          {
+            "url": "https://www.eight25media.com/eight25-work/",
+            "header": "x-powered-by",
+            "value": "WP Engine"
+          }
+        ]
+      },
+      "fix": {
+        "summary": "Remove detailed version headers at the edge or server."
+      },
+      "durationMs": 28
+    },
+    {
+      "id": "seo.security.mixed-content",
+      "pillar": "seo",
+      "category": "security",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "HTTPS page has no HTTP active content",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.security.mixed-content",
+      "pillar": "seo",
+      "category": "security",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "HTTPS page has no HTTP active content",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.security.mixed-content",
+      "pillar": "seo",
+      "category": "security",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "HTTPS page has no HTTP active content",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.intl.hreflang.valid",
+      "pillar": "seo",
+      "category": "international",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "hreflang values and URLs valid",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "No hreflang alternates are present.",
+      "evidence": {},
+      "durationMs": 89
+    },
+    {
+      "id": "seo.intl.hreflang.valid",
+      "pillar": "seo",
+      "category": "international",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "hreflang values and URLs valid",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "No hreflang alternates are present.",
+      "evidence": {},
+      "durationMs": 81
+    },
+    {
+      "id": "seo.intl.hreflang.valid",
+      "pillar": "seo",
+      "category": "international",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "hreflang values and URLs valid",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "No hreflang alternates are present.",
+      "evidence": {},
+      "durationMs": 69
+    },
+    {
+      "id": "seo.intl.hreflang.return-links",
+      "pillar": "seo",
+      "category": "international",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "hreflang references are reciprocal",
+      "status": "pass",
+      "score": 1,
+      "message": "All crawled hreflang targets link back.",
+      "evidence": {
+        "checkedPages": 3
+      },
+      "durationMs": 83
+    },
+    {
+      "id": "seo.intl.hreflang.self",
+      "pillar": "seo",
+      "category": "international",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Each language variant self-references",
+      "url": "https://www.eight25media.com/",
+      "status": "warn",
+      "score": 0.5,
+      "message": "Hreflang set has no self reference.",
+      "evidence": {
+        "canonical": "https://www.eight25media.com/",
+        "alternates": []
+      },
+      "durationMs": 41
+    },
+    {
+      "id": "seo.intl.hreflang.self",
+      "pillar": "seo",
+      "category": "international",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Each language variant self-references",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "warn",
+      "score": 0.5,
+      "message": "Hreflang set has no self reference.",
+      "evidence": {
+        "canonical": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page/",
+        "alternates": []
+      },
+      "durationMs": 33
+    },
+    {
+      "id": "seo.intl.hreflang.self",
+      "pillar": "seo",
+      "category": "international",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Each language variant self-references",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "warn",
+      "score": 0.5,
+      "message": "Hreflang set has no self reference.",
+      "evidence": {
+        "canonical": "https://www.eight25media.com/eight25-work/",
+        "alternates": []
+      },
+      "durationMs": 47
+    },
+    {
+      "id": "seo.intl.canonical-language",
+      "pillar": "seo",
+      "category": "international",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Canonical remains in same language",
+      "url": "https://www.eight25media.com/",
+      "status": "pass",
+      "score": 1,
+      "message": "Canonical does not appear to target another language variant.",
+      "evidence": {
+        "lang": "en",
+        "canonical": "https://www.eight25media.com/"
+      },
+      "durationMs": 38
+    },
+    {
+      "id": "seo.intl.canonical-language",
+      "pillar": "seo",
+      "category": "international",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Canonical remains in same language",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "pass",
+      "score": 1,
+      "message": "Canonical does not appear to target another language variant.",
+      "evidence": {
+        "lang": "en",
+        "canonical": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page/"
+      },
+      "durationMs": 27
+    },
+    {
+      "id": "seo.intl.canonical-language",
+      "pillar": "seo",
+      "category": "international",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Canonical remains in same language",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "pass",
+      "score": 1,
+      "message": "Canonical does not appear to target another language variant.",
+      "evidence": {
+        "lang": "en",
+        "canonical": "https://www.eight25media.com/eight25-work/"
+      },
+      "durationMs": 15
+    },
+    {
+      "id": "seo.perf.cwv.lcp",
+      "pillar": "seo",
+      "category": "performance",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Field LCP",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.perf.cwv.lcp",
+      "pillar": "seo",
+      "category": "performance",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Field LCP",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.perf.cwv.lcp",
+      "pillar": "seo",
+      "category": "performance",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Field LCP",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.perf.cwv.inp",
+      "pillar": "seo",
+      "category": "performance",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Field INP",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.perf.cwv.inp",
+      "pillar": "seo",
+      "category": "performance",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Field INP",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.perf.cwv.inp",
+      "pillar": "seo",
+      "category": "performance",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Field INP",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.perf.cwv.cls",
+      "pillar": "seo",
+      "category": "performance",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Field CLS",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.perf.cwv.cls",
+      "pillar": "seo",
+      "category": "performance",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Field CLS",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.perf.cwv.cls",
+      "pillar": "seo",
+      "category": "performance",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Field CLS",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.perf.lab.lcp",
+      "pillar": "seo",
+      "category": "performance",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Lab load proxy",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.perf.lab.lcp",
+      "pillar": "seo",
+      "category": "performance",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Lab load proxy",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.perf.lab.lcp",
+      "pillar": "seo",
+      "category": "performance",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Lab load proxy",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.perf.lab.long-task",
+      "pillar": "seo",
+      "category": "performance",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Main-thread long task proxy",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.perf.lab.long-task",
+      "pillar": "seo",
+      "category": "performance",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Main-thread long task proxy",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.perf.lab.long-task",
+      "pillar": "seo",
+      "category": "performance",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Main-thread long task proxy",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.perf.payload.oversize",
+      "pillar": "seo",
+      "category": "performance",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Initial transfer payload",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Transfer size is unavailable; snapshot does not include compressed resource sizes.",
+      "evidence": {},
+      "durationMs": 46
+    },
+    {
+      "id": "seo.perf.payload.oversize",
+      "pillar": "seo",
+      "category": "performance",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Initial transfer payload",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Transfer size is unavailable; snapshot does not include compressed resource sizes.",
+      "evidence": {},
+      "durationMs": 46
+    },
+    {
+      "id": "seo.perf.payload.oversize",
+      "pillar": "seo",
+      "category": "performance",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Initial transfer payload",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Transfer size is unavailable; snapshot does not include compressed resource sizes.",
+      "evidence": {},
+      "durationMs": 46
+    },
+    {
+      "id": "seo.title.length",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Title tag present and 30–60 characters",
+      "url": "https://www.eight25media.com/",
+      "status": "pass",
+      "score": 1,
+      "message": "Title is 44 characters.",
+      "evidence": {
+        "title": "B2B Digital Agency for Enterprises | eight25",
+        "length": 44,
+        "count": 1
+      },
+      "durationMs": 46
+    },
+    {
+      "id": "seo.title.length",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Title tag present and 30–60 characters",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "warn",
+      "score": 0.5,
+      "message": "Title is 89 characters and appears 1 time(s).",
+      "evidence": {
+        "title": "Analyzing the 'Request a Demo' Page: Unpacking Why Conversions Are Lagging - EIGHT25MEDIA",
+        "length": 89,
+        "count": 1
+      },
+      "fix": {
+        "summary": "Write a unique, descriptive <title> of 30–60 characters leading with the primary topic."
+      },
+      "durationMs": 36
+    },
+    {
+      "id": "seo.title.length",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Title tag present and 30–60 characters",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "pass",
+      "score": 1,
+      "message": "Title is 55 characters.",
+      "evidence": {
+        "title": "Silicon Valley Digital Agency | eight25 Success Stories",
+        "length": 55,
+        "count": 1
+      },
+      "durationMs": 26
+    },
+    {
+      "id": "seo.title.present",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Descriptive title element",
+      "url": "https://www.eight25media.com/",
+      "status": "pass",
+      "score": 1,
+      "message": "One descriptive title is present.",
+      "evidence": {
+        "title": "B2B Digital Agency for Enterprises | eight25",
+        "length": 44,
+        "count": 1
+      },
+      "durationMs": 14
+    },
+    {
+      "id": "seo.title.present",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Descriptive title element",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "fail",
+      "score": 0,
+      "message": "Title is missing, blank, duplicated, or over 70 characters.",
+      "evidence": {
+        "title": "Analyzing the 'Request a Demo' Page: Unpacking Why Conversions Are Lagging - EIGHT25MEDIA",
+        "length": 89,
+        "count": 1
+      },
+      "fix": {
+        "summary": "Write one concise, page specific title between 15 and 60 characters."
+      },
+      "durationMs": 6
+    },
+    {
+      "id": "seo.title.present",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Descriptive title element",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "pass",
+      "score": 1,
+      "message": "One descriptive title is present.",
+      "evidence": {
+        "title": "Silicon Valley Digital Agency | eight25 Success Stories",
+        "length": 55,
+        "count": 1
+      },
+      "durationMs": 92
+    },
+    {
+      "id": "seo.title.unique",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Unique title within crawl",
+      "status": "pass",
+      "score": 1,
+      "message": "All sampled titles are unique.",
+      "evidence": {
+        "duplicateGroups": [],
+        "duplicateUrlCount": 0
+      },
+      "durationMs": 85
+    },
+    {
+      "id": "seo.description.present",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Meta description present and bounded",
+      "url": "https://www.eight25media.com/",
+      "status": "pass",
+      "score": 1,
+      "message": "Meta description is within the target range.",
+      "evidence": {
+        "description": "Global B2B digital agency offering enterprise web design, mobile apps, and strategic consulting for Fortune 500 firms.",
+        "length": 118,
+        "count": 1
+      },
+      "durationMs": 57
+    },
+    {
+      "id": "seo.description.present",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Meta description present and bounded",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "pass",
+      "score": 1,
+      "message": "Meta description is within the target range.",
+      "evidence": {
+        "description": "It's apparent that the 'Request a Demo' page often functions as an unspoken 'Are you sure you want a demo?' checkpoint. Here's five steps to minimize friction.",
+        "length": 159,
+        "count": 1
+      },
+      "durationMs": 43
+    },
+    {
+      "id": "seo.description.present",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Meta description present and bounded",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "warn",
+      "score": 0.5,
+      "message": "Description length is 165; 1 description tags found.",
+      "evidence": {
+        "description": "eight25, Silicon Valley based full-service digital agency with world class capabilities, focused on helping client maximize online revenue. View our success stories.",
+        "length": 165,
+        "count": 1
+      },
+      "fix": {
+        "summary": "Add a concise, accurate, page specific description of 70–160 characters."
+      },
+      "durationMs": 36
+    },
+    {
+      "id": "seo.description.unique",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Unique meta descriptions",
+      "status": "pass",
+      "score": 1,
+      "message": "All sampled descriptions are unique.",
+      "evidence": {
+        "duplicateGroups": [],
+        "duplicateUrlCount": 0
+      },
+      "durationMs": 30
+    },
+    {
+      "id": "seo.h1.present",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Main heading exists",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.h1.present",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Main heading exists",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.h1.present",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Main heading exists",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.heading.order",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Heading hierarchy does not skip levels",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.heading.order",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Heading hierarchy does not skip levels",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.heading.order",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Heading hierarchy does not skip levels",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.meta.viewport",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Mobile viewport is configured",
+      "url": "https://www.eight25media.com/",
+      "status": "pass",
+      "score": 1,
+      "message": "Responsive viewport is configured.",
+      "evidence": {
+        "values": [
+          "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+        ]
+      },
+      "durationMs": 59
+    },
+    {
+      "id": "seo.meta.viewport",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Mobile viewport is configured",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "pass",
+      "score": 1,
+      "message": "Responsive viewport is configured.",
+      "evidence": {
+        "values": [
+          "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+        ]
+      },
+      "durationMs": 51
+    },
+    {
+      "id": "seo.meta.viewport",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Mobile viewport is configured",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "pass",
+      "score": 1,
+      "message": "Responsive viewport is configured.",
+      "evidence": {
+        "values": [
+          "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+        ]
+      },
+      "durationMs": 36
+    },
+    {
+      "id": "seo.lang.html",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Document language declared",
+      "url": "https://www.eight25media.com/",
+      "status": "pass",
+      "score": 1,
+      "message": "Document language is en-US.",
+      "evidence": {
+        "lang": "en-US"
+      },
+      "durationMs": 29
+    },
+    {
+      "id": "seo.lang.html",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Document language declared",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "pass",
+      "score": 1,
+      "message": "Document language is en-US.",
+      "evidence": {
+        "lang": "en-US"
+      },
+      "durationMs": 19
+    },
+    {
+      "id": "seo.lang.html",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Document language declared",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "pass",
+      "score": 1,
+      "message": "Document language is en-US.",
+      "evidence": {
+        "lang": "en-US"
+      },
+      "durationMs": 9
+    },
+    {
+      "id": "seo.url.readable",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "URL is stable and human-readable",
+      "url": "https://www.eight25media.com/",
+      "status": "pass",
+      "score": 1,
+      "message": "URL path is stable and readable.",
+      "evidence": {
+        "url": "https://www.eight25media.com/",
+        "path": "/",
+        "params": [],
+        "opaqueSegments": []
+      },
+      "durationMs": 0
+    },
+    {
+      "id": "seo.url.readable",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "URL is stable and human-readable",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "pass",
+      "score": 1,
+      "message": "URL path is stable and readable.",
+      "evidence": {
+        "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+        "path": "/blog/analyzing-the-request-a-demo-page",
+        "params": [],
+        "opaqueSegments": []
+      },
+      "durationMs": 0
+    },
+    {
+      "id": "seo.url.readable",
+      "pillar": "seo",
+      "category": "on-page",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "URL is stable and human-readable",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "pass",
+      "score": 1,
+      "message": "URL path is stable and readable.",
+      "evidence": {
+        "url": "https://www.eight25media.com/eigth25-work",
+        "path": "/eigth25-work",
+        "params": [],
+        "opaqueSegments": []
+      },
+      "durationMs": 14
+    },
+    {
+      "id": "seo.links.internal-crawlable",
+      "pillar": "seo",
+      "category": "links",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Internal destinations use crawlable anchors",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.links.internal-crawlable",
+      "pillar": "seo",
+      "category": "links",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Internal destinations use crawlable anchors",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.links.internal-crawlable",
+      "pillar": "seo",
+      "category": "links",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Internal destinations use crawlable anchors",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.links.internal-broken",
+      "pillar": "seo",
+      "category": "links",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Internal links resolve",
+      "status": "pass",
+      "score": 1,
+      "message": "No crawled internal links target error pages.",
+      "evidence": {
+        "brokenCount": 0,
+        "linkCount": 129,
+        "rate": 0,
+        "broken": []
+      },
+      "durationMs": 65
+    },
+    {
+      "id": "seo.links.orphaned",
+      "pillar": "seo",
+      "category": "links",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Important crawled pages have inbound links",
+      "status": "pass",
+      "score": 1,
+      "message": "Sitemap pages have inbound internal links.",
+      "evidence": {
+        "sitemapPageCount": 2,
+        "orphanCount": 0,
+        "orphanUrls": []
+      },
+      "durationMs": 61
+    },
+    {
+      "id": "seo.links.depth",
+      "pillar": "seo",
+      "category": "links",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Priority pages are reachable within 3 clicks",
+      "status": "fail",
+      "score": 0,
+      "message": "0 pages are deeper than three clicks or uncrawled destinations remain.",
+      "evidence": {
+        "deepPages": [],
+        "deepCount": 0,
+        "uncrawled": [
+          "https://www.eight25media.com/wp-content/uploads/2023/09/Armis_Testimonial.webm",
+          "https://www.eight25media.com/blog/is-your-website-dressed-for-success",
+          "https://www.eight25media.com/blog/your-homepage-hero",
+          "https://www.eight25media.com/blog/does-your-website-answer-what-do-you-do-in-the-first-10-seconds",
+          "https://www.eight25media.com/blog/brand-credibility",
+          "https://www.eight25media.com/blog/website-redesign-strategy",
+          "https://www.eight25media.com/blog/are-you-struggling-to-generate-leads-from-your-website",
+          "https://www.eight25media.com/blog/customer-focused-user-journeys",
+          "https://www.eight25media.com/blog/why-is-brand-alignment-important-for-b2b-enterprise-websites",
+          "https://www.eight25media.com/blog/navigating-the-ungated-vs-gated-content-dilemma",
+          "https://www.eight25media.com/blog/transparent-vs-non-transparent-pricing-the-real-impact-on-sales",
+          "https://www.eight25media.com/blog/why-homepage-length-isnt-the-problem-content-placement-is",
+          "https://www.eight25media.com/blog/planning-to-sell-to-enterprise-start-with-a-hard-look-at-your-website",
+          "https://www.eight25media.com/blog/5-practical-ways-to-visualize-technical-products-on-your-website-with-examples",
+          "https://www.eight25media.com/blog/how-to-structure-a-b2b-website-that-serves-multiple-products-for-distinct-audience-types",
+          "https://www.eight25media.com/blog/how-to-spotlight-innovation-without-alienating-legacy-customers-on-the-website",
+          "https://www.eight25media.com/blog/3-ways-to-speed-up-website-updates-and-publish-faster",
+          "https://www.eight25media.com/blog/is-a-headless-cms-the-right-choice-for-your-business-heres-what-to-consider",
+          "https://www.eight25media.com/blog/how-content-clarity-drives-smarter-component-choices-in-web-design",
+          "https://www.eight25media.com/blog/3-simple-fixes-to-get-more-conversions-on-your-website",
+          "https://www.eight25media.com/blog/3-ways-to-minimize-friction-on-your-demo-page",
+          "https://www.eight25media.com/blog/the-importance-of-a-balanced-website-approach-for-enhanced-user-experience",
+          "https://www.eight25media.com/blog/how-we-helped-a-14x-gartner-leader-simplify-navigation-for-two-distinct-audiences",
+          "https://www.eight25media.com/blog/how-eight25-reshaped-qliks-multi-brand-web-presence",
+          "https://www.eight25media.com/blog/how-enterprise-teams-achieve-faster-design-alignment-with-eight25s-mood-boarding-process",
+          "https://www.eight25media.com/blog/10-best-practices-for-a-smooth-contentful-migration",
+          "https://www.eight25media.com/blog/how-eight25-helped-qlik-preserve-seo-value-with-seamless-migration",
+          "https://www.eight25media.com/blog/7-common-challenges-when-migrating-wordpress-to-contentful-and-how-to-fix-them",
+          "https://www.eight25media.com/blog/contentful-vs-contentstack",
+          "https://www.eight25media.com/blog/cms-migration-checklist-everything-you-need-for-a-smooth-enterprise-transition"
+        ]
+      },
+      "fix": {
+        "summary": "Add links from navigation or topic hubs to priority pages within three clicks."
+      },
+      "durationMs": 57
+    },
+    {
+      "id": "seo.links.redirect-chain",
+      "pillar": "seo",
+      "category": "links",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Internal links point to final destinations",
+      "status": "warn",
+      "score": 0.5,
+      "message": "8 internal links point to redirected pages.",
+      "evidence": {
+        "redirectedCount": 8,
+        "examples": [
+          {
+            "from": "https://www.eight25media.com/",
+            "to": "https://www.eight25media.com/eight25-work",
+            "finalUrl": "https://www.eight25media.com/eight25-work/",
+            "anchor": "Work"
+          },
+          {
+            "from": "https://www.eight25media.com/",
+            "to": "https://www.eight25media.com/eigth25-work",
+            "finalUrl": "https://www.eight25media.com/eight25-work/",
+            "anchor": "View all work"
+          },
+          {
+            "from": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+            "to": "https://www.eight25media.com/eight25-work",
+            "finalUrl": "https://www.eight25media.com/eight25-work/",
+            "anchor": "Work"
+          },
+          {
+            "from": "https://www.eight25media.com/eight25-work/",
+            "to": "https://www.eight25media.com/eight25-work",
+            "finalUrl": "https://www.eight25media.com/eight25-work/",
+            "anchor": "[space]"
+          },
+          {
+            "from": "https://www.eight25media.com/eight25-work/",
+            "to": "https://www.eight25media.com/eight25-work",
+            "finalUrl": "https://www.eight25media.com/eight25-work/",
+            "anchor": "Work"
+          },
+          {
+            "from": "https://www.eight25media.com/eight25-work/",
+            "to": "https://www.eight25media.com/eight25-work",
+            "finalUrl": "https://www.eight25media.com/eight25-work/",
+            "anchor": "Studio Services"
+          },
+          {
+            "from": "https://www.eight25media.com/eight25-work/",
+            "to": "https://www.eight25media.com/eight25-work",
+            "finalUrl": "https://www.eight25media.com/eight25-work/",
+            "anchor": "Show more"
+          },
+          {
+            "from": "https://www.eight25media.com/eight25-work/",
+            "to": "https://www.eight25media.com/eight25-work",
+            "finalUrl": "https://www.eight25media.com/eight25-work/",
+            "anchor": "Show less"
+          }
+        ]
+      },
+      "fix": {
+        "summary": "Update internal hrefs to point directly to each final URL."
+      },
+      "durationMs": 57
+    },
+    {
+      "id": "seo.links.outbound-ugc-sponsorship",
+      "pillar": "seo",
+      "category": "links",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Paid and user-generated links are qualified",
+      "url": "https://www.eight25media.com/",
+      "status": "pass",
+      "score": 1,
+      "message": "No unqualified paid or UGC links were detected.",
+      "evidence": {
+        "missingQualification": [],
+        "count": 0
+      },
+      "durationMs": 51
+    },
+    {
+      "id": "seo.links.outbound-ugc-sponsorship",
+      "pillar": "seo",
+      "category": "links",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Paid and user-generated links are qualified",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "pass",
+      "score": 1,
+      "message": "No unqualified paid or UGC links were detected.",
+      "evidence": {
+        "missingQualification": [],
+        "count": 0
+      },
+      "durationMs": 40
+    },
+    {
+      "id": "seo.links.outbound-ugc-sponsorship",
+      "pillar": "seo",
+      "category": "links",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Paid and user-generated links are qualified",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "pass",
+      "score": 1,
+      "message": "No unqualified paid or UGC links were detected.",
+      "evidence": {
+        "missingQualification": [],
+        "count": 0
+      },
+      "durationMs": 26
+    },
+    {
+      "id": "seo.media.alt.missing",
+      "pillar": "seo",
+      "category": "media",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Informative images have alt text",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.media.alt.missing",
+      "pillar": "seo",
+      "category": "media",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Informative images have alt text",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.media.alt.missing",
+      "pillar": "seo",
+      "category": "media",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Informative images have alt text",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.media.image.fetchable",
+      "pillar": "seo",
+      "category": "media",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Important image URLs are crawlable",
+      "url": "https://www.eight25media.com/",
+      "status": "pass",
+      "score": 1,
+      "message": "Image URLs use fetchable HTTP(S) schemes.",
+      "evidence": {
+        "imageCount": 30,
+        "invalidOrUnresolvable": []
+      },
+      "durationMs": 36
+    },
+    {
+      "id": "seo.media.image.fetchable",
+      "pillar": "seo",
+      "category": "media",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Important image URLs are crawlable",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "pass",
+      "score": 1,
+      "message": "Image URLs use fetchable HTTP(S) schemes.",
+      "evidence": {
+        "imageCount": 6,
+        "invalidOrUnresolvable": []
+      },
+      "durationMs": 25
+    },
+    {
+      "id": "seo.media.image.fetchable",
+      "pillar": "seo",
+      "category": "media",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Important image URLs are crawlable",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "pass",
+      "score": 1,
+      "message": "Image URLs use fetchable HTTP(S) schemes.",
+      "evidence": {
+        "imageCount": 45,
+        "invalidOrUnresolvable": []
+      },
+      "durationMs": 14
+    },
+    {
+      "id": "seo.media.image.dimensions",
+      "pillar": "seo",
+      "category": "media",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Images reserve layout space",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.media.image.dimensions",
+      "pillar": "seo",
+      "category": "media",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Images reserve layout space",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.media.image.dimensions",
+      "pillar": "seo",
+      "category": "media",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Images reserve layout space",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.media.video.indexable",
+      "pillar": "seo",
+      "category": "media",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Video has a crawlable landing page",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.media.video.indexable",
+      "pillar": "seo",
+      "category": "media",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Video has a crawlable landing page",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.media.video.indexable",
+      "pillar": "seo",
+      "category": "media",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Video has a crawlable landing page",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "aeo.visible-content-parity",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Core answer is visible without interaction",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "aeo.visible-content-parity",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Core answer is visible without interaction",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "aeo.visible-content-parity",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Core answer is visible without interaction",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "aeo.content.freshness-signal",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Dates are valid and internally consistent",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "aeo.content.freshness-signal",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Dates are valid and internally consistent",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "aeo.content.freshness-signal",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Dates are valid and internally consistent",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "aeo.faq.visible",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "FAQ markup matches visible Q&A",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "aeo.faq.visible",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "FAQ markup matches visible Q&A",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "aeo.faq.visible",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "FAQ markup matches visible Q&A",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "aeo.faq.google-eligibility",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Do not promise FAQ rich results",
+      "url": "https://www.eight25media.com/",
+      "status": "pass",
+      "score": 1,
+      "message": "No FAQPage rich result claim is encoded in markup.",
+      "evidence": {
+        "faqPageBlocks": 0,
+        "examples": []
+      },
+      "durationMs": 103
+    },
+    {
+      "id": "aeo.faq.google-eligibility",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Do not promise FAQ rich results",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "pass",
+      "score": 1,
+      "message": "No FAQPage rich result claim is encoded in markup.",
+      "evidence": {
+        "faqPageBlocks": 0,
+        "examples": []
+      },
+      "durationMs": 25
+    },
+    {
+      "id": "aeo.faq.google-eligibility",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Do not promise FAQ rich results",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "pass",
+      "score": 1,
+      "message": "No FAQPage rich result claim is encoded in markup.",
+      "evidence": {
+        "faqPageBlocks": 0,
+        "examples": []
+      },
+      "durationMs": 11
+    },
+    {
+      "id": "aeo.question-headings",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Use question headings where they help readers",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "aeo.question-headings",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Use question headings where they help readers",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "aeo.question-headings",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Use question headings where they help readers",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "aeo.answer-first-length",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Question sections start with concise answers",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "aeo.answer-first-length",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Question sections start with concise answers",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "aeo.answer-first-length",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Question sections start with concise answers",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "aeo.content-structure",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Use lists and tables for procedural content",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "aeo.content-structure",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Use lists and tables for procedural content",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "aeo.content-structure",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Use lists and tables for procedural content",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "aeo.summary-near-top",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Provide a short summary near the top",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "aeo.summary-near-top",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Provide a short summary near the top",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "aeo.summary-near-top",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Provide a short summary near the top",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "aeo.paragraph-length",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Keep paragraphs readable",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "aeo.paragraph-length",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Keep paragraphs readable",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "aeo.paragraph-length",
+      "pillar": "aeo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Keep paragraphs readable",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires rendered-dom",
+      "evidence": {
+        "missing": [
+          "rendered-dom"
+        ]
+      }
+    },
+    {
+      "id": "seo.site.title.duplicates",
+      "pillar": "seo",
+      "category": "site",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Duplicate titles",
+      "status": "pass",
+      "score": 1,
+      "message": "No duplicate duplicate titles values found.",
+      "evidence": {
+        "duplicateGroups": [],
+        "duplicateGroupCount": 0
+      },
+      "durationMs": 159
+    },
+    {
+      "id": "seo.site.description.duplicates",
+      "pillar": "seo",
+      "category": "site",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Duplicate descriptions",
+      "status": "pass",
+      "score": 1,
+      "message": "No duplicate duplicate descriptions values found.",
+      "evidence": {
+        "duplicateGroups": [],
+        "duplicateGroupCount": 0
+      },
+      "durationMs": 114
+    },
+    {
+      "id": "seo.site.h1.duplicates",
+      "pillar": "seo",
+      "category": "site",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Duplicate H1 headings",
+      "status": "pass",
+      "score": 1,
+      "message": "No duplicate duplicate h1 headings values found.",
+      "evidence": {
+        "duplicateGroups": [],
+        "duplicateGroupCount": 0
+      },
+      "durationMs": 81
+    },
+    {
+      "id": "seo.site.content.near-duplicate",
+      "pillar": "seo",
+      "category": "site",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Near duplicate content clusters",
+      "status": "pass",
+      "score": 1,
+      "message": "No pages exceeded the near duplicate similarity threshold.",
+      "evidence": {
+        "threshold": 0.9,
+        "clusterCount": 0,
+        "clusters": []
+      },
+      "durationMs": 52
+    },
+    {
+      "id": "seo.site.orphan-pages",
+      "pillar": "seo",
+      "category": "site",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Sitemap URLs are reachable in link graph",
+      "status": "warn",
+      "score": 0.5,
+      "message": "568 sitemap URL(s) lack inbound internal links.",
+      "evidence": {
+        "sitemapUrlCount": 618,
+        "orphanCount": 568,
+        "orphanUrls": [
+          "https://www.eight25media.com/blog/does-your-website-answer-what-do-you-do-in-the-first-10-seconds/",
+          "https://www.eight25media.com/blog/brand-credibility/",
+          "https://www.eight25media.com/blog/website-redesign-strategy/",
+          "https://www.eight25media.com/blog/are-you-struggling-to-generate-leads-from-your-website/",
+          "https://www.eight25media.com/blog/navigating-the-ungated-vs-gated-content-dilemma/",
+          "https://www.eight25media.com/blog/transparent-vs-non-transparent-pricing-the-real-impact-on-sales/",
+          "https://www.eight25media.com/blog/why-homepage-length-isnt-the-problem-content-placement-is/",
+          "https://www.eight25media.com/blog/5-practical-ways-to-visualize-technical-products-on-your-website-with-examples/",
+          "https://www.eight25media.com/blog/how-to-structure-a-b2b-website-that-serves-multiple-products-for-distinct-audience-types/",
+          "https://www.eight25media.com/blog/how-to-spotlight-innovation-without-alienating-legacy-customers-on-the-website/",
+          "https://www.eight25media.com/blog/3-ways-to-speed-up-website-updates-and-publish-faster/",
+          "https://www.eight25media.com/blog/is-a-headless-cms-the-right-choice-for-your-business-heres-what-to-consider/",
+          "https://www.eight25media.com/blog/how-content-clarity-drives-smarter-component-choices-in-web-design/",
+          "https://www.eight25media.com/blog/3-simple-fixes-to-get-more-conversions-on-your-website/",
+          "https://www.eight25media.com/blog/the-importance-of-a-balanced-website-approach-for-enhanced-user-experience/",
+          "https://www.eight25media.com/blog/how-we-helped-a-14x-gartner-leader-simplify-navigation-for-two-distinct-audiences/",
+          "https://www.eight25media.com/blog/how-eight25-reshaped-qliks-multi-brand-web-presence/",
+          "https://www.eight25media.com/blog/how-enterprise-teams-achieve-faster-design-alignment-with-eight25s-mood-boarding-process/",
+          "https://www.eight25media.com/blog/10-best-practices-for-a-smooth-contentful-migration/",
+          "https://www.eight25media.com/blog/how-eight25-helped-qlik-preserve-seo-value-with-seamless-migration/",
+          "https://www.eight25media.com/blog/7-common-challenges-when-migrating-wordpress-to-contentful-and-how-to-fix-them/",
+          "https://www.eight25media.com/blog/contentful-vs-contentstack/",
+          "https://www.eight25media.com/blog/cms-migration-checklist-everything-you-need-for-a-smooth-enterprise-transition/",
+          "https://www.eight25media.com/blog/contentful-migration-checklist-the-definitive-guide-for-enterprise-teams/",
+          "https://www.eight25media.com/blog/choosing-a-contentful-migration-agency-a-buyers-guide-for-enterprise-teams/",
+          "https://www.eight25media.com/blog/website-sales-alignment-guide/",
+          "https://www.eight25media.com/blog/why-your-next-website-update-should-start-with-a-component-strategy/",
+          "https://www.eight25media.com/blog/15-best-web-development-agencies-in-north-america-for-enterprise-companies/",
+          "https://www.eight25media.com/blog/sitecore-to-contentstack-migration/",
+          "https://www.eight25media.com/blog/modular-content-modeling-headless-cms/",
+          "https://www.eight25media.com/blog/sitecore-to-contentful-migration/",
+          "https://www.eight25media.com/blog/enterprise-graphql-architecture/",
+          "https://www.eight25media.com/blog/enterprise-cms-performance-benchmark/",
+          "https://www.eight25media.com/blog/enterprise-accessibility-strategy/",
+          "https://www.eight25media.com/blog/cms-replatforming-timeline-hidden-blockers/",
+          "https://www.eight25media.com/blog/headless-cms-pros-cons/",
+          "https://www.eight25media.com/blog/enterprise-cms-martech-integration-strategy/",
+          "https://www.eight25media.com/blog/enterprise-website-bottleneck-marketing-growth/",
+          "https://www.eight25media.com/blog/legacy-cms-to-headless-migration-challenges/",
+          "https://www.eight25media.com/blog/seo-implications-wordpress-to-contentful-preserve-seo/"
+        ]
+      },
+      "fix": {
+        "summary": "Link orphaned sitemap URLs contextually from a reachable page."
+      },
+      "durationMs": 8
+    },
+    {
+      "id": "seo.site.url-variants",
+      "pillar": "seo",
+      "category": "site",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Host and protocol variants consolidate",
+      "status": "pass",
+      "score": 1,
+      "message": "One origin appears in the crawl.",
+      "evidence": {
+        "startOrigin": "https://www.eight25media.com",
+        "observedOrigins": [
+          "https://www.eight25media.com"
+        ],
+        "variantCount": 1
+      },
+      "durationMs": 3
+    },
+    {
+      "id": "seo.site.sitemap.discovery",
+      "pillar": "seo",
+      "category": "site",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Sitemap is declared or discoverable",
+      "status": "pass",
+      "score": 1,
+      "message": "Sitemap is discovered and declared in robots.txt.",
+      "evidence": {
+        "sitemapCount": 8,
+        "declarations": [
+          "https://www.eight25media.com/sitemap_index.xml"
+        ],
+        "robotsStatus": 200
+      },
+      "durationMs": 3
+    },
+    {
+      "id": "seo.site.internal-404-rate",
+      "pillar": "seo",
+      "category": "site",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Broken internal destinations across crawl",
+      "status": "pass",
+      "score": 1,
+      "message": "No internal links target crawled error pages.",
+      "evidence": {
+        "broken": [],
+        "brokenCount": 0,
+        "linkCount": 129,
+        "rate": 0
+      },
+      "durationMs": 3
+    },
+    {
+      "id": "seo.site.canonical-clusters",
+      "pillar": "seo",
+      "category": "site",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Duplicate clusters have one consistent canonical",
+      "status": "pass",
+      "score": 1,
+      "message": "Canonical clusters are internally consistent.",
+      "evidence": {
+        "duplicateClusters": [],
+        "conflicts": []
+      },
+      "durationMs": 150
+    },
+    {
+      "id": "seo.site.nav-depth",
+      "pillar": "seo",
+      "category": "site",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Priority content is reachable within three clicks",
+      "status": "pass",
+      "score": 1,
+      "message": "All crawled pages are within three clicks.",
+      "evidence": {
+        "deepCount": 0,
+        "deepPages": []
+      },
+      "durationMs": 126
+    },
+    {
+      "id": "seo.site.indexable-share",
+      "pillar": "seo",
+      "category": "site",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Crawl does not waste on accidental variants",
+      "status": "fail",
+      "score": 0,
+      "message": "Only 67% of crawled pages appear canonical and clean.",
+      "evidence": {
+        "pageCount": 3,
+        "variantCount": 1,
+        "canonicalShare": 0.667,
+        "variantUrls": [
+          "https://www.eight25media.com/eigth25-work"
+        ]
+      },
+      "fix": {
+        "summary": "Canonicalize intentional duplicates and constrain crawlable filter or session URLs."
+      },
+      "durationMs": 125
+    },
+    {
+      "id": "seo.site.content.thin-ratio",
+      "pillar": "seo",
+      "category": "site",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Review pages with very little main content",
+      "status": "warn",
+      "score": 0.5,
+      "message": "1 page(s) have fewer than 100 main content words; review contextually.",
+      "evidence": {
+        "thresholdWords": 100,
+        "pageCount": 3,
+        "thinCount": 1,
+        "ratio": 0.333,
+        "examples": [
+          {
+            "url": "https://www.eight25media.com/eigth25-work",
+            "words": 70
+          }
+        ]
+      },
+      "fix": {
+        "summary": "Review short pages and add useful context only where it helps users."
+      },
+      "durationMs": 97
+    },
+    {
+      "id": "seo.schema.syntax",
+      "pillar": "seo",
+      "category": "structured-data",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Structured data parses",
+      "url": "https://www.eight25media.com/",
+      "status": "pass",
+      "score": 1,
+      "message": "1 JSON-LD block(s) parse.",
+      "evidence": {
+        "jsonLdInRaw": true,
+        "jsonLdInDom": true,
+        "jsonLdBlocks": 1,
+        "invalidBlocks": 0,
+        "microdataTypes": [],
+        "rdfaTypes": [],
+        "errors": [],
+        "renderedErrors": []
+      },
+      "durationMs": 70
+    },
+    {
+      "id": "seo.schema.syntax",
+      "pillar": "seo",
+      "category": "structured-data",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Structured data parses",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "pass",
+      "score": 1,
+      "message": "1 JSON-LD block(s) parse.",
+      "evidence": {
+        "jsonLdInRaw": true,
+        "jsonLdInDom": true,
+        "jsonLdBlocks": 1,
+        "invalidBlocks": 0,
+        "microdataTypes": [],
+        "rdfaTypes": [],
+        "errors": [],
+        "renderedErrors": []
+      },
+      "durationMs": 47
+    },
+    {
+      "id": "seo.schema.syntax",
+      "pillar": "seo",
+      "category": "structured-data",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Structured data parses",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "pass",
+      "score": 1,
+      "message": "1 JSON-LD block(s) parse.",
+      "evidence": {
+        "jsonLdInRaw": true,
+        "jsonLdInDom": true,
+        "jsonLdBlocks": 1,
+        "invalidBlocks": 0,
+        "microdataTypes": [],
+        "rdfaTypes": [],
+        "errors": [],
+        "renderedErrors": []
+      },
+      "durationMs": 34
+    },
+    {
+      "id": "seo.schema.type-valid",
+      "pillar": "seo",
+      "category": "structured-data",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Schema.org types and properties resolve",
+      "url": "https://www.eight25media.com/",
+      "status": "fail",
+      "score": 0,
+      "message": "Unrecognized schema.org term(s): query-input.",
+      "evidence": {
+        "jsonLdInRaw": true,
+        "jsonLdInDom": true,
+        "jsonLdBlocks": 1,
+        "invalidBlocks": 0,
+        "microdataTypes": [],
+        "rdfaTypes": [],
+        "checkedTypes": 10,
+        "checkedProperties": 26,
+        "malformedTypes": [],
+        "typoTypes": [],
+        "unknownTypes": [
+          "ReadAction",
+          "PropertyValueSpecification"
+        ],
+        "malformedProperties": [
+          "query-input"
+        ],
+        "typoProperties": [],
+        "unknownProperties": [
+          "primaryImageOfPage",
+          "urlTemplate",
+          "valueRequired",
+          "valueName",
+          "caption"
+        ],
+        "deprecatedTerms": []
+      },
+      "fix": {
+        "summary": "Use current schema.org type and property names; check the vocabulary before shipping."
+      },
+      "durationMs": 24
+    },
+    {
+      "id": "seo.schema.type-valid",
+      "pillar": "seo",
+      "category": "structured-data",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Schema.org types and properties resolve",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "fail",
+      "score": 0,
+      "message": "Unrecognized schema.org term(s): query-input.",
+      "evidence": {
+        "jsonLdInRaw": true,
+        "jsonLdInDom": true,
+        "jsonLdBlocks": 1,
+        "invalidBlocks": 0,
+        "microdataTypes": [],
+        "rdfaTypes": [],
+        "checkedTypes": 12,
+        "checkedProperties": 32,
+        "malformedTypes": [],
+        "typoTypes": [],
+        "unknownTypes": [
+          "ReadAction",
+          "PropertyValueSpecification"
+        ],
+        "malformedProperties": [
+          "query-input"
+        ],
+        "typoProperties": [],
+        "unknownProperties": [
+          "wordCount",
+          "primaryImageOfPage",
+          "urlTemplate",
+          "valueRequired",
+          "valueName",
+          "caption"
+        ],
+        "deprecatedTerms": []
+      },
+      "fix": {
+        "summary": "Use current schema.org type and property names; check the vocabulary before shipping."
+      },
+      "durationMs": 166
+    },
+    {
+      "id": "seo.schema.type-valid",
+      "pillar": "seo",
+      "category": "structured-data",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Schema.org types and properties resolve",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "fail",
+      "score": 0,
+      "message": "Unrecognized schema.org term(s): query-input.",
+      "evidence": {
+        "jsonLdInRaw": true,
+        "jsonLdInDom": true,
+        "jsonLdBlocks": 1,
+        "invalidBlocks": 0,
+        "microdataTypes": [],
+        "rdfaTypes": [],
+        "checkedTypes": 10,
+        "checkedProperties": 26,
+        "malformedTypes": [],
+        "typoTypes": [],
+        "unknownTypes": [
+          "ReadAction",
+          "PropertyValueSpecification"
+        ],
+        "malformedProperties": [
+          "query-input"
+        ],
+        "typoProperties": [],
+        "unknownProperties": [
+          "primaryImageOfPage",
+          "urlTemplate",
+          "valueRequired",
+          "valueName",
+          "caption"
+        ],
+        "deprecatedTerms": []
+      },
+      "fix": {
+        "summary": "Use current schema.org type and property names; check the vocabulary before shipping."
+      },
+      "durationMs": 150
+    },
+    {
+      "id": "seo.schema.organization",
+      "pillar": "seo",
+      "category": "structured-data",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Organization entity has core identifiers",
+      "status": "warn",
+      "score": 0.5,
+      "message": "Organization is missing recommended field(s): sameAs.",
+      "evidence": {
+        "organizations": [
+          {
+            "page": "https://www.eight25media.com/",
+            "name": "EIGHT25MEDIA",
+            "url": "https://www.eight25media.com/",
+            "logo": "https://www.eight25media.com/#/schema/logo/image/",
+            "sameAs": []
+          },
+          {
+            "page": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+            "name": "EIGHT25MEDIA",
+            "url": "https://www.eight25media.com/",
+            "logo": "https://www.eight25media.com/#/schema/logo/image/",
+            "sameAs": []
+          },
+          {
+            "page": "https://www.eight25media.com/eigth25-work",
+            "name": "EIGHT25MEDIA",
+            "url": "https://www.eight25media.com/",
+            "logo": "https://www.eight25media.com/#/schema/logo/image/",
+            "sameAs": []
+          }
+        ],
+        "jsonLdOnlyInDom": false,
+        "names": [
+          "eight25media"
+        ],
+        "urls": [
+          "https://eight25media.com/"
+        ],
+        "missingName": [],
+        "invalidUrls": []
+      },
+      "fix": {
+        "summary": "Add one Organization entity to the global template, filled with the real business facts.",
+        "snippet": "<script type=\"application/ld+json\">\n{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Organization\",\n  \"@id\": \"https://www.eight25media.com/#organization\",\n  \"name\": \"EIGHT25MEDIA\",\n  \"url\": \"https://www.eight25media.com/\",\n  \"logo\": {\n    \"@type\": \"ImageObject\",\n    \"url\": \"https://www.eight25media.com/#/schema/logo/image/\"\n  },\n  \"sameAs\": [\n    \"REPLACE_WITH_PROFILE_URL\"\n  ],\n  \"description\": \"Global B2B digital agency offering enterprise web design, mobile apps, and strategic consulting for Fortune 500 firms.\"\n}\n</script>",
+        "snippetLang": "html"
+      },
+      "durationMs": 138
+    },
+    {
+      "id": "seo.schema.local-business",
+      "pillar": "seo",
+      "category": "structured-data",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "LocalBusiness fields agree with visible business facts",
+      "status": "skip",
+      "score": 1,
+      "message": "No LocalBusiness markup on the crawled pages.",
+      "evidence": {},
+      "durationMs": 88
+    },
+    {
+      "id": "seo.schema.product-offer",
+      "pillar": "seo",
+      "category": "structured-data",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Product and Offer facts are internally complete",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "No Product markup on this page.",
+      "evidence": {},
+      "durationMs": 58
+    },
+    {
+      "id": "seo.schema.product-offer",
+      "pillar": "seo",
+      "category": "structured-data",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Product and Offer facts are internally complete",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "No Product markup on this page.",
+      "evidence": {},
+      "durationMs": 33
+    },
+    {
+      "id": "seo.schema.product-offer",
+      "pillar": "seo",
+      "category": "structured-data",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Product and Offer facts are internally complete",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "No Product markup on this page.",
+      "evidence": {},
+      "durationMs": 23
+    },
+    {
+      "id": "seo.schema.breadcrumb",
+      "pillar": "seo",
+      "category": "structured-data",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "BreadcrumbList matches actual navigation",
+      "url": "https://www.eight25media.com/",
+      "status": "pass",
+      "score": 1,
+      "message": "BreadcrumbList positions and labels match the visible trail.",
+      "evidence": {
+        "jsonLdInRaw": true,
+        "jsonLdInDom": true,
+        "jsonLdBlocks": 1,
+        "invalidBlocks": 0,
+        "microdataTypes": [],
+        "rdfaTypes": [],
+        "itemCount": 1,
+        "visibleCrumbs": [],
+        "items": [
+          {
+            "position": 1,
+            "name": "Home",
+            "item": null
+          }
+        ]
+      },
+      "durationMs": 14
+    },
+    {
+      "id": "seo.schema.breadcrumb",
+      "pillar": "seo",
+      "category": "structured-data",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "BreadcrumbList matches actual navigation",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "pass",
+      "score": 1,
+      "message": "BreadcrumbList positions and labels match the visible trail.",
+      "evidence": {
+        "jsonLdInRaw": true,
+        "jsonLdInDom": true,
+        "jsonLdBlocks": 1,
+        "invalidBlocks": 0,
+        "microdataTypes": [],
+        "rdfaTypes": [],
+        "itemCount": 2,
+        "visibleCrumbs": [],
+        "items": [
+          {
+            "position": 1,
+            "name": "Home",
+            "item": "https://www.eight25media.com/"
+          },
+          {
+            "position": 2,
+            "name": "Analyzing the ‘Request a Demo’ Page: Unpacking Why Conversions Are Lagging",
+            "item": null
+          }
+        ]
+      },
+      "durationMs": 106
+    },
+    {
+      "id": "seo.schema.breadcrumb",
+      "pillar": "seo",
+      "category": "structured-data",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "BreadcrumbList matches actual navigation",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "pass",
+      "score": 1,
+      "message": "BreadcrumbList positions and labels match the visible trail.",
+      "evidence": {
+        "jsonLdInRaw": true,
+        "jsonLdInDom": true,
+        "jsonLdBlocks": 1,
+        "invalidBlocks": 0,
+        "microdataTypes": [],
+        "rdfaTypes": [],
+        "itemCount": 2,
+        "visibleCrumbs": [],
+        "items": [
+          {
+            "position": 1,
+            "name": "Home",
+            "item": "https://www.eight25media.com/"
+          },
+          {
+            "position": 2,
+            "name": "Work",
+            "item": null
+          }
+        ]
+      },
+      "durationMs": 86
+    },
+    {
+      "id": "seo.schema.article",
+      "pillar": "seo",
+      "category": "structured-data",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Article metadata is coherent",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "No Article markup on this page.",
+      "evidence": {},
+      "durationMs": 75
+    },
+    {
+      "id": "seo.schema.article",
+      "pillar": "seo",
+      "category": "structured-data",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Article metadata is coherent",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "warn",
+      "score": 0.5,
+      "message": "Article is missing a recommended publisher.",
+      "evidence": {
+        "jsonLdInRaw": true,
+        "jsonLdInDom": true,
+        "jsonLdBlocks": 1,
+        "invalidBlocks": 0,
+        "microdataTypes": [],
+        "rdfaTypes": [],
+        "headline": "Analyzing the ‘Request a Demo’ Page: Unpacking Why Conversions Are Lagging",
+        "visibleHeadline": "Analyzing the ‘Request a Demo’ Page: Unpacking Why Conversions Are Lagging",
+        "author": "Jonathan Francis",
+        "image": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page/#primaryimage",
+        "datePublished": "2023-12-01T09:29:15+00:00",
+        "dateModified": "2025-06-12T07:21:03+00:00",
+        "publisher": null,
+        "issues": [],
+        "warnings": [
+          "Article is missing a recommended publisher."
+        ]
+      },
+      "fix": {
+        "summary": "Align structured headline, author, image and dates with the visible article.",
+        "snippet": "<script type=\"application/ld+json\">\n{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Article\",\n  \"headline\": \"Analyzing the ‘Request a Demo’ Page: Unpacking Why Conversions Are Lagging\",\n  \"mainEntityOfPage\": {\n    \"@type\": \"WebPage\",\n    \"@id\": \"https://www.eight25media.com/blog/analyzing-the-request-a-demo-page\"\n  },\n  \"author\": {\n    \"@type\": \"Person\",\n    \"name\": \"Jonathan Francis\"\n  },\n  \"image\": \"https://www.eight25media.com/blog/analyzing-the-request-a-demo-page/#primaryimage\",\n  \"datePublished\": \"2023-12-01T09:29:15+00:00\",\n  \"dateModified\": \"2025-06-12T07:21:03+00:00\"\n}\n</script>",
+        "snippetLang": "html"
+      },
+      "durationMs": 65
+    },
+    {
+      "id": "seo.schema.article",
+      "pillar": "seo",
+      "category": "structured-data",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Article metadata is coherent",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "No Article markup on this page.",
+      "evidence": {},
+      "durationMs": 54
+    },
+    {
+      "id": "seo.schema.google-supported-type",
+      "pillar": "seo",
+      "category": "structured-data",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Type targets a current supported Google feature",
+      "url": "https://www.eight25media.com/",
+      "status": "warn",
+      "score": 0.5,
+      "message": "Schema.org-valid type(s) without a current Google rich-result feature: ReadAction, ListItem, SearchAction, EntryPoint, PropertyValueSpecification.",
+      "evidence": {
+        "jsonLdInRaw": true,
+        "jsonLdInDom": true,
+        "jsonLdBlocks": 1,
+        "invalidBlocks": 0,
+        "microdataTypes": [],
+        "rdfaTypes": [],
+        "supported": [
+          "WebPage",
+          "ImageObject",
+          "BreadcrumbList",
+          "WebSite",
+          "Organization"
+        ],
+        "limited": [],
+        "unsupported": [
+          "ReadAction",
+          "ListItem",
+          "SearchAction",
+          "EntryPoint",
+          "PropertyValueSpecification"
+        ]
+      },
+      "fix": {
+        "summary": "Keep schema.org markup, but describe its expected Google result accurately; do not promise rich results for unsupported types."
+      },
+      "durationMs": 44
+    },
+    {
+      "id": "seo.schema.google-supported-type",
+      "pillar": "seo",
+      "category": "structured-data",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Type targets a current supported Google feature",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "warn",
+      "score": 0.5,
+      "message": "Schema.org-valid type(s) without a current Google rich-result feature: ReadAction, ListItem, SearchAction, EntryPoint, PropertyValueSpecification.",
+      "evidence": {
+        "jsonLdInRaw": true,
+        "jsonLdInDom": true,
+        "jsonLdBlocks": 1,
+        "invalidBlocks": 0,
+        "microdataTypes": [],
+        "rdfaTypes": [],
+        "supported": [
+          "Article",
+          "WebPage",
+          "ImageObject",
+          "BreadcrumbList",
+          "WebSite",
+          "Organization",
+          "Person"
+        ],
+        "limited": [],
+        "unsupported": [
+          "ReadAction",
+          "ListItem",
+          "SearchAction",
+          "EntryPoint",
+          "PropertyValueSpecification"
+        ]
+      },
+      "fix": {
+        "summary": "Keep schema.org markup, but describe its expected Google result accurately; do not promise rich results for unsupported types."
+      },
+      "durationMs": 23
+    },
+    {
+      "id": "seo.schema.google-supported-type",
+      "pillar": "seo",
+      "category": "structured-data",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Type targets a current supported Google feature",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "warn",
+      "score": 0.5,
+      "message": "Schema.org-valid type(s) without a current Google rich-result feature: ReadAction, ListItem, SearchAction, EntryPoint, PropertyValueSpecification.",
+      "evidence": {
+        "jsonLdInRaw": true,
+        "jsonLdInDom": true,
+        "jsonLdBlocks": 1,
+        "invalidBlocks": 0,
+        "microdataTypes": [],
+        "rdfaTypes": [],
+        "supported": [
+          "WebPage",
+          "ImageObject",
+          "BreadcrumbList",
+          "WebSite",
+          "Organization"
+        ],
+        "limited": [],
+        "unsupported": [
+          "ReadAction",
+          "ListItem",
+          "SearchAction",
+          "EntryPoint",
+          "PropertyValueSpecification"
+        ]
+      },
+      "fix": {
+        "summary": "Keep schema.org markup, but describe its expected Google result accurately; do not promise rich results for unsupported types."
+      },
+      "durationMs": 14
+    },
+    {
+      "id": "geo.entity.name-consistency",
+      "pillar": "geo",
+      "category": "entity",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Entity name is consistent site-wide",
+      "status": "warn",
+      "score": 0.5,
+      "message": "Homepage title does not contain the organization name \"EIGHT25MEDIA\".",
+      "evidence": {
+        "names": [
+          {
+            "name": "EIGHT25MEDIA",
+            "pages": [
+              "https://www.eight25media.com/",
+              "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+              "https://www.eight25media.com/eigth25-work"
+            ]
+          }
+        ],
+        "pages": [
+          {
+            "page": "https://www.eight25media.com/",
+            "name": "EIGHT25MEDIA"
+          },
+          {
+            "page": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+            "name": "EIGHT25MEDIA"
+          },
+          {
+            "page": "https://www.eight25media.com/eigth25-work",
+            "name": "EIGHT25MEDIA"
+          }
+        ]
+      },
+      "fix": {
+        "summary": "Use one canonical organization name in Organization markup, og:site_name and the homepage title.",
+        "snippet": "<script type=\"application/ld+json\">\n{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Organization\",\n  \"@id\": \"https://www.eight25media.com/#organization\",\n  \"name\": \"EIGHT25MEDIA\",\n  \"url\": \"https://www.eight25media.com/\",\n  \"logo\": {\n    \"@type\": \"ImageObject\",\n    \"url\": \"https://www.eight25media.com/#/schema/logo/image/\"\n  },\n  \"sameAs\": [\n    \"REPLACE_WITH_PROFILE_URL\"\n  ],\n  \"description\": \"Global B2B digital agency offering enterprise web design, mobile apps, and strategic consulting for Fortune 500 firms.\"\n}\n</script>",
+        "snippetLang": "html"
+      },
+      "durationMs": 212
+    },
+    {
+      "id": "geo.entity.contact-consistency",
+      "pillar": "geo",
+      "category": "entity",
+      "kind": "deterministic",
+      "severity": "high",
+      "title": "Contact details agree across the site",
+      "status": "warn",
+      "score": 0.5,
+      "message": "Some structured contact details do not appear in the visible page text.",
+      "evidence": {
+        "phones": [],
+        "emails": [],
+        "addresses": [],
+        "pagesWithMarkup": 3,
+        "samples": [
+          {
+            "page": "https://www.eight25media.com/",
+            "phone": null,
+            "email": null,
+            "address": null,
+            "visible": false
+          },
+          {
+            "page": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+            "phone": null,
+            "email": null,
+            "address": null,
+            "visible": false
+          },
+          {
+            "page": "https://www.eight25media.com/eigth25-work",
+            "phone": null,
+            "email": null,
+            "address": null,
+            "visible": false
+          }
+        ]
+      },
+      "fix": {
+        "summary": "Publish one phone, email and postal address everywhere, and keep Organization markup in sync.",
+        "snippet": "<script type=\"application/ld+json\">\n{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Organization\",\n  \"@id\": \"https://www.eight25media.com/#organization\",\n  \"name\": \"EIGHT25MEDIA\",\n  \"url\": \"https://www.eight25media.com/\",\n  \"logo\": {\n    \"@type\": \"ImageObject\",\n    \"url\": \"https://www.eight25media.com/#/schema/logo/image/\"\n  },\n  \"sameAs\": [\n    \"REPLACE_WITH_PROFILE_URL\"\n  ],\n  \"description\": \"Global B2B digital agency offering enterprise web design, mobile apps, and strategic consulting for Fortune 500 firms.\"\n}\n</script>",
+        "snippetLang": "html"
+      },
+      "durationMs": 171
+    },
+    {
+      "id": "geo.entity.about-contact",
+      "pillar": "geo",
+      "category": "entity",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "About and contact pages are reachable from home",
+      "status": "fail",
+      "score": 0,
+      "message": "No about page found.",
+      "evidence": {
+        "home": "https://www.eight25media.com/",
+        "about": null,
+        "contact": null
+      },
+      "fix": {
+        "summary": "Link About and Contact from the homepage (or main navigation) so both are within two clicks."
+      },
+      "durationMs": 135
+    },
+    {
+      "id": "geo.entity.author-identification",
+      "pillar": "geo",
+      "category": "entity",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Article authors are identified with a profile",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "No Article markup or byline on this page.",
+      "evidence": {},
+      "durationMs": 135
+    },
+    {
+      "id": "geo.entity.author-identification",
+      "pillar": "geo",
+      "category": "entity",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Article authors are identified with a profile",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "warn",
+      "score": 0.5,
+      "message": "Author \"Jonathan Francis\" has no profile URL.",
+      "evidence": {
+        "articles": 1,
+        "author": "Jonathan Francis",
+        "authorUrl": null,
+        "visibleAuthor": "Jonathan Francis",
+        "jsonLdInRaw": true,
+        "jsonLdInDom": true,
+        "jsonLdBlocks": 1,
+        "invalidBlocks": 0,
+        "microdataTypes": [],
+        "rdfaTypes": []
+      },
+      "fix": {
+        "summary": "Give the Article a Person author with name and a stable profile URL.",
+        "snippet": "<script type=\"application/ld+json\">\n{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Person\",\n  \"name\": \"Jonathan Francis\",\n  \"url\": \"REPLACE_WITH_AUTHOR_PROFILE_URL\",\n  \"sameAs\": [\n    \"REPLACE_WITH_PROFILE_URL\"\n  ]\n}\n</script>",
+        "snippetLang": "html"
+      },
+      "durationMs": 119
+    },
+    {
+      "id": "geo.entity.author-identification",
+      "pillar": "geo",
+      "category": "entity",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Article authors are identified with a profile",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "No Article markup or byline on this page.",
+      "evidence": {},
+      "durationMs": 107
+    },
+    {
+      "id": "geo.entity.sameas",
+      "pillar": "geo",
+      "category": "entity",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "Entity sameAs links to independent profiles",
+      "status": "fail",
+      "score": 0,
+      "message": "sameAs points back at the site itself instead of independent profiles.",
+      "evidence": {
+        "entities": 4,
+        "profiles": [],
+        "selfReferential": [
+          "http://eight25media.com/"
+        ],
+        "relative": []
+      },
+      "fix": {
+        "summary": "Add sameAs links to independent profiles (Wikipedia, LinkedIn, Crunchbase, official social accounts)."
+      },
+      "durationMs": 97
+    },
+    {
+      "id": "geo.llms-txt.available",
+      "pillar": "geo",
+      "category": "ai-access",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "llms.txt is published",
+      "status": "pass",
+      "score": 1,
+      "message": "/llms.txt is available (HTTP 200, 10127 bytes).",
+      "evidence": {
+        "url": "https://www.eight25media.com/llms.txt",
+        "status": 200,
+        "bytes": 10127,
+        "lineCount": 116
+      },
+      "durationMs": 57
+    },
+    {
+      "id": "geo.llms-txt.format",
+      "pillar": "geo",
+      "category": "ai-access",
+      "kind": "deterministic",
+      "severity": "low",
+      "title": "llms.txt follows the published format",
+      "status": "fail",
+      "score": 0,
+      "message": "Line 9: list item is not a Markdown link.",
+      "evidence": {
+        "url": "https://www.eight25media.com/llms.txt",
+        "title": "eight25media",
+        "summary": "eight25media (often branded as eight25) is a global digital agency founded in 2011, headquartered in San Jose, California. The agency specializes in building high-performing web experiences for B2B enterprise companies. Ranked by Clutch as a top Silicon Valley web design agency, eight25 serves 500+ clients including Google, Samsung, Hyundai, and Qlik, with 150–200 professionals across three offices worldwide.",
+        "sections": [
+          {
+            "title": "Core Services",
+            "links": 0
+          },
+          {
+            "title": "Who eight25 Serves",
+            "links": 0
+          },
+          {
+            "title": "When Organizations Typically Engage eight25",
+            "links": 0
+          },
+          {
+            "title": "Why Enterprise Teams Choose eight25",
+            "links": 0
+          },
+          {
+            "title": "Clients",
+            "links": 0
+          },
+          {
+            "title": "CMS Migration Speed & Proven Delivery",
+            "links": 0
+          },
+          {
+            "title": "AI-First Tooling & Machine-Optimized Web Experiences",
+            "links": 0
+          },
+          {
+            "title": "Full Service Expertise",
+            "links": 0
+          },
+          {
+            "title": "Industries Served",
+            "links": 0
+          },
+          {
+            "title": "Technology & Platform Partnerships",
+            "links": 0
+          },
+          {
+            "title": "Key Search Topics",
+            "links": 0
+          },
+          {
+            "title": "Basic Facts",
+            "links": 0
+          }
+        ],
+        "links": 0,
+        "errors": [
+          "Line 9: list item is not a Markdown link.",
+          "Line 10: list item is not a Markdown link.",
+          "Line 11: list item is not a Markdown link.",
+          "Line 12: list item is not a Markdown link.",
+          "Line 18: list item is not a Markdown link.",
+          "Line 19: list item is not a Markdown link.",
+          "Line 20: list item is not a Markdown link.",
+          "Line 26: list item is not a Markdown link.",
+          "Line 27: list item is not a Markdown link.",
+          "Line 28: list item is not a Markdown link.",
+          "Line 29: list item is not a Markdown link.",
+          "Line 30: list item is not a Markdown link.",
+          "Line 31: list item is not a Markdown link.",
+          "Line 35: list item is not a Markdown link.",
+          "Line 36: list item is not a Markdown link.",
+          "Line 37: list item is not a Markdown link.",
+          "Line 38: list item is not a Markdown link.",
+          "Line 39: list item is not a Markdown link.",
+          "Line 40: list item is not a Markdown link.",
+          "Line 62: list item is not a Markdown link.",
+          "Line 63: list item is not a Markdown link.",
+          "Line 64: list item is not a Markdown link.",
+          "Line 65: list item is not a Markdown link.",
+          "Line 66: list item is not a Markdown link.",
+          "Line 86: list item is not a Markdown link.",
+          "Line 87: list item is not a Markdown link.",
+          "Line 88: list item is not a Markdown link.",
+          "Line 89: list item is not a Markdown link.",
+          "Line 90: list item is not a Markdown link.",
+          "Line 91: list item is not a Markdown link.",
+          "Line 111: list item is not a Markdown link.",
+          "Line 112: list item is not a Markdown link.",
+          "Line 113: list item is not a Markdown link.",
+          "Line 114: list item is not a Markdown link.",
+          "Line 115: list item is not a Markdown link."
+        ],
+        "warnings": [
+          "No Markdown link entries found."
+        ]
+      },
+      "fix": {
+        "summary": "Start with one H1 title, a blockquote summary, then H2 sections of markdown links.",
+        "snippet": "# EIGHT25MEDIA\n\n> Global B2B digital agency offering enterprise web design, mobile apps, and strategic consulting for Fortune 500 firms.\n\n## Pages\n\n- [Digital experiencesfor the modern enterprise](https://www.eight25media.com/): Global B2B digital agency offering enterprise web design, mobile apps, and strategic consulting for Fortune 500 firms.\n- [Not all work is created equal](https://www.eight25media.com/eight25-work/): eight25, Silicon Valley based full-service digital agency with world class capabilities, focused on helping client maximize online revenue.\n\n## Articles\n\n- [Analyzing the ‘Request a Demo’ Page: Unpacking Why Conversions Are Lagging](https://www.eight25media.com/blog/analyzing-the-request-a-demo-page): It's apparent that the 'Request a Demo' page often functions as an unspoken 'Are you sure you want a demo?' checkpoint.\n\n## Optional\n\n- [REPLACE_WITH_OPTIONAL_URL](REPLACE_WITH_OPTIONAL_URL): REPLACE_WITH_ONE_LINE_DESCRIPTION\n",
+        "snippetLang": "markdown"
+      },
+      "durationMs": 93
+    },
+    {
+      "id": "geo.citations",
+      "pillar": "geo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Claims are backed by cited sources",
+      "url": "https://www.eight25media.com/",
+      "status": "fail",
+      "score": 0,
+      "message": "Claims are largely unattributed: 0 of 12 claim sentence(s) cite a source (score 0).",
+      "evidence": {
+        "mainWords": 252,
+        "sentences": 19,
+        "claimSentences": 12,
+        "citedSentences": 0,
+        "citationRatio": 0,
+        "score": 0,
+        "externalHosts": [],
+        "citedExamples": [],
+        "uncitedExamples": [
+          "Digital experiencesfor the modern enterprise We build brands and web experiences that help you build the ultimate customer journey.",
+          "The world’s best companies choose to work with eight25 Google Link Your browser does not support HTML5 video.",
+          "Qlik Link Your browser does not support HTML5 video."
+        ]
+      },
+      "fix": {
+        "summary": "Attribute specific claims to primary sources with a visible link or named reference.",
+        "snippet": "According to [REPLACE_WITH_SOURCE_NAME](REPLACE_WITH_SOURCE_URL), REPLACE_WITH_SUPPORTED_CLAIM.",
+        "snippetLang": "markdown"
+      },
+      "durationMs": 47
+    },
+    {
+      "id": "geo.citations",
+      "pillar": "geo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Claims are backed by cited sources",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "fail",
+      "score": 0.13,
+      "message": "Claims are largely unattributed: 1 of 53 claim sentence(s) cite a source (score 0.13).",
+      "evidence": {
+        "mainWords": 1084,
+        "sentences": 60,
+        "claimSentences": 53,
+        "citedSentences": 1,
+        "citationRatio": 0.02,
+        "score": 0.13,
+        "externalHosts": [
+          "mutinyhq.com",
+          "optimizely.com",
+          "facebook.com",
+          "twitter.com",
+          "linkedin.com"
+        ],
+        "citedExamples": [
+          "Use dynamic website customization tools like Mutiny or Optimizely to display personalized information based on visitor behavior or segmentation."
+        ],
+        "uncitedExamples": [
+          "Analyzing the ‘Request a Demo’ Page: Unpacking Why Conversions Are Lagging 4 mins TagsB2B SaaS Enterprise Demo Why is your ‘Request a Demo’ page experiencing a slowdown in conversions?",
+          "To address this, let’s explore the environments where demos are most effectively delivered: in-person, such as in meetings and trade shows.",
+          "In real-world scenarios, when a prospect requests a demo, do you immediately launch into the presentation?"
+        ]
+      },
+      "fix": {
+        "summary": "Attribute specific claims to primary sources with a visible link or named reference.",
+        "snippet": "According to [REPLACE_WITH_SOURCE_NAME](REPLACE_WITH_SOURCE_URL), REPLACE_WITH_SUPPORTED_CLAIM.",
+        "snippetLang": "markdown"
+      },
+      "durationMs": 28
+    },
+    {
+      "id": "geo.citations",
+      "pillar": "geo",
+      "category": "content",
+      "kind": "deterministic",
+      "severity": "medium",
+      "title": "Claims are backed by cited sources",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Page has too little main-content prose to assess citation density.",
+      "evidence": {},
+      "durationMs": 10
+    },
+    {
+      "id": "seo.gsc.property-verified",
+      "pillar": "seo",
+      "category": "site",
+      "kind": "external",
+      "severity": "high",
+      "title": "Google Search Console property verified",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires gsc",
+      "evidence": {
+        "missing": [
+          "gsc"
+        ]
+      }
+    },
+    {
+      "id": "seo.gsc.index-status",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "external",
+      "severity": "high",
+      "title": "Google index status",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires gsc",
+      "evidence": {
+        "missing": [
+          "gsc"
+        ]
+      }
+    },
+    {
+      "id": "seo.gsc.index-status",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "external",
+      "severity": "high",
+      "title": "Google index status",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires gsc",
+      "evidence": {
+        "missing": [
+          "gsc"
+        ]
+      }
+    },
+    {
+      "id": "seo.gsc.index-status",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "external",
+      "severity": "high",
+      "title": "Google index status",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires gsc",
+      "evidence": {
+        "missing": [
+          "gsc"
+        ]
+      }
+    },
+    {
+      "id": "seo.gsc.sitemaps-submitted-and-error-free",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "external",
+      "severity": "medium",
+      "title": "Search Console sitemaps submitted and error-free",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires gsc",
+      "evidence": {
+        "missing": [
+          "gsc"
+        ]
+      }
+    },
+    {
+      "id": "seo.gsc.performance-trend",
+      "pillar": "seo",
+      "category": "visibility",
+      "kind": "external",
+      "severity": "medium",
+      "title": "Search Console performance and CTR opportunities",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires gsc",
+      "evidence": {
+        "missing": [
+          "gsc"
+        ]
+      }
+    },
+    {
+      "id": "seo.bing.site-verified",
+      "pillar": "seo",
+      "category": "site",
+      "kind": "external",
+      "severity": "medium",
+      "title": "Bing Webmaster site verified",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires bing",
+      "evidence": {
+        "missing": [
+          "bing"
+        ]
+      }
+    },
+    {
+      "id": "seo.bing.index-crawl-issues",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "external",
+      "severity": "medium",
+      "title": "Bing index and crawl status",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires bing",
+      "evidence": {
+        "missing": [
+          "bing"
+        ]
+      }
+    },
+    {
+      "id": "seo.bing.index-crawl-issues",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "external",
+      "severity": "medium",
+      "title": "Bing index and crawl status",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires bing",
+      "evidence": {
+        "missing": [
+          "bing"
+        ]
+      }
+    },
+    {
+      "id": "seo.bing.index-crawl-issues",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "external",
+      "severity": "medium",
+      "title": "Bing index and crawl status",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires bing",
+      "evidence": {
+        "missing": [
+          "bing"
+        ]
+      }
+    },
+    {
+      "id": "seo.bing.url-info",
+      "pillar": "seo",
+      "category": "visibility",
+      "kind": "external",
+      "severity": "info",
+      "title": "Bing URL information available",
+      "url": "https://www.eight25media.com/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires bing",
+      "evidence": {
+        "missing": [
+          "bing"
+        ]
+      }
+    },
+    {
+      "id": "seo.bing.url-info",
+      "pillar": "seo",
+      "category": "visibility",
+      "kind": "external",
+      "severity": "info",
+      "title": "Bing URL information available",
+      "url": "https://www.eight25media.com/blog/analyzing-the-request-a-demo-page",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires bing",
+      "evidence": {
+        "missing": [
+          "bing"
+        ]
+      }
+    },
+    {
+      "id": "seo.bing.url-info",
+      "pillar": "seo",
+      "category": "visibility",
+      "kind": "external",
+      "severity": "info",
+      "title": "Bing URL information available",
+      "url": "https://www.eight25media.com/eight25-work/",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires bing",
+      "evidence": {
+        "missing": [
+          "bing"
+        ]
+      }
+    },
+    {
+      "id": "seo.indexnow.key-file",
+      "pillar": "seo",
+      "category": "crawlability",
+      "kind": "external",
+      "severity": "low",
+      "title": "IndexNow key file reachable",
+      "status": "skip",
+      "score": 1,
+      "message": "No IndexNow key is configured.",
+      "evidence": {},
+      "durationMs": 0
+    },
+    {
+      "id": "seo.index.presence-brave",
+      "pillar": "seo",
+      "category": "visibility",
+      "kind": "external",
+      "severity": "info",
+      "title": "Sampled site presence in Brave Search",
+      "status": "skip",
+      "score": 1,
+      "message": "Brave Search presence is not configured.",
+      "evidence": {},
+      "durationMs": 0
+    },
+    {
+      "id": "geo.visibility.cited-rate",
+      "pillar": "geo",
+      "category": "visibility",
+      "kind": "external",
+      "severity": "medium",
+      "title": "Sampled AI citation rate",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires probe",
+      "evidence": {
+        "missing": [
+          "probe"
+        ]
+      }
+    },
+    {
+      "id": "geo.visibility.brand-mention-rate",
+      "pillar": "geo",
+      "category": "visibility",
+      "kind": "external",
+      "severity": "medium",
+      "title": "Sampled AI brand mention rate",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires probe",
+      "evidence": {
+        "missing": [
+          "probe"
+        ]
+      }
+    },
+    {
+      "id": "geo.visibility.competitors",
+      "pillar": "geo",
+      "category": "visibility",
+      "kind": "external",
+      "severity": "info",
+      "title": "Competitors cited by sampled AI answers",
+      "status": "skip",
+      "score": 1,
+      "message": "Skipped: requires probe",
+      "evidence": {
+        "missing": [
+          "probe"
+        ]
+      }
+    }
+  ],
+  "stack": [
+    "WordPress",
+    "HubSpot",
+    "Cloudflare"
+  ]
+}
