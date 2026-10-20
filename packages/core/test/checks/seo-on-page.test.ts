@@ -9,7 +9,7 @@ describe("seo.title.length", () => {
     expect((await runPage(titleLength, page("<html><head></head></html>"))).status).toBe("fail");
   });
   it("warns when too short", async () => {
-    expect((await runPage(titleLength, page(html("Home")))).status).toBe("warn");
+    expect((await runPage(titleLength, page(html("A concise page title")))).status).toBe("warn");
   });
   it("passes in range", async () => {
     const r = await runPage(titleLength, page(html("Acme Widgets — Industrial Fasteners Since 1990")));
