@@ -76,6 +76,8 @@ interface CheckMeta {
   /** One line: why it matters. Shown in reports and fix prompts. */
   rationale: string;
   docs?: string;
+  /** Default one-line fix, used when a warn/fail outcome doesn't supply its own `fix`. */
+  remedy?: string;
 }
 
 export interface PageCheck extends CheckMeta {

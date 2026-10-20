@@ -104,6 +104,8 @@ async function execute(
     kind: check.kind,
     severity: check.severity,
     title: check.title,
+    rationale: check.rationale,
+    ...(check.docs === undefined ? {} : { docs: check.docs }),
     ...(url === undefined ? {} : { url }),
   };
   if (missing.length > 0) {
@@ -124,7 +126,7 @@ async function execute(
       score: clamp(outcome.score ?? DEFAULT_SCORE[outcome.status]),
       message: outcome.message,
       evidence: outcome.evidence ?? {},
-      ...(outcome.fix ? { fix: outcome.fix } : {}),
+      ...fixFor(check, outcome),
       durationMs: Date.now() - t0,
     };
   } catch (err) {
@@ -137,6 +139,14 @@ async function execute(
       durationMs: Date.now() - t0,
     };
   }
+}
+
+function fixFor(check: Check, outcome: CheckOutcome): { fix?: CheckResult["fix"] } {
+  if (outcome.fix) return { fix: outcome.fix };
+  if ((outcome.status === "warn" || outcome.status === "fail") && check.remedy) {
+    return { fix: { summary: check.remedy } };
+  }
+  return {};
 }
 
 const clamp = (n: number) => Math.min(1, Math.max(0, n));

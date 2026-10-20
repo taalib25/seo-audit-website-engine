@@ -1,0 +1,833 @@
+﻿"theme_group","author","handle","post_date","original_post_url","exact_recovered_text","quoted_author","quoted_text","destination_urls","verification_status","prior_delivery","review_notes","checked_date"
+"SEO / AEO / GEO","ILIAS ISM","'@illyism","2026-10-14T01:25:01.000Z","https://x.com/illyism/status/2110180038637408357","530 people asked for the system prompt I use to run SEO + AEO inside Claude Code and Cursor.
+
+Instead of gatekeeping it in DMs, I just open-sourced the entire repo:
+
+- Audits your codebase for technical SEO &amp; broken metadata
+- Reverse-engineers top 10 SERP titles &amp; structure
+-","","","https://github.com/Illyism/seo-skills","URL verified (repo page loads, title ""Illyism/seo-skills""), resolved from post t.co link 2026-10-20","","","2026-10-20"
+"SEO / AEO / GEO","Ira Bodnar","'@irabukht","2026-10-14T02:03:37.000Z","https://x.com/irabukht/status/2110189752666440181","Railway hacked AI SEO, and it took them from $20M to ~$100M ARR in 1 year:
+
+1/ Claude Code picks Railway for 82% of Python apps
+->  Ask it ""how do I deploy this"" and it installs Railway and puts your app live there
+
+2/ The founder treats AI recommendations as a growth channel
+->  His go-to-market team works on getting the models to ""recommend us more and more""
+
+3/ 6,653 how-to pages, one for every popular free tool people want to run themselves
+->  Someone asks Google or ChatGPT ""how do I set up n8n?"" and Railway's page comes up. It explains the tool and sets it up on Railway in one click
+
+4/ A step-by-step guide for every framework developers build with
+->  127 guides: Next.js, Django, Rails, FastAPI, Laravel, Go and more. Each one answers ""how do I deploy X"" and ends with the app live on Railway
+
+5/ A comparison page against every competitor
+->  Heroku, Vercel, Render, Replit, Lovable and 5 more, each with a migration guide. AI loves quoting comparisons
+
+6/ Railway rewrote its help pages so AI can read them easily
+->  One file lists all 414 pages with a short summary each, and every page has a plain-text version. When someone asks ChatGPT how to use Railway, it finds the right answer fast and gets it right
+
+7/ A docs section written for agents
+->  One step installs everything Claude Code or Cursor needs to deploy to Railway on its own
+
+8/ Plugins inside ChatGPT and Claude Code
+->  You ask the chat to deploy and it deploys, without ever opening Railway's website
+
+9/ A server with one command and no signup
+->  ssh railway new gives an agent the shortest path to ""your app is live""
+
+10/ A new changelog page every Friday since 2021
+->  312 pages of fresh content that keep Railway in front of Google and the models
+
+11/ Every new AI model brings a new jump in signups
+->  More code gets written, all of it needs to run somewhere, and this year the summer slowdown disappeared
+
+12/ A go-to-market team of 7 runs all of it
+->  The pages, docs and plugins keep selling while they sleep
+
+13/ The one hole: front-end apps
+->  Claude Code picks Vercel 100% of the time for Next.js and React apps. Railway wins Python, Vercel wins everything that runs in a browser
+
+Full guide on how to win AI search in the first comment","'@nakul","Railway started the year at $20M ARR. It’s now ~$100M. Solo founder. Fully remote. Only ~40 people.
+
+The one trait that explains why Railway is breaking all the rules:
+
+“It’s almost like cheating on your homework when you go and look at somebody else’s solution. If this is how https://t.co/bURXZuX1sj","","No external destination (self-contained post, video or image)","","Railway $20M->$100M ARR and ""82% of Python apps"" are author-quoted claims, not verified","2026-10-20"
+"SEO / AEO / GEO","Rob Hallam","'@robj3d3","2026-10-08T19:04:08.000Z","https://x.com/robj3d3/status/2108272246804648049","Paste this into Claude Code.
+
+Opus 5.5 builds you a free tool built to rank:
+
+""Build a free tool for [PRODUCT URL] targeting [KEYWORD]. No signup, instant result, clean mobile UX, one CTA into the product. Nail SEO: title, meta, H1, internal links, FAQ, JSON-LD schema."" https://t.co/1wxgWjmdHf","","","","No external destination (self-contained post, video or image)","","","2026-10-20"
+"SEO / AEO / GEO","Connor Showler | SEO & Marketing Master","'@ConnorShowler","2026-09-28T14:09:52.000Z","https://x.com/ConnorShowler/status/2104574316104880415","Here's a list of literally everything you need to know about SEO:
+
+1. Technical SEO
+-> Crawlability
+-> Indexability
+-> XML sitemaps
+-> Robots.txt
+-> Canonical tags
+-> Site architecture / URL structure
+-> HTTPS / SSL
+-> Core Web Vitals (LCP, INP, CLS)
+-> Page speed optimization
+-> Mobile-friendliness / responsive design
+-> Structured data / schema markup (JSON-LD)
+-> Hreflang / international targeting
+-> Pagination handling
+-> JavaScript rendering / SSR vs CSR
+-> Duplicate content management
+-> Redirect management (301, 302, chains)
+-> HTTP status codes / error handling (404, 5xx)
+-> Log file analysis
+-> Crawl budget optimization
+-> Faceted navigation control
+-> CDN / hosting performance
+-> Image optimization (compression, WebP, lazy loading)
+-> Orphan page detection
+
+2. On-Page SEO
+-> Title tags
+-> Meta descriptions
+-> Header hierarchy (H1–H6)
+-> Keyword placement / density
+-> Content optimization
+-> Internal linking
+-> Anchor text optimization
+-> Image alt text
+-> URL slugs
+-> Content freshness / updating
+-> Semantic HTML
+-> Featured snippet optimization
+-> Table of contents / jump links
+-> Outbound linking strategy
+-> Content depth / comprehensiveness
+-> Readability
+
+3. Off-Page SEO
+-> Link building
+-> Digital PR
+-> Guest posting
+-> Broken link building
+-> Sneaky backlinks
+-> HARO / journalist outreach
+-> Unlinked brand mention reclamation
+-> Tiered link building
+-> Link buying / selling
+-> Social syndication
+-> Backlink profile analysis
+-> Spam link discovery
+-> Anchor text distribution
+-> Link velocity
+-> Brand mentions / citations
+-> Influencer collaboration
+-> Podcast / interview placements
+-> Resource page links
+-> Private blog networks
+-> Skyscraper technique
+
+4. Keyword Research
+-> Search intent classification (informational, navigational, commercial, transactional)
+-> Search volume analysis
+-> Keyword difficulty scoring
+-> Long-tail keywords
+-> Semantic / LSI keywords
+-> Keyword clustering / topic grouping
+-> Competitor keyword gap analysis
+-> Seasonal / trending keywords
+-> Question-based keywords (PAA mining)
+-> Zero-volume keywords
+-> Keyword cannibalization detection
+-> SERP feature analysis per keyword
+
+5. Content Strategy
+-> Topical authority building
+-> Content hubs / pillar pages / clusters
+-> Editorial calendars
+-> Content gap analysis
+-> Content pruning / consolidation
+-> Content refreshing
+-> Content formats (guides, listicles, comparisons, tools)
+-> Programmatic SEO
+-> User-generated content
+-> Author bios / entity building
+-> Information gain / original data
+-> Content briefs / SOP creation
+-> Newsjacking
+
+6. Local SEO
+-> Google Business Profile optimization
+-> NAP consistency (Name, Address, Phone)
+-> Local citations / directories
+-> Review generation & management
+-> Local link building
+-> Location pages / service area pages
+-> Local pack / map pack ranking
+-> Geo-targeted content
+-> Local schema markup
+-> Proximity / relevance / prominence signals
+
+7. GEO / AI Search Optimization
+-> LLM citation optimization (ChatGPT, Claude, Perplexity, Gemini)
+-> AI Overviews optimization
+-> Consensus manufacturing
+-> Parasite SEO
+-> Entity optimization / knowledge graph presence
+-> Structured, extractable content formatting
+-> Brand mention frequency across the web
+-> llms.txt
+-> Statistics / quotable data inclusion
+-> Wikipedia / Wikidata presence
+-> Reddit / forum visibility (LLM training sources)
+-> Answer-first content structure
+
+8. E-commerce SEO
+-> Product page optimization
+-> Collection page optimization
+-> Product schema (price, reviews, availability)
+-> Faceted navigation SEO
+-> Out-of-stock page handling
+-> Product review optimization
+-> Merchant Center / Google Shopping feed
+-> Duplicate product description handling
+-> Internal search optimization
+-> Competitor data extraction
+
+9. SERP Features
+-> Featured snippets
+-> People Also Ask
+-> Knowledge panels
+-> Image packs
+-> Video carousels
+-> Sitelinks
+-> FAQ / How-to rich results
+-> Review stars
+-> Top stories
+-> Local pack","","","","No external destination (self-contained post, video or image)","","","2026-10-20"
+"SEO / AEO / GEO","Alex Lieberman","'@businessbarista","2026-09-08T14:54:06.000Z","https://x.com/businessbarista/status/2097337687698981254","In 15 minutes, I built an agent that powers my company’s entire AEO strategy. 
+
+My goal was simple: get a weekly digest of the topics my company, @tenex_labs, should be trying to rank for based on what our ICP (read: enterprise execs) is searching for using LLMs and what our team is already talking about with our customers.
+
+Using @profound, I built this white-glove AEO research agent that does the following:
+
+1. Studies the last 7 days of customer calls and identifies 5-10 recurring themes from the transcripts
+
+2. Identifies 11 topics, where Tenex is being outranked by competitors in LLM search over the last 4 weeks
+
+3. Proposed 20–40 queries from two signals: themes raised on calls, and topics where competitors out-rank us
+
+4. Using a corpus of >1 billion searches, Profound scores the 20-40 queries for prompt volume
+
+5. All queries are scored based on LLM demand, call transcript evidence, and increasing prompt volume
+
+6. Weekly digest is sent to me which includes strongest signal, 3–5 article recommendations with titles, target queries, angles, and evidence, a watch list, and the biggest competitor gap
+
+It’s still inning one in AEO, and being smart about how you optimize for it can literally change the arc of your entire business. 
+
+The barrier to building agents like this drops every week. What took a research team a quarter to piece together, you can now prototype before your coffee gets cold.
+
+Feel free to copy this agent, customize it to fit your needs, & run it for your business & space: 
+https://t.co/tVNOvObYHT
+
+#ProfoundPartner #Sponsored","","","","No external destination (self-contained post, video or image)","","","2026-10-20"
+"SEO / AEO / GEO","Noel Ceta","'@noelcetaSEO","2026-08-24T14:33:25.000Z","https://x.com/noelcetaSEO/status/2091896666538279015","Today I am launching MentionFlow.
+
+Honestly, I didn't set out to build a product. I built it as an internal tool for my agency clients.
+
+We've run SEO for years - scaled several client project past 1M+ monthly organic visits. Then traditional SEO shifted massively, and we wanted a clean way to integrate our processes with AEO/GEO,etc.
+
+So we built it. It's opinionated - shaped around the exact process we run for clients.
+
+What it does:
+
+→ Tracks every mention, ranking + citation across 10 AI engines 
+→ Shows the exact prompts where competitors get named and you don't 
+→ Drafts content to close those gaps 
+→ Publishes straight to WordPress, Webflow, Framer, Shopify + more 
+→ Tracks GPTBot / ClaudeBot / PerplexityBot hitting your pages 
+→ Re-runs the prompts after you publish, so you see if it moved 
+→ And we build you a custom plan for getting cited by AI models
+
+Only used internally so far. Results have been better than expected. Outside our walls it's untested - which is why I'm posting.
+
+Looking for 100 initial users to break it and tell us what's missing. 30% off your first 3 months.
+
+Link below 👇","","","https://www.mentionflow.com","Fetch failed (CRAWL_UNKNOWN_ERROR) 2026-10-20 - needs human review","","""1M+ monthly organic visits"" agency claims are author-reported","2026-10-20"
+"SEO / AEO / GEO","Hridoy Reh","'@hridoyreh","2026-08-23T15:43:20.000Z","https://x.com/hridoyreh/status/2091551874847822042","📂 SEO
+┃
+┣ 📂 Strategy
+┃ ┣ 📂 Keyword Research
+┃ ┣ 📂 Search Intent
+┃ ┣ 📂 Competitor Analysis
+┃ ┣ 📂 Topical Maps
+┃ ┗ 📂 SEO Roadmap
+┃
+┣ 📂 On-page SEO
+┃ ┣ 📂 Title Tags
+┃ ┣ 📂 Meta Descriptions
+┃ ┣ 📂 Headings
+┃ ┣ 📂 URL Optimization
+┃ ┣ 📂 Internal Linking
+┃ ┣ 📂 Anchor Text
+┃ ┗ 📂 Image SEO
+┃
+┣ 📂 Content SEO
+┃ ┣ 📂 Content Strategy
+┃ ┣ 📂 Topic Clusters
+┃ ┣ 📂 Pillar Content
+┃ ┣ 📂 Evergreen Content
+┃ ┣ 📂 Programmatic SEO
+┃ ┗ 📂 Content Refresh
+┃
+┣ 📂 Content Optimization
+┃ ┣ 📂 Keyword Optimization
+┃ ┣ 📂 NLP Optimization
+┃ ┣ 📂 Entity Coverage
+┃ ┣ 📂 Content Expansion
+┃ ┗ 📂 CTR Optimization
+┃
+┣ 📂 Technical SEO
+┃ ┣ 📂 Crawling
+┃ ┣ 📂 Indexing
+┃ ┣ 📂 Site Structure
+┃ ┣ 📂 XML Sitemaps
+┃ ┣ 📂 RobotsTXT
+┃ ┣ 📂 Canonicals
+┃ ┣ 📂 Schema Markup
+┃ ┣ 📂 Core Web Vitals
+┃ ┗ 📂 Page Speed
+┃
+┣ 📂 Off-page SEO
+┃ ┣ 📂 Link Building
+┃ ┣ 📂 Digital PR
+┃ ┣ 📂 Guest Posting
+┃ ┣ 📂 Broken Link Building
+┃ ┣ 📂 Resource Links
+┃ ┣ 📂 Linkable Assets
+┃ ┗ 📂 Brand Mentions
+┃
+┣ 📂 SaaS SEO
+┃ ┣ 📂 Feature Pages
+┃ ┣ 📂 Use Case Pages
+┃ ┣ 📂 Integration Pages
+┃ ┣ 📂 Alternative Pages
+┃ ┣ 📂 Comparison Pages
+┃ ┣ 📂 Free Tools
+┃ ┗ 📂 BOFU Content
+┃
+┣ 📂 International SEO
+┃ ┣ 📂 Hreflang
+┃ ┣ 📂 Multilingual SEO
+┃ ┣ 📂 Localization
+┃ ┗ 📂 Geo Targeting
+┃
+┣ 📂 AI SEO
+┃ ┣ 📂 AI Overviews
+┃ ┣ 📂 AI Mode
+┃ ┣ 📂 ChatGPT SEO
+┃ ┗ 📂 AI Search
+┃
+┣ 📂 Analytics
+┃ ┣ 📂 Search Console
+┃ ┣ 📂 Google Analytics
+┃ ┣ 📂 Rank Tracking
+┃ ┣ 📂 Traffic Analysis
+┃ ┣ 📂 Conversion Tracking
+┃ ┗ 📂 SEO Reporting
+┃
+┣ 📂 SEO Audit
+┃ ┣ 📂 Technical Audit
+┃ ┣ 📂 Content Audit
+┃ ┣ 📂 Backlink Audit
+┃ ┣ 📂 Competitor Audit
+┃ ┗ 📂 Indexing Audit
+┃
+┣ 📂 SEO Tools
+┃ ┣ 📂 Ahrefs
+┃ ┣ 📂 Screaming Frog
+┃ ┣ 📂 SEO Wins
+┃ ┣ 📂 Search Console
+┃ ┣ 📂 Google Analytics
+┃ ┗ 📂 Keywords Everywhere
+┃
+┗ 📂 Growth
+  ┣ 📂 SEO Wins
+  ┣ 📂 Traffic Growth
+  ┣ 📂 Content Scaling
+  ┣ 📂 SEO Automation
+  ┗ 📂 Experimentation","","","","No external destination (self-contained post, video or image)","","","2026-10-20"
+"SEO / AEO / GEO","Julian Goldie SEO","'@JulianGoldieSEO","2025-08-23T20:57:59.000Z","https://x.com/JulianGoldieSEO/status/1959359488710037849","I ranked #1 on Google in 10 hours…
+
+Here’s how 👇
+
+1️⃣ I built a spreadsheet of target keywords
+2️⃣ Plugged it into an AI workflow (Claude + Make)
+3️⃣ Generated full SEO-optimized articles in minutes
+4️⃣ Humanized them with a simple checklist (no spammy AI fluff)
+5️⃣ Published straight to WordPress… and boom — instant rankings
+
+Most people spend weeks writing content.
+
+I spent 10 minutes.
+
+⚡This workflow saves me 40+ hours a month.
+
+P.S. Want my full blueprint + prompts for free? Comment RANK below ⬇️","","","","No external destination (self-contained post, video or image)","","""Ranked #1 on Google in 10 hours"" is an author claim, not verified","2026-10-20"
+"SEO / AEO / GEO","Machina","'@EXM7777","2025-08-14T14:35:42.000Z","https://x.com/EXM7777/status/1956001792594206775","measuring geo success requires different metrics than traditional seo
+
+calculate your ai citation rate by dividing the number of target queries that mention your brand by the total queries you tested, then multiply by 100
+
+track this across all platforms. chatgpt citation frequency, claude mention rates, perplexity source attribution, and google ai overview inclusion
+---THREAD---
+pay attention to citation quality too... primary source citations are most valuable, supporting evidence mentions are medium value, and passing references are lower value
+
+ai referral traffic shows 35% higher engagement rates and 8% conversion rates on average - time on site is typically 2-3x higher than traditional search traffic
+
+brand recognition metrics matter too, watch for search volume increases and direct traffic spikes following ai citations
+---THREAD---
+""competitive displacement"" is a systematic process
+
+start by testing 100+ industry queries monthly across all ai platforms, document which competitors get cited most frequently and analyze their content structure
+
+look for gaps where competitors provide incomplete answers and create comprehensive responses that cover everything they miss, include more recent data, and offer additional expert perspectives
+---THREAD---
+build stronger authority signals than existing cited sources: get higher-credentialed experts, more recent comprehensive data, and superior technical implementation
+
+change the conversation around key topics: introduce new frameworks, challenge conventional wisdom with data, and provide contrarian but well-supported perspectives
+
+this systematic approach has helped us displace established competitors who seemed unbeatable
+---THREAD---
+authority stacking creates unshakeable positioning
+
+layer one is internal authority through original research, comprehensive guides, expert interviews, and statistical analysis
+
+layer two is platform authority:
+- wikipedia presence for entity recognition
+- industry publication contributions
+- academic citations
+- speaking engagements
+---THREAD---
+layer three is network authority: expert endorsements, cross-citations from other authorities, collaborative research, and industry association leadership
+
+layer four is technical authority.: advanced schema markup, perfect optimization across platforms, multi-language content, and early adoption of emerging platforms
+
+most companies try single-layer authority building.... you should stack all four layers for positioning that's nearly impossible to displace
+---THREAD---
+citation velocity matters more than single wins
+
+getting one ai citation is good, getting consistent citations across multiple related queries is game-changing
+
+instead of targeting individual queries, dominate entire semantic clusters, for example with email marketing authority, target:
+- roi queries
+- automation questions
+- design practices
+- deliverability optimization
+- list building strategies
+- segmentation techniques
+---THREAD---
+when you get cited on one platform, leverage that success for others:  document what made the content citable, analyze the elements, adapt them for other platforms, and build momentum across all systems
+
+temporal expansion works too: target time-sensitive queries like ""best email tools 2025,"" ""email trends this year,"" and ""current email statistics""
+
+this creates citation momentum that becomes self-reinforcing
+---THREAD---
+real-time optimization maintains your competitive edge
+
+static content gets stale citations - dynamic optimization keeps you dominant
+
+set up automated monitoring systems that test your key queries daily across all platforms: track citation frequency changes, new competitor appearances, and content performance trends
+---THREAD---
+automate content freshness with date updates on evergreen content, regular statistics refreshes, and dynamic sections that update automatically
+
+create competitive response workflows with alerts when competitors gain citations, automatic analysis of their content changes, and rapid response protocols
+
+this systematic approach scales geo management while competitors manually update content
+---THREAD---
+my free telegram for prompts, tools, resources and unfiltered thoughts ↓
+
+https://t.co/yufq5tmcni
+
+my free newsletter with 1 edition per week, no ads/spam, just pure value ↓
+
+https://t.co/KcCY4jJBSd
+---THREAD---
+how to rank your business inside LLMs (the AI SEO playbook):
+---THREAD---
+before we get into the real stuff, i have a surprise for you...
+
+reply ""GEO PLAYBOOK"" + RT and i'll send you a super-prompt to write perfect articles that will rank inside LLMs
+
+and here are more free resources for you:
+
+my free telegram for prompts, tools and unfiltered thoughts ↓
+
+https://t.co/E1owgNLcRC
+
+my free newsletter with 1 edition per week, no ads/spam, just pure value ↓
+
+https://t.co/ImZS5WzsJB
+
+now let's let into it
+---THREAD---
+while most people obsess over google rankings, ai systems are quietly deciding which brands get mentioned to millions of users every single day
+
+of course traditional SEO is still king, but if you're not optimizing for ai searches, you'll fall behind in the upcoming months
+
+> chatgpt processes over 1 billion messages daily
+> google's ai overviews appear on 25% of searches
+> perplexity hit 780 million queries just last month
+
+the shift isn't coming, it's already here
+
+here's how to win the game that actually matters:
+---THREAD---
+first, let me explain what generative engine optimization actually is
+
+geo is the practice of optimizing your content so ai systems cite your brand directly in their responses
+
+when someone asks chatgpt ""what's the best email marketing platform,"" you want them to mention YOUR company
+
+when they ask claude for sales funnel advice, you want YOUR methodology referenced
+---THREAD---
+the numbers prove this shift is real and it's BIG
+
+chatgpt alone gets 3.8 billion monthly visits, capturing 61% of the entire generative ai market
+
+google's ai overviews now appear on 25% of all searches
+
+perplexity is growing 20% month-over-month with 780 million queries in may
+
+meanwhile, gartner predicts traditional search volume will drop 25% by 2026
+
+your competitors are still fighting yesterday's war while the battlefield has completely changed
+---THREAD---
+here's what blew my mind when i started studying this...
+
+ai systems don't think like search engines at all
+
+search engines crawl pages, match keywords, and show you blue links to click
+
+ai systems analyze the intent behind your question, synthesize information from multiple sources, and give you a direct answer while citing the most credible sources
+---THREAD---
+they prioritize content that answers questions immediately, includes expert quotes with full credentials, and provides comprehensive coverage from a single source
+
+this changes everything about how we should create content
+---THREAD---
+successful geo content follows a 5-layer architecture that most people completely miss
+
+layer 1 is your foundation: every piece of content needs to be structured around questions people actually ask, with direct answers right at the top
+
+layer 2 is authority: ai systems are obsessed with credibility signals like expert quotes, statistical data with proper attribution, and consistent information across platforms
+---THREAD---
+layer 3 is technical optimization: schema markup, ai crawler access, and mobile performance matter more than ever
+
+layer 4 is platform-specific adaptation: each ai system has preferences we need to understand
+
+layer 5 is long-term authority building through wikipedia presence and cross-platform consistency
+---THREAD---
+now let me show you how to transform your content structure
+
+instead of writing ""email marketing best practices,"" ask ""what are the most effective email marketing strategies in 2025?""
+
+then structure every piece like this: start with your main question as the headline, give a direct 2-3 sentence answer in the first paragraph and then follow with detailed explanations, examples, and context
+---THREAD---
+add comprehensive faq sections targeting the exact questions people ask ai systems
+
+these are usually 10-11 words long like ""how do i increase email open rates?"" or ""what's the best time to send marketing emails?""
+
+ai systems love immediate answers followed by depth
+---THREAD---
+authority signals make or break your citations
+
+here's what actually works... when you include expert quotes, do it like this:
+
+""according to dr. sarah johnson, ai research director at stanford university, 'content with proper semantic structure sees 40% higher citation rates.' this finding, published in the journal of ai research, demonstrates why structure matters""
+
+notice how that includes the expert's full credentials, their institution, the specific finding, and the source publication
+---THREAD---
+for statistics, always use this format: cite the specific number, mention the authoritative source, then explain what it means for your audience
+
+consistency across platforms is crucial, your business information needs to be identical everywhere ai systems might find it
+---THREAD---
+now here's a technical detail that can 10x your results
+
+most people implement schema markup using javascript, but ai crawlers can't read javascript-rendered structured data (as of now, correct me if i'm wrong)
+
+you need server-side rendering or pre-rendering solutions... more importantly, you need to explicitly allow ai crawlers in your robots.txt file
+---THREAD---
+most websites accidentally block gptbot, perplexitybot, and claudebot without realizing it
+
+also make sure your pages load in under 3 seconds, work perfectly on mobile, and have clean html structure. ai systems are picky about technical quality
+
+this alone has tripled citation rates for clients i've worked with
+---THREAD---
+each ai platform has distinct preferences you need to understand
+
+chatgpt loves comprehensive, in-depth coverage: think pillar content that covers topics completely in a single source, include multiple expert perspectives and statistical backing for major claims
+
+perplexity heavily favors visual content: charts, graphs, and images with proper alt text get cited far more often - they also prioritize real-time, current information
+---THREAD---
+claude excels with conversational, natural language content: write like you're having a dialogue, not delivering a lecture - longer-form content works well here
+
+google ai overviews have a 99.5% correlation with traditional top 10 search results, so strong traditional seo still matters for this platform
+---THREAD---
+certain content formats consistently dominate ai citations
+
+faq sections have the highest citation rates, structure them as natural question-and-answer pairs that address real user queries
+
+comparative content gets cited constantly: ""option a vs option b"" formats with quick comparison summaries and detailed feature breakdowns work incredibly well
+---THREAD---
+step-by-step guides show 30-40% higher visibility than standard articles - break complex processes into clear, actionable steps with common mistakes sections
+
+statistical roundups perform amazingly: ""topic statistics and trends for 2025"" with key data points and analysis of what the numbers mean
+
+these formats consistently outperform traditional blog posts
+---THREAD---
+here's a strategy that multiplies your citation potential
+
+take one comprehensive research piece and turn it into multiple ai-optimized content formats
+
+start with original survey data, expert interviews, and statistical analysis. make sure you have visual representations and actionable insights
+---THREAD---
+then create derivative pieces like ""most asked questions about your topic,"" ""statistics and trends,"" ""expert commentary,"" ""complete implementation guide,"" and ""solutions comparison""
+
+adapt each piece for specific platforms:
+- make the chatgpt version comprehensive and multi-section
+- create visual-heavy versions for perplexity
+- write conversational versions for claude
+
+this content multiplication framework can generate 6+ high-performing pieces from a single research effort","","","","No external destination (self-contained post, video or image)","","Long thread; 32 author segments recovered, middle may be partial. Ends with Telegram/newsletter self-promo links.","2026-10-20"
+"SEO / AEO / GEO","Guillermo Rauch","'@rauchg","2025-08-13T23:51:54.000Z","https://x.com/rauchg/status/1955779377867973069","SEO for AI, why you should not block AI answer engines, and the future of the web.
+
+We published an article *today* with updated guidance on databases on vercel. Brand new knowledge.
+
+@grok already has it (impressive!), sources it correctly, and links to our authoritative source, https://t.co/GoqKf7CioV","","","https://vercel.com/blog/how-were-adapting-seo-for-llms-and-ai-search","Page verified live 2026-10-20; mapping INFERRED from post wording (post itself links a video, not the article URL)","","","2026-10-20"
+"SEO / AEO / GEO","The Startup Ideas Podcast (SIP) 🧃","'@startupideaspod","2025-08-08T17:42:58.000Z","https://x.com/startupideaspod/status/1953874591593771347","SEO is NOT dead
+
+Claude code saved it. 
+
+When a trucker breaks down on I-77, he's not opening ChatGPT.
+
+He's googling ""mobile diesel mechanic Charlotte"" and calling the first number with good reviews.
+
+That's how 99% of local business works.
+
+Google search → phone call → money https://t.co/Jt5QtyonJN","","","","No external destination (self-contained post, video or image)","","","2026-10-20"
+"SEO / AEO / GEO","GREG ISENBERG","'@gregisenberg","2025-07-19T12:29:15.000Z","https://x.com/gregisenberg/status/1946547883551121746","cloudflare just broke the internet's business model.
+
+they launched ""pay per crawl"" websites can now charge ai crawlers for scraping content. instead of ""block all bots"" or ""let them steal everything,"" there's option 3: ""pay me.""
+
+why this is a BIG DEAL:
+
+every SaaS has valuable data rotting in help docs, case studies, feature pages. ai companies have been training on this for free while building your competitors. now you can charge them $0.10 per page.
+
+your dental saas help docs, well, that's years of practice wisdom. charge crawlers for access and make $3k/month from companies building ""dentist ai.""
+
+tons of opportunity for founders building businesses:
+
+build a restaurant review database, charge humans $5/month but charge ai crawlers $0.01 per review. two revenue streams, same content. im scanning startup ideas from @ideabrowser and seeing where i can add this rev stream.
+
+expert knowledge platforms where you take 30% of human subs and 50% of crawler fees.
+
+cloudflare handles the billing, you set the price.
+
+they way to think about it...
+
+what valuable data do you have sitting around... internal company docs, customer conversations, industry insights, process knowledge.
+
+all of it can now generate revenue from ai companies who desperately need training data.
+
+the winners will be content businesses that move fast. imagine owning a cooking blog with 10 years of recipes. that's training data gold for ai food companies. early adopters will set market rates before competition drives prices down.
+
+this also completely changes saas valuations. businesses with proprietary content now have two revenue streams instead of one. 
+
+it's the beginning of a complete realignment of incentives on the internet.
+
+suddenly, creating high-quality, unique content becomes dramatically more valuable. we'll see a renaissance of niche expertise sites because depth now pays better than breadth. the incentive shifts from ""create content to rank in google"" to ""create content so valuable that ai companies must pay for it.""
+
+this also creates a new class of digital asset. your company's knowledge base is a revenue-generating asset that appreciates over time (not a cost center). 
+
+I'd expect more m&a activity around content libraries, not just user bases.
+
+this makes human expertise defensible again. AI companies will pay premium rates for content from recognized experts because it's higher quality training data. this reverses the commoditization of knowledge.
+
+cloudflare quietly changed the game.
+
+pay-per-crawl just became your new best friend.","","","","No external destination (self-contained post, video or image)","","","2026-10-20"
+"SEO / AEO / GEO","Marc Lou","'@marclou","2025-06-27T15:15:25.000Z","https://x.com/marclou/status/1938617168192815248","Here's how my startups got...
+
+- 100,000 visitors
+- on autopilot
+- for free
+
+...using programmatic SEO: https://t.co/FuUQsH1eEm","","","","No external destination (self-contained post, video or image)","","""100,000 visitors on autopilot"" is an author claim, not verified","2026-10-20"
+"SEO / AEO / GEO","The Boring Marketer","'@boringmarketer","2025-07-05T13:06:36.000Z","https://x.com/boringmarketer/status/1941483854214385806","You can find and fix SEO issues in minutes without paying an agency $1
+
+Low effort / high reward vibe marketing https://t.co/tsf7WDgK3l","","","","No external destination (self-contained post, video or image)","","","2026-10-20"
+"SEO / AEO / GEO","Marc Lou","'@marclou","2025-06-29T15:14:03.000Z","https://x.com/marclou/status/1939341602641871074","Lovable's marketing strategy is interesting.
+
+Whenever I search for keywords like ""an app for..."", ""a website to do..."" I find Lovable's programmatic SEO pages ranked as #1 result (sponsored results).
+
+ The pSEO pages are the same as their homepage, with a different <h1> targeting long-tail keywords.
+
+I can't tell what the ROI is, but I would assume it's high because it's ultra-specific and practical, which Google and LLMs love.","","","","No external destination (self-contained post, video or image)","","","2026-10-20"
+"SEO / AEO / GEO","Julian Goldie SEO","'@JulianGoldieSEO","2025-04-05T12:00:01.000Z","https://x.com/JulianGoldieSEO/status/1908489801449320600","I tested GenSpark AI (free) vs Manus ($9/mo) for the same task - creating an SEO agency website.
+
+The results? Not even CLOSE. 🤯
+
+GenSpark created a FULL website with:
+
+  • My actual team photos (pulled from online)
+  • Real client testimonials
+  • Professional UI/navigation
+  • Service pricing
+  • Multiple page versions
+
+Manus created:
+
+  • Basic template site
+  • Generic stock images
+  • No real testimonials
+  • Limited info about my business
+
+GenSpark took 15 min, Manus took over 30 min with multiple prompts.
+
+Save this comparison - GenSpark will be the next AI agent everyone switches to.
+
+Want the SOP? DM me.","","","","No external destination (self-contained post, video or image)","","","2026-10-20"
+"SEO / AEO / GEO","John Rush","'@johnrush","2025-03-11T03:00:01.000Z","https://x.com/johnrush/status/1899294209720639672","The Startup Founder Bundle:
+
+@unicornplatform landing page or web directories
+@indexrusher indexing for google, bing &amp; LLMs
+@listingbott backlinks and directory listings
+@seobotai AI-generated blog on autopilot
+@ToltHQ affiliate marketing software","","","https://unicornplatform.com (verified), https://indexrusher.com (verified), listingbott/seobotai/tolthq (named, not individually verified)","Author @johnrush is affiliated with these products - treat as founder promotion","","","2026-10-20"
+"SEO / AEO / GEO","Vercel","'@vercel","2024-12-17T18:14:01.000Z","https://x.com/vercel/status/1869083642938712368","We analyzed billions of AI crawler requests to figure out how each crawler handles JavaScript rendering, assets, and other behavior.
+
+Here's what we found.","","","https://vercel.com/i/how-ai-is-changing-seo","Page verified live 2026-10-20; title matches post (""billion(s) of AI crawler requests"")","","","2026-10-20"
+"SEO / AEO / GEO","Luke Miler","'@lukemiler","2024-10-22T14:31:40.000Z","https://x.com/lukemiler/status/1848733966922125570","40 websites to promote your startup and get free backlinks.
+
+Used by Y Combinator (YC) startups.
+
+Sorted by domain rating (DR) 👇 https://t.co/gClHH1euoc","","","","No external destination (self-contained post, video or image)","","The 40-site backlink list lives in an image - needs human review","2026-10-20"
+"SEO / AEO / GEO","Natia Kurdadze","'@natiakourdadze","2024-08-30T16:11:41.000Z","https://x.com/natiakourdadze/status/1829552581317710247","If you want to grow your startup faster while spending less on SEO:
+
+1. Go to free tool called “Termsuggest .com”
+2. Type the most generic keyword of your business
+3. Copy suggested keywords
+4. Paste these terms into “Searchvolume .io”
+5. Filter the keywords with high volume
+6. Optimize your landing pages accordingly
+
+#buildinpublic","","","https://termsuggest.com + https://searchvolume.io","Both verified live 2026-10-20 (free keyword tools named in post)","","","2026-10-20"
+"SEO / AEO / GEO","ericosiu","'@ericosiu","2026-04-24T15:46:24.000Z","https://x.com/ericosiu/status/2047703714471801003","This repo will help you skip months of rebuilding AI marketing automations. 
+
+17 production-tested categories: SEO ops, deal resurrector, podcast-to-clips, growth engine, lead dossiers.
+
+32K lines, 2.1K stars. Fork it and run. MIT licensed.
+
+More coming soon","'@ericosiu","https://t.co/hxQoVKMYpE","https://x.com/i/article/2047430308270899200","Repo link sits inside this X long-form article (self-quote); article not separately fetched","","","2026-10-20"
+"Website copy, conversion and wording","Prajwal Tomar","'@PrajwalTomar_","2025-03-20T14:30:21.000Z","https://x.com/PrajwalTomar_/status/1902729429312307200","Most AI-generated landing pages look generic and fail to convert.
+
+Here’s the exact workflow I use to build high-quality, conversion-focused landing pages for my clients using @lovable + 21stdev.
+
+Watch the full breakdown and follow along. https://t.co/6nPtbw7v2b","","","","No external destination (self-contained post, video or image)","yes","Already delivered in an earlier report (Oct 19 AI-learning library or Oct 16 design CSV).","2026-10-20"
+"Website copy, conversion and wording","Prajwal Tomar","'@PrajwalTomar_","2025-03-19T14:47:10.000Z","https://x.com/PrajwalTomar_/status/1902371273147064772","AI can build landing pages, but most look generic.
+
+Here’s my structured approach using @lovable  + 21stdev to create high-converting, polished designs, FAST.
+
+A complete breakdown: https://t.co/1cdPnVa08F","","","","No external destination (self-contained post, video or image)","","","2026-10-20"
+"Website copy, conversion and wording","Pedro Aquino","'@pedrovearta","2024-12-13T18:43:56.000Z","https://x.com/pedrovearta/status/1867641621631971761","Why Marc Lou's landing pages are kind of genius.
+
+And what you can you steal from them to use on your own.
+
+a thread - bookmark for future use!
+
+@marclou","","","","No external destination (self-contained post, video or image)","yes","Already delivered in an earlier report (Oct 19 AI-learning library or Oct 16 design CSV).","2026-10-20"
+"Website copy, conversion and wording","'@levelsio","'@levelsio","2024-12-06T15:09:43.000Z","https://x.com/levelsio/status/1865050999817449727","Here's my rewrite of @RiversidedotFM's landing copy based on @NapierHolland's simple theory of landing page headings should BE SPECIFIC
+
+The original landing page is very vague: ""Talk it to the next level"" and ""Your Conversation Studio"", what is a conversation studio even? It's so confusing
+
+In reality, it's just an automated podcast studio so that's what the <h1> should say
+
+And you send a link and it records your podcast with a fail-safe backup in case your internet goes down or your computer crashes so you don't lose the recording so that's what the sub text should say
+
+IMHO","'@levelsio","This is my friend @NapierHolland 
+
+He's the king of copywriting and landing pages
+
+And he made a little video for all of you on here to improve your startup's landing pages for better conversion
+
+A lot of landing page text sucks these days, the heading is ambiguous like ""Enter","","No external destination (self-contained post, video or image)","","","2026-10-20"
+"Website copy, conversion and wording","Namya @ Supafast","'@namyakhann","2024-11-12T12:06:06.000Z","https://x.com/namyakhann/status/1856307479451238757","If you're a SaaS founder and your website has a ""Get started"" CTA, I want you to take your laptop and throw it out the window.
+
+You don't deserve it.","","","","No external destination (self-contained post, video or image)","","","2026-10-20"
+"Website copy, conversion and wording","The Boring Marketer","'@boringmarketer","2026-05-26T21:29:09.000Z","https://x.com/boringmarketer/status/2059386379625234552","I follow this simple guide when I build a landing page.
+
+- use playwright to get some visual inspo
+- throw in a brand voice skill
+- use a front end design skill
+
+world class conversion optimized pages in minutes https://t.co/8GOX79MWPO","","","","No external destination (self-contained post, video or image)","yes","Already delivered in an earlier report (Oct 19 AI-learning library or Oct 16 design CSV).","2026-10-20"
+"Website copy, conversion and wording","The Boring Marketer","'@boringmarketer","2026-05-25T13:44:30.000Z","https://x.com/boringmarketer/status/2058907061883150387","how to turn your website into a revenue generating machine:
+
+use this free conversion optimization skill
+
+paste this into your coding agent and ask it to make a skill that will audit every landing page, sales page, or lead gen form you build against these 25 points automatically","","","","No external destination (self-contained post, video or image)","","The 25-point conversion checklist is referenced but not in the post text (likely image/replies) - needs human review","2026-10-20"
+"Website copy, conversion and wording","The Boring Marketer","'@boringmarketer","2026-05-24T22:01:48.000Z","https://x.com/boringmarketer/status/2058669822699823345","how to write better copy than 99% of websites on the internet
+
+(give this image to AI for your next ad/landing page/etc) https://t.co/pEwEGdHdsR","","","","No external destination (self-contained post, video or image)","","Copy rules live in an image - needs human review","2026-10-20"
+"Related: landing-page builds and tools","Prajwal Tomar","'@PrajwalTomar_","2025-10-27T12:32:22.000Z","https://x.com/PrajwalTomar_/status/1982787454877974640","built this hero section in 20 mins inside lovable
+
+my go-to stack now for fast, stunning landing pages: @lovable + @midjourney
+
+Need the full guide? Drop a comment and I’ll share it soon 👇 https://t.co/MdAkuVn3Hr","","","","No external destination (self-contained post, video or image)","yes","Already delivered in an earlier report (Oct 19 AI-learning library or Oct 16 design CSV).","2026-10-20"
+"Related: landing-page builds and tools","Prajwal Tomar","'@PrajwalTomar_","2025-10-28T03:35:50.000Z","https://x.com/PrajwalTomar_/status/1983014822393590018","If you haven’t checked this out, you’re missing out.
+
+I broke down how I built this hero section in just 20 minutes inside @lovable
+
+👇","'@PrajwalTomar_","Lovable with MidJourney is scary good.
+
+I can’t stop building beautiful hero sections in minutes inside @lovable.
+
+Full breakdown below 👇 https://t.co/0BhUjl7mPx","","No external destination (self-contained post, video or image)","yes","Already delivered in an earlier report (Oct 19 AI-learning library or Oct 16 design CSV).","2026-10-20"
+"Related: landing-page builds and tools","Prajwal Tomar","'@PrajwalTomar_","2024-11-23T11:56:31.000Z","https://x.com/PrajwalTomar_/status/1860291336366153832","Many of you have asked about my V0 strategy, so here’s how I do it:
+
+1. Start with ChatGPT:
+- Input the PRD.
+- Ask it to create a detailed landing page, including a color palette and design principles.
+- Refine the output until it’s perfect.
+
+2. Move to V0:
+- Add inspiration screenshots (if any).
+- Input the ChatGPT prompt from the previous step.
+
+PRO TIP: Spend more time finalizing the landing page. It sets the tone for the rest of the app. Once it’s solid, you can easily create other screens by referencing it.
+
+After 4-5 tweaks, the results are fantastic.","","","","No external destination (self-contained post, video or image)","yes","Already delivered in an earlier report (Oct 19 AI-learning library or Oct 16 design CSV).","2026-10-20"
+"Related: landing-page builds and tools","Open Analytics","'@openanalyticshq","2026-09-05T19:25:32.000Z","https://x.com/openanalyticshq/status/2096318835163013614","Open Analytics v0.6.0 is live
+
+You can now filter your analytics by source, country, city, and device. Across the dashboard, API, and MCP.
+
+Also new:
+• Polar revenue attribution
+• Umami import
+• Page entries, exits & bounce rates
+• Realtime visitors on Overview
+• Share any overview as a PNG
+• Better attribution with click ID
+
+And much more. Checkout our repo 👇","","","","No external destination (self-contained post, video or image)","","","2026-10-20"
+"Related: landing-page builds and tools","Csaba Kissi","'@csaba_kissi","2026-07-08T06:39:50.000Z","https://x.com/csaba_kissi/status/2074745257099485319","Open-source and free apps for coders
+
+https://t.co/i1wdANWnB6 - Open-source agentic development in one window
+https://t.co/JUXRZQseiD - Free domain rating tracker
+https://t.co/99K1gYrSBO - Open source framework for building AI agents
+https://t.co/Bi5jpyZpfT - 158 design experiments
+https://t.co/5VJKnlSeKj - Free design inspiration","","","https://www.ship.studio, https://tracedr.com (domain rating tracker, verified), https://vercel.com/eve, https://www.devl.dev","t.co targets resolved 2026-10-20; tracedr.com page verified; others resolved but content not inspected","","","2026-10-20"
+"Related: landing-page builds and tools","The Boring Marketer","'@boringmarketer","2025-11-26T19:15:58.000Z","https://x.com/boringmarketer/status/1993760661185138939","my current ai stack (where 90% of my work happens)
+
+1) Opus 4.5 via Claude Code: landing pages, copy, websites, search optimization, data analysis, tools…w/ skills + subagents
+
+2) Gemini 3 Pro &amp; GPT 5.1 for research. I call these “advisory agents” use either web or in Cursor
+
+3)","","","","No external destination (self-contained post, video or image)","","","2026-10-20"
+"Website copy, conversion and wording","ILIAS ISM","'@illyism","2025-09-16T10:58:46.000Z","https://x.com/illyism/status/1967905998095765755","I literally shared my entire A/B testing process live and showed how to make sales with AI in under an hour... but it only got 2k views https://t.co/twIwIRxMdt","","","","No external destination (self-contained post, video or image)","","","2026-10-20"

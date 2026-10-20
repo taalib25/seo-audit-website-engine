@@ -77,6 +77,9 @@ export const CheckResult = z.object({
   /** Machine-readable facts the verdict was based on (actual values found). */
   evidence: z.record(z.string(), JsonValue).default({}),
   fix: Fix.optional(),
+  /** Why the check matters (copied from the check definition so reports are self-contained). */
+  rationale: z.string().optional(),
+  docs: z.string().optional(),
   durationMs: z.number().optional(),
 });
 export type CheckResult = z.infer<typeof CheckResult>;
