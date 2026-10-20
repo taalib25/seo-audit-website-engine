@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+:root { color-scheme: light; --bg: #f4f6f8; --surface: #fff; --ink: #15202b; --muted: #647381; --line: #dfe5e9; --accent: #087e75; --accent-soft: #e3f4f1; }
+.dark { color-scheme: dark; --bg: #0b1114; --surface: #111a1e; --ink: #edf4f3; --muted: #9aabaa; --line: #29373b; --accent: #65d5c0; --accent-soft: #142f2d; }
+@theme inline { --color-background: var(--bg); --color-foreground: var(--ink); --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+button, input, select { font: inherit; }
+.ring { background: conic-gradient(var(--accent) calc(var(--score) * 1%), var(--line) 0); }

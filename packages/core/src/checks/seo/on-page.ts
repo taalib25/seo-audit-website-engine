@@ -1,31 +1,31 @@
-import { definePageCheck, fail, pass, warn } from "../../check.ts";
+import { definePageCheck, defineSiteCheck, fail, pass, warn } from "../../check.ts";
+import { canonicalUrl } from "../../extract/links.ts";
 
-/** Reference implementation: the pattern every deterministic check follows. */
+/** Kept as a compatibility check for existing reports. */
 export const titleLength = definePageCheck({
-  id: "seo.title.length",
-  title: "Title tag present and 30–60 characters",
-  pillar: "seo",
-  category: "on-page",
-  kind: "deterministic",
-  severity: "high",
-  weight: 3,
-  requires: ["raw-html"],
-  rationale: "The title is the primary relevance signal and the default SERP/AI-citation label.",
-  docs: "https://developers.google.com/search/docs/appearance/title-link",
-  run: ({ raw }) => {
-    const $ = raw();
-    const titles = $("head > title");
-    const title = titles.first().text().replace(/\s+/g, " ").trim();
-    const length = title.length;
-    const evidence = { title, length, count: titles.length };
-    const fix = { summary: "Write a unique, descriptive <title> of 30–60 characters leading with the primary topic." };
-    if (length === 0) return fail("Page has no <title>.", { evidence, fix });
-    if (titles.length > 1) return warn(`Page has ${titles.length} <title> tags.`, { evidence, fix });
-    if (length < 30 || length > 60) {
-      return warn(`Title is ${length} characters (aim for 30–60).`, { evidence, fix, score: 0.6 });
-    }
-    return pass(`Title is ${length} characters.`, { evidence });
-  },
+  id: "seo.title.length", title: "Title tag present and 30–60 characters", pillar: "seo", category: "on-page", kind: "deterministic", severity: "high", weight: 3, requires: ["raw-html"], rationale: "The title is the primary relevance signal and the default SERP/AI-citation label.",
+  run: ({ raw }) => { const $ = raw(); const titles = $("head > title"); const title = titles.first().text().replace(/\s+/g, " ").trim(); const length = title.length; const evidence = { title, length, count: titles.length }; const fix = { summary: "Write a unique, descriptive <title> of 30–60 characters leading with the primary topic." }; if (!length) return fail("Page has no <title>.", { evidence, fix }); if (length < 30 || length > 60 || titles.length > 1) return warn(`Title is ${length} characters and appears ${titles.length} time(s).`, { evidence, fix }); return pass(`Title is ${length} characters.`, { evidence }); },
 });
 
-export const onPageChecks = [titleLength];
+export const titlePresent = definePageCheck({ id: "seo.title.present", title: "Descriptive title element", pillar: "seo", category: "on-page", kind: "deterministic", severity: "high", weight: 4, requires: ["raw-html"], rationale: "Title links help users identify relevance.", run: ({ raw }) => { const tags = raw()("head > title"); const title = tags.first().text().replace(/\s+/g, " ").trim(); const length = title.length; const evidence = { title, length, count: tags.length }; const fix = { summary: "Write one concise, page specific title between 15 and 60 characters." }; if (tags.length !== 1 || length === 0 || length > 70) return fail("Title is missing, blank, duplicated, or over 70 characters.", { evidence, fix }); if (length < 15 || length > 60) return warn(`Title is ${length} characters; catalog range is 15–60.`, { evidence, fix }); return pass("One descriptive title is present.", { evidence }); } });
+
+function metas(ctx: { raw: () => ReturnType<typeof import("cheerio").load> }, name: string) { return ctx.raw()(`meta[name="${name}"]`).map((_, e) => (ctx.raw()(e).attr("content") ?? "").replace(/\s+/g, " ").trim()).get(); }
+export const descriptionPresent = definePageCheck({ id: "seo.description.present", title: "Meta description present and bounded", pillar: "seo", category: "on-page", kind: "deterministic", severity: "medium", weight: 3, requires: ["raw-html"], rationale: "Useful descriptions can inform snippets.", run: (ctx) => { const values = metas(ctx, "description"); const value = values[0] ?? ""; const length = value.length; const evidence = { description: value, length, count: values.length }; const fix = { summary: "Add a concise, accurate, page specific description of 70–160 characters." }; if (!length || length > 200) return fail("Description is absent, blank, or over 200 characters.", { evidence, fix }); if (length < 70 || length > 160 || values.length > 1) return warn(`Description length is ${length}; ${values.length} description tags found.`, { evidence, fix }); return pass("Meta description is within the target range.", { evidence }); } });
+
+export const h1Present = definePageCheck({ id: "seo.h1.present", title: "Main heading exists", pillar: "seo", category: "on-page", kind: "deterministic", severity: "medium", weight: 3, requires: ["raw-html", "rendered-dom"], rationale: "Main headings clarify page topic and structure.", run: ({ raw, dom }) => { const visible = (dom()("h1").toArray().filter((e) => dom()(e).text().trim()).map((e) => dom()(e).text().replace(/\s+/g, " ").trim())); const rawValues = raw()("h1").map((_, e) => raw()(e).text().replace(/\s+/g, " ").trim()).get(); const evidence = { headings: visible.slice(0, 10), count: visible.length, rawHeadings: rawValues.slice(0, 10), rawCount: rawValues.length }; const fix = { summary: "Add one visible H1 that names the page subject." }; if (visible.length === 1) return pass("Exactly one visible H1 is present.", { evidence }); if (visible.length < 3) return warn(`Found ${visible.length} visible H1 headings.`, { evidence, fix }); return fail(`Found ${visible.length} visible H1 headings.`, { evidence, fix }); } });
+
+export const headingOrder = definePageCheck({ id: "seo.heading.order", title: "Heading hierarchy does not skip levels", pillar: "seo", category: "on-page", kind: "deterministic", severity: "low", weight: 2, requires: ["rendered-dom"], rationale: "Semantic hierarchy improves navigation and parsing.", run: ({ dom }) => { const levels = dom()("h1,h2,h3,h4,h5,h6").toArray().map((e) => Number(e.tagName.slice(1))); const skips = levels.flatMap((n, i) => i > 0 && n - (levels[i - 1] ?? n) > 1 ? [{ from: levels[i - 1], to: n }] : []); const evidence = { levels: levels.slice(0, 80), skips: skips.slice(0, 20), skipCount: skips.length }; const fix = { summary: "Nest headings in order and use CSS for visual styling." }; if (!skips.length) return pass("Heading levels do not skip.", { evidence }); return skips.length === 1 ? warn("One heading level is skipped.", { evidence, fix }) : fail(`${skips.length} heading level skips found.`, { evidence, fix }); } });
+
+export const viewport = definePageCheck({ id: "seo.meta.viewport", title: "Mobile viewport is configured", pillar: "seo", category: "on-page", kind: "deterministic", severity: "medium", weight: 3, requires: ["raw-html"], rationale: "Mobile usability affects users and mobile first crawling.", run: ({ raw }) => { const values = raw()("meta[name='viewport']").map((_, e) => raw()(e).attr("content") ?? "").get(); const value = values[0] ?? ""; const evidence = { values }; const fix = { summary: "Add a responsive viewport meta tag with width=device-width, initial-scale=1." }; if (!value) return fail("Viewport metadata is missing.", { evidence, fix }); if (!/width\s*=\s*device-width/i.test(value)) return warn("Viewport does not set width=device-width.", { evidence, fix }); return pass("Responsive viewport is configured.", { evidence }); } });
+
+export const htmlLanguage = definePageCheck({ id: "seo.lang.html", title: "Document language declared", pillar: "seo", category: "on-page", kind: "deterministic", severity: "low", weight: 2, requires: ["raw-html"], rationale: "Language metadata aids assistive technology and content processing.", run: ({ raw }) => { const value = raw()("html").attr("lang")?.trim() ?? ""; const evidence = { lang: value }; const fix = { summary: "Set a valid primary language on the html lang attribute." }; if (!value) return fail("html lang is missing.", { evidence, fix }); if (!/^[a-z]{2,3}(?:-[a-z0-9]{2,8})*$/i.test(value)) return warn(`Invalid language tag: ${value}.`, { evidence, fix }); return pass(`Document language is ${value}.`, { evidence }); } });
+
+export const urlReadable = definePageCheck({ id: "seo.url.readable", title: "URL is stable and human-readable", pillar: "seo", category: "on-page", kind: "deterministic", severity: "medium", weight: 2, requires: ["crawl-graph"], rationale: "Stable descriptive URLs are easier to understand and crawl.", run: ({ page }) => { const u = new URL(page.url); const segments = u.pathname.split("/").filter(Boolean); const params = [...u.searchParams.keys()]; const session = /(?:session|sid|phpsessid|token|jsessionid)/i.test(page.url); const opaque = segments.filter((s) => /^[a-f0-9]{16,}$/i.test(s) || /^\d{8,}$/.test(s)); const evidence = { url: page.url, path: u.pathname, params: params.slice(0, 20), opaqueSegments: opaque.slice(0, 10) }; const fix = { summary: "Use lowercase descriptive path segments, hyphenated words, and remove session identifiers." }; if (session || params.length > 2) return fail("URL includes session identifiers or many variant parameters.", { evidence, fix }); if (u.pathname !== u.pathname.toLowerCase() || opaque.length || params.length) return warn("URL contains casing, opaque segments, or parameters.", { evidence, fix }); return pass("URL path is stable and readable.", { evidence }); } });
+
+const uniqueCheck = (field: "title" | "description", id: string, title: string) => defineSiteCheck({ id, title, pillar: "seo", category: "on-page", kind: "deterministic", severity: field === "title" ? "medium" : "low", weight: field === "title" ? 3 : 2, requires: ["raw-html", "crawl-graph"], rationale: `Unique page ${field}s improve page differentiation.`, run: ({ site }) => { const groups = new Map<string, string[]>(); for (const p of site.pages) { const $ = (awaitlessLoad(p.rawHtml)); const value = field === "title" ? $("head > title").first().text().trim() : $("meta[name='description']").first().attr("content")?.trim() ?? ""; if (value) groups.set(value.toLowerCase().replace(/\s+/g, " "), [...(groups.get(value.toLowerCase().replace(/\s+/g, " ")) ?? []), p.url]); } const duplicates = [...groups].filter(([, urls]) => urls.length > 1).map(([value, urls]) => ({ value, urls: urls.slice(0, 10) })); const evidence = { duplicateGroups: duplicates.slice(0, 20), duplicateUrlCount: duplicates.reduce((n, d) => n + d.urls.length, 0) }; const fix = { summary: `Make each page ${field} describe its distinct subject.` }; return duplicates.length ? fail(`${duplicates.length} duplicate ${field} group(s) found.`, { evidence, fix }) : pass(`All sampled ${field}s are unique.`, { evidence }); } });
+function awaitlessLoad(html: string) { return requireCheerio(html); }
+import * as cheerio from "cheerio";
+function requireCheerio(html: string) { return cheerio.load(html); }
+export const titleUnique = uniqueCheck("title", "seo.title.unique", "Unique title within crawl");
+export const descriptionUnique = uniqueCheck("description", "seo.description.unique", "Unique meta descriptions");
+export const onPageChecks = [titleLength, titlePresent, titleUnique, descriptionPresent, descriptionUnique, h1Present, headingOrder, viewport, htmlLanguage, urlReadable];

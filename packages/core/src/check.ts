@@ -30,6 +30,7 @@ export interface LlmJudgeRequest<T> {
   schema: z.ZodType<T>;
   /** Overrides the configured default model for this task. */
   model?: string;
+  signal?: AbortSignal;
 }
 
 export interface LlmClient {
