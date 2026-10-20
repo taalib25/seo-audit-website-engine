@@ -1,4 +1,4 @@
-import { CheckRegistry, builtinChecks, runAudit, type AuditReport, type Check, type Pillar, type Services, type SiteSnapshot } from "@aeo/core";
+import { CheckRegistry, builtinChecks, runAudit, type AuditReport, type Check, type CheckResult, type Pillar, type Services } from "@aeo/core";
 import { buildServices, integrationChecks } from "@aeo/integrations";
 import { createLlmClient, llmChecks, loadLlmConfig, type ConfiguredLlmClient, type PromptTrace, type UsageSummary } from "@aeo/llm";
 import { buildFixPrompt, type FixTask } from "@aeo/prompt";
@@ -23,7 +23,7 @@ export type EngineProgress =
   | { type: "crawl:start"; url: string; maxPages: number }
   | { type: "crawl:page"; url?: string; index?: number; total?: number }
   | { type: "checks:start"; count: number }
-  | { type: "check:result"; id: string; status: string; title: string }
+  | { type: "check:result"; id: string; status: string; title: string; result: CheckResult }
   | { type: "llm:usage"; usage: UsageSummary }
   | { type: "done"; pages: number }
   | { type: "error"; message: string };
@@ -66,9 +66,8 @@ export async function runFullAudit(input: FullAuditInput, deps: EngineDependenci
   let client: ConfiguredLlmClient | undefined;
   try {
     const rendererMode = typeof input.renderer === "object" ? input.renderer.mode : input.renderer;
-    const supportedRenderers: RendererMode[] = ["none", "chromium", "lightpanda", "cdp"];
-    if (rendererMode && !supportedRenderers.includes(rendererMode as RendererMode)) throw new Error(`Unsupported renderer: ${rendererMode}`);
-    const renderer = rendererMode ? { mode: rendererMode as RendererMode, ...(typeof input.renderer === "object" && input.renderer.cdpEndpoint ? { cdpEndpoint: input.renderer.cdpEndpoint } : input.cdpEndpoint ? { cdpEndpoint: input.cdpEndpoint } : {}) } : undefined;
+    const mode: RendererMode | undefined = rendererMode ? z.enum(["none", "chromium", "lightpanda", "cdp"]).parse(rendererMode) : undefined;
+    const renderer = mode ? { mode, ...(typeof input.renderer === "object" && input.renderer.cdpEndpoint ? { cdpEndpoint: input.renderer.cdpEndpoint } : input.cdpEndpoint ? { cdpEndpoint: input.cdpEndpoint } : {}) } : undefined;
     input.onProgress?.({ type: "crawl:start", url: input.url, maxPages: input.maxPages });
     const site = await crawl(input.url, {
       maxPages: input.maxPages,
@@ -82,10 +81,11 @@ export async function runFullAudit(input: FullAuditInput, deps: EngineDependenci
     let services: Services = (deps.serviceBuilder ?? buildServices)(env);
     if (input.llm && client) services = { ...services, llm: client };
     if (input.probe && client) {
-      const probeClient = { complete: async (_model: string, prompt: string) => client!.judge({ task: "geo.visibility.probe", system: "Answer this search visibility probe concisely and cite sources when available.", user: prompt, schema: onlineAnswer, model: loadLlmConfig(env).modelProbe, ...(input.signal ? { signal: input.signal } : {}) }) };
+      const probeLlm = client;
+      const probeClient = { complete: async (model: string, prompt: string) => probeLlm.judge({ task: "geo.visibility.probe", system: "Answer this sampled visibility question concisely. Cite sources only when available; never invent citations or claim a live search was performed without retrieval access.", user: prompt, schema: onlineAnswer, model, ...(input.signal ? { signal: input.signal } : {}) }) };
       services = { ...services, ...(deps.serviceBuilder ?? buildServices)(env, { probeClient }) };
     }
-    const checks = [...(deps.checks ?? builtinChecks), ...(input.llm && client ? llmChecks : []), ...integrationChecks];
+    const checks = [...(deps.checks ?? builtinChecks), ...llmChecks, ...integrationChecks];
     const registry = new CheckRegistry().register(...checks);
     const filters: { ids?: string[]; pillars?: Pillar[] } = {};
     if (input.ids) filters.ids = input.ids;
@@ -94,7 +94,7 @@ export async function runFullAudit(input: FullAuditInput, deps: EngineDependenci
     const report = await runAudit(site, registry, {
       services, stack, ...(input.ids ? { ids: input.ids } : {}), ...(input.pillars ? { pillars: input.pillars } : {}),
       ...(input.signal ? { signal: input.signal } : {}),
-      onResult: (result) => input.onProgress?.({ type: "check:result", id: result.id, status: result.status, title: result.title }),
+      onResult: (result) => input.onProgress?.({ type: "check:result", id: result.id, status: result.status, title: result.title, result }),
     });
     const prompt = buildFixPrompt(report);
     const usage = client?.getUsage() ?? emptyUsage();

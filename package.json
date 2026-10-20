@@ -3,9 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "bun run --cwd apps/web dev",
+    "build": "bun run --cwd apps/web build",
+    "typecheck": "bun run --filter '*' typecheck",
+    "test": "bun run --filter '*' test",
+    "audit": "bun apps/cli/src/index.ts audit",
+    "checks": "bun apps/cli/src/index.ts checks",
+    "dev:legacy": "next dev",
+    "build:legacy": "next build",
+    "start:legacy": "next start",
     "lint": "eslint"
   },
   "dependencies": {

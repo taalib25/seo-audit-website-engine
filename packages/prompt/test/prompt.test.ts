@@ -23,12 +23,33 @@ describe("fix prompt", () => {
     expect(generated.markdown.split("\n").length).toBeLessThan(500);
     expect(generated.tasks.length).toBeLessThanOrEqual(25);
   });
-  it("consolidates AI crawler findings into one explicit robots task", () => {
-    const generated = buildFixPrompt(eight25Report as AuditReport);
+  it("consolidates only blocked retrieval findings without changing training policy", () => {
+    const policyReport: AuditReport = {
+      ...report,
+      results: [
+        { id: "geo.ai-crawl.openai.searchbot", pillar: "geo", category: "ai-access", kind: "deterministic", severity: "high", status: "fail", score: 0, title: "Blocked retrieval", message: "OAI-SearchBot cannot fetch /about.", evidence: { policy: "search/retrieval" }, fix: { summary: "Add blanket Allow rules.", snippet: "User-agent: *\nAllow: /" } },
+        { id: "geo.ai-crawl.anthropic.searchbot", pillar: "geo", category: "ai-access", kind: "deterministic", severity: "high", status: "fail", score: 0, title: "Blocked retrieval", message: "Claude-SearchBot cannot fetch /about.", evidence: { policy: "search/retrieval" } },
+        { id: "geo.ai-crawl.openai.gptbot", pillar: "geo", category: "ai-access", kind: "deterministic", severity: "medium", status: "fail", score: 0, title: "Training blocked", message: "GPTBot is deliberately blocked.", evidence: { policy: "training/operator-choice" }, fix: { summary: "Allow GPTBot.", snippet: "User-agent: GPTBot\nAllow: /" } },
+      ],
+    };
+    const generated = buildFixPrompt(policyReport);
     const robots = generated.tasks.filter((task) => task.title === "Update robots.txt AI-crawler policy");
     expect(robots).toHaveLength(1);
-    expect(robots[0]?.ids).toContain("geo.ai-crawl.openai.gptbot");
-    expect(robots[0]?.snippet).toContain("User-agent: GPTBot\nAllow: /");
+    expect(robots[0]?.ids).toEqual(["geo.ai-crawl.anthropic.searchbot", "geo.ai-crawl.openai.searchbot"]);
+    expect(robots[0]?.snippet).toBeUndefined();
+    expect(robots[0]?.fix).toContain("preserve private-path restrictions and all training crawler choices");
+    expect(generated.markdown).toContain("GPTBot is deliberately blocked.");
+    expect(generated.markdown).not.toContain("Allow GPTBot.");
+    expect(generated.markdown).not.toContain("User-agent: GPTBot\nAllow: /");
+  });
+  it("keeps inherited allowed crawler policy advisory and retains crawl breadth in verification", () => {
+    const generated = buildFixPrompt(eight25Report as AuditReport);
+    expect(generated.tasks.some((task) => task.ids.some((id) => id.startsWith("geo.ai-crawl.")))).toBe(false);
+    expect(generated.markdown).toContain("OAI-SearchBot is allowed only by wildcard/default behavior");
+    expect(generated.tasks.every((task) => task.acceptance.includes("--pages 3"))).toBe(true);
+    expect(generated.markdown).toContain("aeo verify 'https://www.eight25media.com/' --ids");
+    expect(generated.markdown).toContain("bun link --cwd apps/cli");
+    expect(generated.markdown).not.toContain("bunx @aeo/cli");
   });
   it("compacts evidence and separates rationale from findings", () => {
     const result = buildFixPrompt(report).markdown;
@@ -36,10 +57,17 @@ describe("fix prompt", () => {
     expect(result).toContain("**Finding.**");
     expect(result).toContain("length: 82");
     expect(result).not.toContain("```json");
-    expect(result).toContain("bunx @aeo/cli verify https://example.com/about --ids seo.title.length");
+    expect(result).toContain("aeo verify 'https://example.com/about' --ids seo.title.length");
   });
   it("generates concise repository guidance", () => {
     expect(buildAgentsMdSnippet(report)).toContain("Never invent facts");
+  });
+  it("quotes verification URLs so query parameters remain one shell argument", () => {
+    const url = "https://example.com/catalog?category=shoes&sort=price";
+    const generated = buildFixPrompt({ ...report, startUrl: url, results: report.results.map((result) => ({ ...result, url })) });
+    expect(generated.markdown).toContain(`verify '${url}' --ids`);
+    expect(generated.tasks.every((task) => task.acceptance.includes(`verify '${url}' --ids`))).toBe(true);
+    expect(generated.tasks.every((task) => task.acceptance.endsWith("--pages 2 exits 0"))).toBe(true);
   });
 });
 

@@ -1,44 +1,30 @@
 # @aeo/web
 
-TanStack Start application for running website audits and viewing `@aeo/core` reports.
+TanStack Start UI and HTTP API backed by `@aeo/engine`, the same pipeline used by the CLI.
 
-## Development
+Run `bun run dev` from the repository root. Vite prints the actual port. `/demo` runs an offline simulation in development; `/audit/demo` displays a sample report.
 
-From the monorepo root:
+Copy `.env.example` to `.env` in this directory for optional configuration. Leave unused optional variables unset. `ENABLE_BROWSER=true` allows rendering; Chromium or a configured CDP endpoint must also be available. LLM checks require `OPENROUTER_API_KEY` or `LLM_API_KEY`. GSC uses `GSC_ACCESS_TOKEN` without an OAuth UI.
+
+## HTTP routes
+
+- `POST /api/audits` accepts `{ url, maxPages?, render?, llm?, probe? }` and returns `{ id }`. Anonymous requests cap at 25 pages. `render` is a boolean. Unavailable requested capabilities produce notes.
+- `GET /api/audits/:id` returns status, progress and the completed report, prompt and redacted traces.
+- `GET /api/audits/:id/events` streams progress and findings over SSE; supports `Last-Event-ID`.
+- `GET /api/audits/:id/prompt.md` downloads the generated fix prompt.
+- `GET /api/audits/:id/report.json` downloads the structured report.
+- `GET /robots.txt`, `/sitemap.xml`, `/llms.txt` expose product discovery files.
+
+Real runs stream discoveries and findings into the checklist. Finished reports support filters, expanded evidence, snippets, prompt copying and prompt traces. Repeated checks on different pages have separate row identities. Reduced-motion preferences disable checklist movement.
+
+## Validation and deployment
 
 ```sh
-bun install
-bun run --cwd apps/web dev
-```
-
-The app listens on Vite's default port. Run the package gates with:
-
-```sh
-bunx tsc --noEmit -p apps/web
+bun run --cwd apps/web typecheck
 bun run --cwd apps/web test
 bun run --cwd apps/web build
 ```
 
-## HTTP routes
+`src/server/jobs.ts` provides `JobStore`, `AuditPipeline` and bounded `InProcessQueue` interfaces. The current store and rate limiter are process-local; audits disappear on restart. Before multi-instance deployment, use a durable store, shared rate limiter and worker queue. Persist event sequences for SSE resume. Configure the edge proxy to overwrite forwarding headers before using forwarded IPs for rate limiting.
 
-- `GET /` — landing page and audit form
-- `GET /audit/:id` — live progress or report; `/audit/demo` loads the local fixture
-- `POST /api/audits` — validate and enqueue `{ url, maxPages?, render?, llm?, probe? }`; returns `{ id }`
-- `GET /api/audits/:id` — status, progress, and report when complete
-- `GET /api/audits/:id/events` — resumable SSE event stream (`Last-Event-ID`)
-- `GET /api/audits/:id/prompt.md` — downloadable prompt placeholder
-- `GET /api/audits/:id/report.json` — downloadable `AuditReport`
-- `GET /robots.txt`, `/sitemap.xml`, `/llms.txt` — product discovery files
-
-## Worker and persistence seam
-
-`src/server/jobs.ts` owns the `JobStore`, `AuditPipeline`, and bounded `InProcessQueue` interfaces and their in-memory implementation. To scale beyond one process, implement `JobStore` over a database, append events with a durable per-job sequence, and replace `InProcessQueue` with BullMQ/Redis. Keep the route layer calling `createAudit`; change the queue adapter to enqueue an idempotent job ID and run it from a worker that loads the job, invokes the pipeline, and persists every progress event. The current memory store is intentionally temporary and loses jobs on process restart.
-
-The per-IP token bucket follows the same adapter approach in `src/server/rate-limit.ts`; replace it with Redis when deploying multiple web instances. Configure the edge proxy to overwrite forwarding headers before using the forwarded client IP for rate limiting.
-
-## Integration seams
-
-- `src/server/pipeline.ts`: replace the one-page `safeFetch` snapshot at `// seam: @aeo/crawler crawlSite()` with the crawler's multi-page/rendered snapshot. The request options are already parsed and available on the job.
-- `src/routes/api.audits.$id.prompt[.]md.ts`: replace the temporary Markdown body at `// seam: @aeo/prompt buildFixPrompt()` with the prompt package output.
-
-Until the crawler is integrated, the pipeline fetches one raw HTML page. `maxPages`, `render`, `llm`, and `probe` are accepted and stored but do not enable those capabilities yet. No changes to `@aeo/core` are required for the fetch-only path: it currently exports `assertSafeUrl`, `safeFetch`, `createDefaultRegistry`, `runAudit`, and the `AuditReport` contract used here.
+The build keeps `playwright-core` external; install it and the browser in the runtime when rendering is enabled. Probes are samples from configured models and require retrieval-enabled models to observe current sources. No production hosting deployment is configured.

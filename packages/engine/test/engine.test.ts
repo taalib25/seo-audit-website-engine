@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { SiteSnapshot } from "@aeo/core";
-import { runFullAudit } from "../src/index.ts";
+import { listEngineChecks, runFullAudit, type EngineProgress } from "../src/index.ts";
 
 const site: SiteSnapshot = {
   startUrl: "https://example.test/", origin: "https://example.test", sitemaps: [],
@@ -22,5 +22,30 @@ describe("runFullAudit", () => {
     expect(events).toContain("crawl:start");
     expect(events).toContain("checks:start");
     expect(events).toContain("done");
+  });
+
+  it("reports explicitly selected LLM checks as skipped without a configured client", async () => {
+    const check = (await listEngineChecks()).find((item) => item.kind === "llm");
+    if (!check) throw new Error("Expected an LLM check");
+    const events: EngineProgress[] = [];
+    const result = await runFullAudit({ url: site.startUrl, maxPages: 1, render: "never", llm: false, probe: false, ids: [check.id], onProgress: (event) => events.push(event) }, { env: {}, crawl: async () => site });
+    expect(result.report.results).toHaveLength(1);
+    expect(result.report.results[0]?.status).toBe("skip");
+    const event = events.find((item) => item.type === "check:result");
+    expect(event?.type === "check:result" && event.result).toEqual(result.report.results[0]);
+  });
+
+  it("uses the configured query model for visibility samples", async () => {
+    const models: Array<string | undefined> = [];
+    const result = await runFullAudit({ url: site.startUrl, maxPages: 1, render: "never", llm: false, probe: true, ids: ["geo.visibility.cited-rate"] }, {
+      env: { OPENROUTER_API_KEY: "test-key", PROBE_QUERIES: JSON.stringify([{ query: "Which example?", model: "provider/query-model" }]) },
+      crawl: async () => site,
+      createClient: () => ({
+        async judge(request) { models.push(request.model); return request.schema.parse({ text: "Example", citations: [{ url: site.startUrl }] }); },
+        getPromptTraces: () => [], getUsage: () => ({ inputTokens: 0, outputTokens: 0, costUsd: 0 }), resetAuditMeter() {},
+      }),
+    });
+    expect(models).toEqual(["provider/query-model"]);
+    expect(result.report.results[0]?.status).toBe("pass");
   });
 });

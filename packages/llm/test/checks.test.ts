@@ -17,7 +17,7 @@ const page: PageSnapshot = {
 describe("LLM checks", () => {
   it("exports requested ids and rejects quotes not found in the rendered page", async () => {
     expect(llmChecks.map((check) => check.id)).toEqual([
-      "aeo.answerability", "aeo.question-headings", "aeo.entity-clarity", "geo.quotable-facts",
+      "aeo.answerability", "aeo.question-headings.judge", "aeo.entity-clarity", "geo.quotable-facts",
       "geo.eeat-signals", "aeo.topical-coverage", "geo.content-clarity",
     ]);
     const check = llmChecks[0];

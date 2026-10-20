@@ -45,6 +45,7 @@ interface QueueEntry { url: string; depth: number; priority: number }
 
 const DEFAULT_UA = "AEOAuditBot";
 const TRACKING = /^(utm_.+|gclid|fbclid)$/i;
+const NON_HTML_PATH = /\.(?:pdf|zip|gz|tar|png|jpe?g|gif|svg|webp|avif|ico|css|[cm]?js|xml|json|mp[34]|m4[av]|mov|webm|ogg|wav|flac|woff2?|ttf|otf|eot)$/i;
 
 export function normalizeUrl(input: string, base?: string): string {
   const url = new URL(input, base);
@@ -166,6 +167,10 @@ export async function crawlSite(startUrl: string, opts: CrawlOptions = {}): Prom
     if (allowRobots && robots.isAllowed(item.url, userAgent) === false) {
       uncrawled.add(item.url); return { children: [] };
     }
+    // Media linked from HTML must not consume the page-body budget before sitemap pages run.
+    if (NON_HTML_PATH.test(new URL(item.url).pathname)) {
+      uncrawled.add(item.url); return { children: [] };
+    }
     await paceRequest();
     let response;
     let reservation = 0;
@@ -179,7 +184,8 @@ export async function crawlSite(startUrl: string, opts: CrawlOptions = {}): Prom
     budgetBytes += Buffer.byteLength(response.body);
     if (budgetBytes > totalByteBudget) { uncrawled.add(item.url); return { children: [] }; }
     const contentType = response.headers["content-type"] ?? "";
-    if (!/html|xhtml/i.test(contentType) || /\.(?:pdf|zip|png|jpe?g|gif|svg|webp|css|js|xml|json|mp[34]|woff2?)(?:$|\?)/i.test(new URL(response.finalUrl).pathname)) {
+    if (!/html|xhtml/i.test(contentType) || NON_HTML_PATH.test(new URL(response.finalUrl).pathname)) {
+      uncrawled.add(item.url);
       return { children: [] };
     }
     const $ = load(response.body);
@@ -279,6 +285,7 @@ function makeRenderer(config: CrawlOptions["renderer"], userAgent: string): Rend
   if (config === "chromium") return new PlaywrightRenderer({ userAgent });
   if (config === "lightpanda") return new LightpandaRenderer({ userAgent });
   if (config === "cdp") return new CdpRenderer({ userAgent });
+  if (config === "none") return new HttpRenderer();
   return new PlaywrightRenderer({ userAgent });
 }
 

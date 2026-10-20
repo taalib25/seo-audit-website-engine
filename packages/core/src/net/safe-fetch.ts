@@ -1,6 +1,7 @@
 import { lookup as dnsLookup, type LookupAddress } from "node:dns";
 import http from "node:http";
 import https from "node:https";
+import { isIP } from "node:net";
 import type { LookupFunction } from "node:net";
 import type { Readable } from "node:stream";
 import zlib from "node:zlib";
@@ -52,6 +53,11 @@ export function assertSafeUrl(input: string): URL {
     throw new UnsafeUrlError(`Port ${url.port} is not allowed`);
   }
   const host = url.hostname.toLowerCase();
+  const address = host.replace(/^\[|\]$/g, "");
+  // Literal IPs bypass the request's DNS lookup guard.
+  if (isIP(address) && !isPublicAddress(address)) {
+    throw new UnsafeUrlError(`Host ${host} is not a public address`);
+  }
   if (host === "localhost" || host.endsWith(".localhost") || host.endsWith(".internal") || host.endsWith(".local")) {
     throw new UnsafeUrlError(`Host ${host} is not allowed`);
   }
@@ -84,35 +90,46 @@ export async function safeFetch(input: string, opts: SafeFetchOptions = {}): Pro
   const started = performance.now();
   const chain: string[] = [];
   let current = opts.allowPrivate ? new URL(input) : assertSafeUrl(input);
-
-  for (let hop = 0; ; hop++) {
-    const res = await requestOnce(current, {
-      timeoutMs,
-      maxBytes,
-      userAgent,
-      headers: opts.headers ?? {},
-      signal: opts.signal,
-      allowPrivate: opts.allowPrivate ?? false,
-      started,
-    });
-    const location = res.headers["location"];
-    if (res.status >= 300 && res.status < 400 && location) {
-      if (hop >= maxRedirects) throw new UnsafeUrlError(`Too many redirects (>${maxRedirects})`);
-      chain.push(current.href);
-      const nextUrl = new URL(location, current);
-      current = opts.allowPrivate ? nextUrl : assertSafeUrl(nextUrl.href);
-      continue;
+  const deadline = new AbortController();
+  const timer = setTimeout(() => deadline.abort(new Error(`Timed out after ${timeoutMs}ms: ${input}`)), timeoutMs);
+  timer.unref();
+  const signal = opts.signal ? AbortSignal.any([opts.signal, deadline.signal]) : deadline.signal;
+  try {
+    for (let hop = 0; ; hop++) {
+      signal.throwIfAborted();
+      const res = await requestOnce(current, {
+        timeoutMs,
+        maxBytes,
+        userAgent,
+        headers: opts.headers ?? {},
+        signal,
+        allowPrivate: opts.allowPrivate ?? false,
+        started,
+      });
+      const location = res.headers["location"];
+      if (res.status >= 300 && res.status < 400 && location) {
+        if (hop >= maxRedirects) throw new UnsafeUrlError(`Too many redirects (>${maxRedirects})`);
+        chain.push(current.href);
+        const nextUrl = new URL(location, current);
+        current = opts.allowPrivate ? nextUrl : assertSafeUrl(nextUrl.href);
+        continue;
+      }
+      return {
+        url: input,
+        finalUrl: current.href,
+        status: res.status,
+        redirectChain: chain,
+        headers: res.headers,
+        body: res.body,
+        truncated: res.truncated,
+        timing: { ttfbMs: res.ttfbMs, totalMs: Math.round(performance.now() - started) },
+      };
     }
-    return {
-      url: input,
-      finalUrl: current.href,
-      status: res.status,
-      redirectChain: chain,
-      headers: res.headers,
-      body: res.body,
-      truncated: res.truncated,
-      timing: { ttfbMs: res.ttfbMs, totalMs: Math.round(performance.now() - started) },
-    };
+  } catch (error) {
+    signal.throwIfAborted();
+    throw error;
+  } finally {
+    clearTimeout(timer);
   }
 }
 

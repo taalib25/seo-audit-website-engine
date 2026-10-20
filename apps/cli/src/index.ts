@@ -3,15 +3,24 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { Command } from "@commander-js/extra-typings";
-import { z } from "zod";
 import { AuditReport } from "@aeo/core";
 import { buildFixPrompt } from "@aeo/prompt";
 import { executeAudit, listChecks, pillarsFrom } from "./engine.ts";
+import { AuditFlags, defaultVerificationPages, estimateProbeSpend, verificationPassed } from "./options.ts";
 
 export const EXIT_CODES = { success: 0, auditFindings: 1, usage: 2, runtime: 3, probeConfirmation: 4 } as const;
 const program = new Command().name("aeo").description("SEO/AEO/GEO site auditing").showHelpAfterError();
-const renderChoice = ["auto", "always", "never"] as const;
-const rendererChoice = ["chromium", "lightpanda", "cdp"] as const;
+function confirmProbeSpend(enabled: boolean | undefined, confirmed: boolean | undefined): boolean {
+  if (!enabled) return true;
+  const estimate = estimateProbeSpend(process.env);
+  if (estimate > 0.5 && !confirmed) {
+    console.error(`Estimated probe cost $${estimate.toFixed(2)} exceeds $0.50. Re-run with --yes.`);
+    process.exitCode = EXIT_CODES.probeConfirmation;
+    return false;
+  }
+  console.error(`Estimated probe cost: $${estimate.toFixed(2)}`);
+  return true;
+}
 
 program.command("audit <url>")
   .option("--pages <number>", "maximum pages", "20")
@@ -27,20 +36,9 @@ program.command("audit <url>")
   .option("--yes", "confirm estimated probe spend")
   .action(async (url: string, opts: { pages: string; render: string; renderer?: string; cdpUrl?: string; llm?: boolean; probe?: boolean; pillars: string; json?: boolean; out: string; prompt?: boolean; yes?: boolean }) => {
     try {
-      if (!renderChoice.includes(opts.render as (typeof renderChoice)[number])) throw new Error("--render must be auto, always, or never");
-      if (opts.renderer && !rendererChoice.includes(opts.renderer as (typeof rendererChoice)[number])) throw new Error("--renderer must be chromium, lightpanda, or cdp");
-      if (opts.probe) {
-        const querySchema = z.array(z.unknown());
-        let queryCount = 0;
-        if (process.env.PROBE_QUERIES) {
-          try { queryCount = querySchema.parse(JSON.parse(process.env.PROBE_QUERIES) as unknown).length; }
-          catch { throw new Error("PROBE_QUERIES must be a JSON array when --probe is enabled"); }
-        }
-        const estimate = queryCount * Number(process.env.PROBE_COST_PER_SAMPLE_USD ?? "0") * Number(process.env.PROBE_SAMPLES ?? "1");
-        if (estimate > 0.5 && !opts.yes) { console.error(`Estimated probe cost $${estimate.toFixed(2)} exceeds $0.50. Re-run with --yes.`); process.exitCode = EXIT_CODES.probeConfirmation; return; }
-        console.error(`Estimated probe cost: $${estimate.toFixed(2)}`);
-      }
-      const report = await executeAudit(url, { pages: Math.max(1, Number(opts.pages) || 20), render: opts.render, ...(opts.renderer ? { renderer: opts.renderer } : {}), ...(opts.cdpUrl ? { cdpUrl: opts.cdpUrl } : {}), llm: opts.llm ?? false, probe: opts.probe ?? false, pillars: pillarsFrom(opts.pillars) });
+      const flags = AuditFlags.parse(opts);
+      if (!confirmProbeSpend(opts.probe, opts.yes)) return;
+      const report = await executeAudit(url, { pages: flags.pages, render: flags.render, ...(flags.renderer ? { renderer: flags.renderer } : {}), ...(opts.cdpUrl ? { cdpUrl: opts.cdpUrl } : {}), llm: opts.llm ?? false, probe: opts.probe ?? false, pillars: pillarsFrom(opts.pillars) });
       const promptText = buildFixPrompt(report).markdown;
       const folder = join(opts.out, new URL(report.startUrl).host, report.createdAt.replace(/[:.]/g, "-"));
       await mkdir(folder, { recursive: true });
@@ -55,7 +53,7 @@ program.command("audit <url>")
 
 program.command("verify <url>")
   .requiredOption("--ids <ids>", "comma separated check ids")
-  .option("--pages <number>", "maximum pages (default 1 for scoped checks)")
+  .option("--pages <number>", "maximum pages (default 1 for page checks, 20 for site checks)")
   .option("--render <mode>", "rendering mode", "auto")
   .option("--renderer <name>", "renderer")
   .option("--cdp-url <url>", "CDP endpoint")
@@ -64,15 +62,16 @@ program.command("verify <url>")
   .option("--yes", "confirm estimated probe spend")
   .action(async (url: string, opts: { ids: string; pages?: string; render: string; renderer?: string; cdpUrl?: string; llm?: boolean; probe?: boolean; yes?: boolean }) => {
     try {
-      const ids = opts.ids.split(",").map((id) => id.trim()).filter(Boolean);
+      const ids = [...new Set(opts.ids.split(",").map((id) => id.trim()).filter(Boolean))];
+      if (!ids.length) { console.error("--ids must contain at least one check id."); process.exitCode = EXIT_CODES.usage; return; }
       const all = await listChecks();
       const selected = ids.map((id) => all.find((check) => check.id === id)).filter((check) => check !== undefined);
       if (selected.length !== ids.length) { console.error(`Unknown check id(s): ${ids.filter((id) => !selected.some((check) => check.id === id)).join(", ")}`); process.exitCode = EXIT_CODES.usage; return; }
-      const pageOnlyStartUrl = selected.every((check) => check.scope === "site" || check.scope === "page");
-      const pages = Number(opts.pages ?? (pageOnlyStartUrl ? "1" : "20"));
-      const report = await executeAudit(url, { pages: Math.max(1, pages), render: opts.render, ...(opts.renderer ? { renderer: opts.renderer } : {}), ...(opts.cdpUrl ? { cdpUrl: opts.cdpUrl } : {}), llm: opts.llm ?? false, probe: opts.probe ?? false, pillars: [...new Set(selected.map((check) => check.pillar))], ids });
+      const flags = AuditFlags.parse({ ...opts, pages: opts.pages ?? defaultVerificationPages(selected) });
+      if (!confirmProbeSpend(opts.probe, opts.yes)) return;
+      const report = await executeAudit(url, { pages: flags.pages, render: flags.render, ...(flags.renderer ? { renderer: flags.renderer } : {}), ...(opts.cdpUrl ? { cdpUrl: opts.cdpUrl } : {}), llm: opts.llm ?? false, probe: opts.probe ?? false, pillars: [...new Set(selected.map((check) => check.pillar))], ids });
       for (const result of report.results) process.stdout.write(`${result.id}\t${result.status}\t${result.message}\n`);
-      if (report.results.some((result) => result.status !== "pass" && result.status !== "skip")) process.exitCode = EXIT_CODES.auditFindings;
+      if (!verificationPassed(ids, report.results)) { console.error("Verification incomplete: every requested check must run and pass; skipped checks do not verify a fix."); process.exitCode = EXIT_CODES.auditFindings; }
     } catch (error) { console.error(error instanceof Error ? error.message : String(error)); process.exitCode = EXIT_CODES.runtime; }
   });
 

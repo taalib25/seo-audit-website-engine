@@ -40,7 +40,9 @@ const EnvironmentSchema = z.object({
 });
 
 export function loadLlmConfig(env: NodeJS.ProcessEnv = process.env): LlmConfig {
-  const parsed = EnvironmentSchema.parse(env);
+  const parsed = EnvironmentSchema.parse(Object.fromEntries(
+    Object.entries(env).map(([key, value]) => [key, value?.trim() === "" ? undefined : value]),
+  ));
   let taskModels: Record<string, string> = {};
   if (parsed.LLM_TASK_MODELS !== undefined) {
     const value: unknown = JSON.parse(parsed.LLM_TASK_MODELS);

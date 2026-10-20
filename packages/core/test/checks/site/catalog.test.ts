@@ -1,8 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { siteChecks } from "../../../src/checks/site/index.ts";
+import { siteChecks, sitemapDiscovery } from "../../../src/checks/site/index.ts";
+import { CheckRegistry } from "../../../src/registry.ts";
+import { runAudit } from "../../../src/runner.ts";
 import { fixture, page, runSite, site } from "../../helpers.ts";
 
 describe("deterministic site checks", () => {
+  it("reports a missing sitemap as a failure through the audit runner", async () => {
+    const report = await runAudit(site([page("<h1>Home</h1>")]), new CheckRegistry().register(sitemapDiscovery));
+    expect(report.results[0]?.status).toBe("fail");
+    expect(report.results[0]?.message).toBe("No sitemap was discovered.");
+  });
   it("returns an outcome for each site check on a multi-page fixture", async () => {
     const html = fixture("content/structured.html");
     const a = page(html, { url: "https://example.com/guide", finalUrl: "https://example.com/guide" });

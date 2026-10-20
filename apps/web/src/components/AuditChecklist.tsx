@@ -1,5 +1,5 @@
 import { Check, Circle, LoaderCircle, Minus, X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type CSSProperties } from "react";
 import { flushSync } from "react-dom";
 import type { CheckResult, Pillar, Status } from "@aeo/core";
 
@@ -54,7 +54,7 @@ export function AuditChecklist({ results, running = false, replay = false, liveR
     return { pillar, rows, done, passed: rows.filter((item) => item.status === "pass").length };
   });
 
-  return <section className="checklist-panel" aria-label="Audit checklist" data-large={results.length > 150}>
+  return <section className="checklist-panel" aria-label="Audit checklist" data-large={results.length > 150} data-scrollable={results.length > 12}>
     <div className="checklist-heading"><div><h2>Live checklist</h2><p>{running ? "Checks are resolving as the audit runs" : `${completedCount} of ${results.length} checks complete`}</p></div><span className={`live-indicator ${running ? "is-live" : ""}`}><i />{running ? "LIVE" : "SETTLED"}</span></div>
     <div className="pillar-progress-grid">{pillarStats.map(({ pillar, rows, done }) => <div className="pillar-progress" key={pillar} aria-live="polite"><div className="pillar-progress-label"><span>{pillarNames[pillar]}</span><span>{done}/{rows.length} done</span></div><div className="pillar-track"><i style={{ transform: `scaleX(${rows.length ? done / rows.length : 0})` }} /></div>{rows.length > 0 && done === rows.length && <span className="sr-only">{pillarNames[pillar]} checks complete</span>}</div>)}</div>
     <div ref={listRef} className="checklist-scroll" onScroll={(event) => { const target = event.currentTarget; userPausedScroll.current = target.scrollHeight - target.scrollTop - target.clientHeight > 48; }}>
@@ -67,7 +67,8 @@ export function AuditChecklist({ results, running = false, replay = false, liveR
             const rowIndex = results.indexOf(result);
             const complete = rowIndex < completedCount;
             const currentStatus = complete ? result.status : running && rowIndex === resolved ? "running" : "pending";
-            return <ChecklistRow key={result.id} result={result} state={currentStatus} index={Math.min(index, 10)} open={expanded === result.id} onToggle={() => setExpanded(expanded === result.id ? null : result.id)} />;
+            const key = `${result.id}:${result.url ?? "site"}`;
+            return <ChecklistRow key={key} result={result} state={currentStatus} index={Math.min(index, 10)} open={expanded === key} onToggle={() => setExpanded(expanded === key ? null : key)} />;
           })}</div>)}
         </section>;
       })}
@@ -78,12 +79,14 @@ export function AuditChecklist({ results, running = false, replay = false, liveR
 
 function ChecklistRow({ result, state, index, open, onToggle }: { result: CheckResult; state: Status | "pending" | "running"; index: number; open: boolean; onToggle: () => void }) {
   const [copied, setCopied] = useState(false);
+  const transitionId = useId().replace(/[^a-zA-Z0-9_-]/g, "-");
   const Icon = state === "pass" ? Check : state === "warn" ? Minus : state === "fail" || state === "error" ? X : state === "skip" ? Circle : state === "running" ? LoaderCircle : Circle;
   async function copySnippet() {
     if (!result.fix?.snippet) return;
     await navigator.clipboard.writeText(result.fix.snippet); setCopied(true); window.setTimeout(() => setCopied(false), 1400);
   }
-  return <article className={`check-row check-${state} ${open ? "is-expanded" : ""}`} style={{ "--row-delay": `${Math.min(index * 40, 400)}ms`, viewTransitionName: `check-${result.id.replace(/[^a-zA-Z0-9_-]/g, "-")}` } as React.CSSProperties}>
+  const style = { "--row-delay": `${Math.min(index * 40, 400)}ms`, viewTransitionName: `check-${transitionId}` } satisfies CSSProperties & { "--row-delay": string };
+  return <article className={`check-row check-${state} ${open ? "is-expanded" : ""}`} style={style}>
     <button className="check-row-trigger" aria-expanded={open} onClick={onToggle}>
       <span className="check-icon"><Icon size={16} strokeWidth={state === "pass" ? 2.5 : 2} /></span><span className="check-row-copy"><strong>{result.title}</strong><span>{result.message}</span></span><span className="check-row-status">{state === "running" ? "Running" : state === "pending" ? "Pending" : state}</span>
     </button>

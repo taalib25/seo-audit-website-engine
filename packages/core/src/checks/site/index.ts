@@ -291,7 +291,7 @@ export const sitemapDiscovery = defineSiteCheck({
   kind: "deterministic",
   severity: "medium",
   weight: 3,
-  requires: ["robots", "sitemap"],
+  requires: [],
   rationale: "Discovery helps search engines find fresh and deep URLs.",
   run: ({ site }) => {
     const body = site.robotsTxt?.body ?? "";

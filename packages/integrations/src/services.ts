@@ -7,7 +7,7 @@ import { createBraveSearchProvider } from "./presence.ts";
 
 const EnvSchema = z.object({ GSC_ACCESS_TOKEN: z.string().min(1).optional(), BING_API_KEY: z.string().min(1).optional(), BING_ACCESS_TOKEN: z.string().min(1).optional(), INDEXNOW_KEY: z.string().regex(/^[a-zA-Z0-9-]{8,128}$/).optional(), BRAVE_SEARCH_API_KEY: z.string().min(1).optional(), PROBE_QUERIES: z.string().optional(), PROBE_SAMPLES: z.coerce.number().int().min(1).max(20).optional(), PROBE_COST_PER_SAMPLE_USD: z.coerce.number().min(0).optional() });
 export function buildServices(env: NodeJS.ProcessEnv | Record<string, string | undefined> = process.env, adapters: { probeClient?: LlmClientLike } = {}): Services {
-  const cfg = EnvSchema.parse(env); const services: Services & { indexNowKey?: string; presence?: ReturnType<typeof createBraveSearchProvider> } = {};
+  const cfg = EnvSchema.parse(Object.fromEntries(Object.entries(env).map(([key, value]) => [key, value?.trim() ? value : undefined]))); const services: Services & { indexNowKey?: string; presence?: ReturnType<typeof createBraveSearchProvider> } = {};
   if (cfg.GSC_ACCESS_TOKEN) services.gsc = createGscClient(cfg.GSC_ACCESS_TOKEN);
   if (cfg.BING_API_KEY || cfg.BING_ACCESS_TOKEN) services.bing = createBingClient({ ...(cfg.BING_API_KEY ? { apiKey: cfg.BING_API_KEY } : {}), ...(cfg.BING_ACCESS_TOKEN ? { accessToken: cfg.BING_ACCESS_TOKEN } : {}) });
   if (cfg.INDEXNOW_KEY) services.indexNowKey = cfg.INDEXNOW_KEY;

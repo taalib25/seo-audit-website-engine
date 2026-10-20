@@ -29,4 +29,16 @@ describe("integrations", () => {
     const services = buildServices({ GSC_ACCESS_TOKEN: "token" }); expect(services.gsc).toBeDefined(); expect(services.bing).toBeUndefined();
     expect(() => buildServices({ INDEXNOW_KEY: "short" })).toThrow();
   });
+
+  it("treats blank optional environment settings as unconfigured", () => {
+    expect(buildServices({ GSC_ACCESS_TOKEN: "", BING_API_KEY: "  ", INDEXNOW_KEY: "", BRAVE_SEARCH_API_KEY: "", PROBE_SAMPLES: "", PROBE_COST_PER_SAMPLE_USD: "" })).toEqual({});
+  });
+
+  it("estimates and reports per-query sample overrides", async () => {
+    const prober = createProber({ llmClientLike: { complete: async () => ({ text: "Example", citations: [] }) }, queries: [{ query: "example", model: "provider/model", samples: 3 }], samples: 1, costPerSampleUsd: 0.1 });
+    const report = await prober.run("https://example.com");
+    expect(report.sampleCount).toBe(3);
+    expect(prober.estimateCostUsd()).toBeCloseTo(0.3);
+    expect(report.estimatedCostUsd).toBeCloseTo(0.3);
+  });
 });

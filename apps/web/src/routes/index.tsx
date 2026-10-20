@@ -1,47 +1,93 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowUpRight, Bot, Globe2, SearchCheck, ShieldCheck } from "lucide-react";
-import { useState } from "react";
+import { ArrowDown, ArrowRight, ArrowUpRight, Bot, Check, CheckCheck, CircleAlert, Globe2, LoaderCircle, SearchCheck, ShieldCheck, Terminal } from "lucide-react";
+import { useState, type FormEvent } from "react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
-    title: "Search readiness audits for modern discovery | AEO Audit",
     meta: [
-      { name: "description", content: "Audit technical SEO, answer engine readiness, and generative search visibility in one clear report." },
-      { property: "og:title", content: "AEO Audit — search readiness, clearly measured" },
-      { property: "og:description", content: "A single audit for SEO, AEO, and GEO." },
+      { title: "Signal / Audit — Get found. Get understood." },
+      { name: "description", content: "Find what holds your website back in search and AI answers. Get an evidence-backed SEO, AEO and GEO audit with a practical fix prompt." },
+      { property: "og:title", content: "Signal / Audit — Get found. Get understood." },
+      { property: "og:description", content: "An evidence-backed audit for SEO, AEO, and GEO, with a practical plan for your next changes." },
     ],
     links: [{ rel: "canonical", href: "/" }],
-    scripts: [{
-      type: "application/ld+json",
-      children: JSON.stringify({ "@context": "https://schema.org", "@type": "SoftwareApplication", name: "Signal / Audit", applicationCategory: "BusinessApplication", operatingSystem: "Web", description: "Audit technical SEO, answer engine readiness, and generative search visibility.", offers: { "@type": "Offer", price: "0", priceCurrency: "USD" } }),
-    }],
+    scripts: [{ type: "application/ld+json", children: JSON.stringify({ "@context": "https://schema.org", "@type": "SoftwareApplication", name: "Signal / Audit", applicationCategory: "BusinessApplication", operatingSystem: "Web", description: "Audit technical SEO, answer engine readiness, and generative search visibility.", offers: { "@type": "Offer", price: "0", priceCurrency: "USD" } }) }],
   }),
   component: Home,
 });
+
+const pillars = [
+  { name: "SEO", label: "Search engine optimization", Icon: SearchCheck, description: "The foundations that help search engines crawl, understand, and index your pages.", detail: "Metadata · Crawlability · Structured data" },
+  { name: "AEO", label: "Answer engine optimization", Icon: Bot, description: "Clear, useful answers that people and answer engines can understand without the guesswork.", detail: "Answer structure · Clarity · Freshness" },
+  { name: "GEO", label: "Generative engine optimization", Icon: ShieldCheck, description: "A consistent identity and credible information that generative systems can reference.", detail: "Entity signals · Sources · AI access" },
+];
 
 function Home() {
   const [url, setUrl] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  async function submit(event: React.FormEvent<HTMLFormElement>) {
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setBusy(true); setError("");
     try {
-      const response = await fetch("/api/audits", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ url: url.includes("://") ? url : `https://${url}` }) });
+      const site = url.trim();
+      const response = await fetch("/api/audits", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ url: site.includes("://") ? site : `https://${site}` }) });
       const data: unknown = await response.json();
       if (!response.ok || typeof data !== "object" || data === null || !("id" in data) || typeof data.id !== "string") throw new Error("Enter a public website URL to begin.");
       await navigate({ to: "/audit/$id", params: { id: data.id } });
     } catch (e) { setError(e instanceof Error ? e.message : "Audit could not be started."); setBusy(false); }
   }
-  return <main className="min-h-screen">
-    <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-7"><a href="/" className="flex items-center gap-3 font-semibold tracking-tight"><span className="grid size-9 place-items-center rounded-xl bg-[var(--accent)] text-white"><SearchCheck size={21} /></span>Signal / Audit</a><nav className="flex items-center gap-7 text-sm text-[var(--muted)]"><a href="#method" className="hover:text-[var(--ink)]">Method</a><a href="/audit/demo" className="hover:text-[var(--ink)]">Sample report</a><span className="rounded-full border border-[var(--line)] px-3 py-1.5">SEO · AEO · GEO</span></nav></header>
-    <section className="mx-auto grid max-w-7xl items-center gap-14 px-6 pb-20 pt-20 lg:grid-cols-[1.15fr_.85fr] lg:pt-28">
-      <div><p className="mb-6 flex items-center gap-2 text-xs font-semibold uppercase tracking-[.18em] text-[var(--accent)]"><span className="size-2 rounded-full bg-[var(--accent)]"/> Search visibility, measured</p><h1 className="max-w-3xl text-5xl font-semibold leading-[1.08] tracking-[-.055em] sm:text-7xl">Be understood by every kind of search.</h1><p className="mt-7 max-w-xl text-lg leading-8 text-[var(--muted)]">One practical audit for classic search, answer engines, and generative discovery. Find what blocks visibility and get fixes your team can act on.</p>
-        <form onSubmit={submit} className="mt-10 flex max-w-2xl flex-col gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-2 shadow-[0_16px_60px_rgba(22,43,48,.08)] sm:flex-row"><label className="flex min-w-0 flex-1 items-center gap-3 px-4"><Globe2 size={19} className="shrink-0 text-[var(--muted)]"/><input value={url} onChange={(e) => setUrl(e.target.value)} type="text" inputMode="url" placeholder="Enter your website, e.g. example.com" className="h-12 min-w-0 w-full bg-transparent text-sm outline-none placeholder:text-[var(--muted)]" aria-label="Website URL" required /></label><button disabled={busy} className="flex h-12 items-center justify-center gap-2 rounded-xl bg-[var(--accent)] px-6 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60">{busy ? "Starting audit…" : "Audit my site"}<ArrowUpRight size={17}/></button></form>{error && <p role="alert" className="mt-3 text-sm text-red-600">{error}</p>}<p className="mt-4 text-xs text-[var(--muted)]">No account required · Fetch-only audit · Usually under a minute</p>
+
+  return <main className="landing-page">
+    <header className="site-header page-width">
+      <a href="/" className="wordmark" aria-label="Signal Audit home"><span className="brand-icon"><SearchCheck size={20} strokeWidth={2}/></span>signal<span className="wordmark-divider">/</span><span className="wordmark-light">audit</span></a>
+      <nav aria-label="Main navigation"><a className="method-link" href="#method">How it works</a><a className="nav-sample" href="/audit/demo">Sample report <ArrowUpRight size={15}/></a></nav>
+    </header>
+
+    <section className="landing-hero page-width">
+      <div className="hero-copy">
+        <span className="eyebrow"><span className="status-dot"/> Built for the new era of search</span>
+        <h1>Good websites<br/>deserve to<br className="desktop-break"/> be <em>found.</em></h1>
+        <p className="hero-description">See what’s holding your site back in search and AI answers. Get clear findings, real evidence, and a plan to fix it.</p>
+        <form onSubmit={submit} className="audit-form" aria-label="Start a website audit">
+          <label htmlFor="site-url">Your website</label>
+          <div className="audit-input-row"><Globe2 size={19} aria-hidden="true"/><input id="site-url" value={url} onChange={(e) => setUrl(e.target.value)} type="text" inputMode="url" autoCapitalize="none" autoCorrect="off" spellCheck={false} enterKeyHint="go" placeholder="yourwebsite.com" aria-describedby={error ? "audit-error" : "audit-note"} aria-invalid={Boolean(error)} required/><button className="primary-button" disabled={busy}>{busy ? <><LoaderCircle size={17} className="animate-spin"/>Starting…</> : <>Audit my site <ArrowRight size={17}/></>}</button></div>
+        </form>
+        {error && <p id="audit-error" role="alert" className="form-error">{error}</p>}
+        <p className="form-note" id="audit-note"><Check size={14}/> No account needed <span>·</span> Start with a free HTML audit</p>
+        <a className="hero-sample-link" href="/audit/demo">Take a look at an example <ArrowUpRight size={15}/></a>
       </div>
-      <div className="relative"><div className="absolute -inset-10 rounded-full bg-[var(--accent-soft)] blur-3xl opacity-70"/><div className="relative rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-7 shadow-[0_30px_100px_rgba(22,43,48,.1)]"><div className="flex items-center justify-between border-b border-[var(--line)] pb-5"><div><div className="text-xs text-[var(--muted)]">AUDIT OVERVIEW</div><div className="mt-1 font-medium">northstar.studio</div></div><span className="rounded-full bg-[var(--accent-soft)] px-3 py-1.5 text-xs font-medium text-[var(--accent)]">12 opportunities</span></div><div className="grid grid-cols-3 gap-4 py-7">{[["SEO",86],["AEO",72],["GEO",64]].map(([name, score]) => <div key={name} className="rounded-2xl border border-[var(--line)] p-4"><div className="text-xs text-[var(--muted)]">{name}</div><div className="mt-3 text-3xl font-semibold tracking-tight">{score}<span className="text-sm text-[var(--muted)]">/100</span></div><div className="mt-3 h-1 rounded bg-[var(--line)]"><div className="h-full rounded bg-[var(--accent)]" style={{ width: `${score}%` }}/></div></div>)}</div><div className="space-y-3">{[["Add descriptive page titles", "SEO · High"],["Make key answers easier to cite", "AEO · Medium"],["Clarify organization identity", "GEO · Medium"]].map(([title, meta]) => <div key={title} className="flex items-center justify-between rounded-xl bg-[var(--bg)] px-4 py-3"><span className="text-sm">{title}</span><span className="text-xs text-[var(--muted)]">{meta}</span></div>)}</div></div></div>
+      <AuditPreview/>
     </section>
-    <section id="method" className="border-y border-[var(--line)] bg-[var(--surface)]"><div className="mx-auto grid max-w-7xl gap-8 px-6 py-12 md:grid-cols-3">{[{ Icon: SearchCheck, title: "SEO", description: "Can search engines crawl, understand, and index your pages?" }, { Icon: Bot, title: "AEO", description: "Can answer engines find clear, trustworthy responses?" }, { Icon: ShieldCheck, title: "GEO", description: "Can generative systems identify and cite your organization?" }].map(({ Icon, title, description }) => <article key={title} className="flex gap-4"><span className="grid size-11 shrink-0 place-items-center rounded-xl bg-[var(--accent-soft)] text-[var(--accent)]"><Icon size={20}/></span><div><h2 className="font-semibold">{title}</h2><p className="mt-1 text-sm leading-6 text-[var(--muted)]">{description}</p></div></article>)}</div></section>
-    <footer className="mx-auto flex max-w-7xl flex-col gap-2 px-6 py-8 text-xs text-[var(--muted)] sm:flex-row sm:justify-between"><span>Signal / Audit · Clear findings for a changing search landscape.</span><span>Fetch-only analysis. Your site content is not used to train models.</span></footer>
+
+    <section className="workflow-strip page-width" aria-label="From website to fixes">
+      {[["01", "Scan your site", "We collect the evidence."], ["02", "Find the gaps", "See what needs attention."], ["03", "Make your next move", "Give the fix plan to your AI agent."]].map(([number, title, text]) => <div className="workflow-step" key={number}><span>{number}</span><div><h2>{title}</h2><p>{text}</p></div><ArrowRight size={18} aria-hidden="true"/></div>)}
+    </section>
+
+    <section className="method-section page-width" id="method">
+      <div className="section-heading"><div><span className="eyebrow">A clearer picture</span><h2>Three lenses.<br className="mobile-break"/> One useful audit.</h2></div><p>Search is changing. Your foundations still matter.<br/>Understand where your site stands, from crawlability to citation.</p></div>
+      <div className="method-grid">{pillars.map(({ name, label, Icon, description, detail }) => <article className="method-card" key={name}><div className="method-card-top"><span className="method-icon"><Icon size={23} strokeWidth={1.7}/></span><span>{name}</span></div><h3>{label}</h3><p>{description}</p><div className="method-detail">{detail}</div></article>)}</div>
+    </section>
+
+    <section className="agent-section page-width"><div className="agent-message"><span className="eyebrow"><Terminal size={15}/> From insight to implementation</span><h2>Less “now what?”<br/>More <em>“already on it.”</em></h2><p>Copy a prioritized fix prompt into your coding agent. Every task carries the evidence, the suggested change, and a way to verify it.</p><a className="text-link" href="/audit/demo">Explore a sample report <ArrowRight size={16}/></a></div><div className="prompt-preview"><div><span><Terminal size={15}/> fix-prompt.md</span><span>READY FOR YOUR AGENT</span></div><pre><span className="code-comment"># Your next steps, in order</span>{"\n\n"}<span>01</span>{"  Review the finding and its evidence\n"}<span>02</span>{"  Make the smallest useful change\n"}<span>03</span>{"  Run the verification command"}</pre><p><CheckCheck size={15}/> Clear scope. Verifiable fixes. Your codebase.</p></div></section>
+
+    <footer className="site-footer page-width"><a href="/" className="wordmark">signal<span className="wordmark-divider">/</span><span className="wordmark-light">audit</span></a><span>A little more signal. A lot less guesswork.</span><a href="#site-url">Run an audit <ArrowUpRight size={14}/></a></footer>
   </main>;
+}
+
+function AuditPreview() {
+  return <div className="hero-preview">
+    <div className="preview-caption"><span className="preview-label">THE BIG PICTURE</span><span>Example audit <ArrowDown size={13}/></span></div>
+    <div className="preview-report">
+      <div className="preview-report-heading"><span className="preview-site-icon"><Globe2 size={23} strokeWidth={1.5}/></span><div><strong>northstar.studio</strong><span>Website readiness report</span></div><span className="preview-complete"><Check size={12}/> Complete</span></div>
+      <div className="preview-scores">{[{ name: "SEO", score: 86, color: "var(--accent)" }, { name: "AEO", score: 72, color: "#b28b42" }, { name: "GEO", score: 64, color: "#7884a3" }].map(({ name, score, color }) => <div key={name}><span>{name}<ArrowUpRight size={12}/></span><strong>{score}<small>/100</small></strong><div className="preview-track"><i style={{ width: `${score}%`, background: color }}/></div></div>)}</div>
+      <div className="preview-checks-heading"><span>YOUR NEXT OPPORTUNITIES</span><span>03</span></div>
+      <div className="preview-finding"><span className="preview-finding-icon"><CircleAlert size={17}/></span><div><strong>Give every page a clear title</strong><span>Help search engines understand your pages.</span></div><span className="preview-severity">High</span></div>
+      <div className="preview-finding"><span className="preview-finding-icon amber"><CircleAlert size={17}/></span><div><strong>Make your answers easy to find</strong><span>Structure key information for direct answers.</span></div><span className="preview-severity">Medium</span></div>
+      <div className="preview-finding"><span className="preview-finding-icon teal"><Check size={17}/></span><div><strong>A solid foundation to build on</strong><span>Your crawlability checks are looking good.</span></div><span className="preview-severity">Pass</span></div>
+      <a className="preview-report-footer" href="/audit/demo"><span><Terminal size={15}/> Your evidence. Your next steps.</span><ArrowUpRight size={17}/></a>
+    </div>
+    <div className="preview-note"><span className="note-line"/><p>More than a score.<br/><strong>A starting point for what’s next.</strong></p></div>
+  </div>;
 }
