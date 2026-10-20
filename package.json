@@ -35,5 +35,9 @@
   "trustedDependencies": [
     "sharp",
     "unrs-resolver"
+  ],
+  "workspaces": [
+    "packages/*",
+    "apps/*"
   ]
 }
