@@ -14,6 +14,8 @@ export interface SafeFetchOptions {
   userAgent?: string;
   headers?: Record<string, string>;
   signal?: AbortSignal;
+  /** Include decoded bytes when transporting binary resources. */
+  includeBodyBytes?: boolean;
   /** Tests only: allow loopback/private targets. Never enable for user-supplied URLs. */
   allowPrivate?: boolean;
 }
@@ -26,6 +28,9 @@ export interface SafeResponse {
   /** Lower-cased header names; repeated headers joined with ", ". */
   headers: Record<string, string>;
   body: string;
+  bodyBytes?: Uint8Array;
+  /** Total decoded body bytes consumed, including redirect responses. */
+  bytesRead?: number;
   truncated: boolean;
   timing: { ttfbMs: number; totalMs: number };
 }
@@ -89,6 +94,7 @@ export async function safeFetch(input: string, opts: SafeFetchOptions = {}): Pro
   } = opts;
   const started = performance.now();
   const chain: string[] = [];
+  let bytesRead = 0;
   let current = opts.allowPrivate ? new URL(input) : assertSafeUrl(input);
   const deadline = new AbortController();
   const timer = setTimeout(() => deadline.abort(new Error(`Timed out after ${timeoutMs}ms: ${input}`)), timeoutMs);
@@ -99,15 +105,17 @@ export async function safeFetch(input: string, opts: SafeFetchOptions = {}): Pro
       signal.throwIfAborted();
       const res = await requestOnce(current, {
         timeoutMs,
-        maxBytes,
+        maxBytes: maxBytes - bytesRead,
         userAgent,
         headers: opts.headers ?? {},
         signal,
         allowPrivate: opts.allowPrivate ?? false,
         started,
       });
+      bytesRead += res.bodyBytes.byteLength;
       const location = res.headers["location"];
       if (res.status >= 300 && res.status < 400 && location) {
+        if (res.truncated || bytesRead >= maxBytes) throw new Error("Response byte limit reached while following redirects");
         if (hop >= maxRedirects) throw new UnsafeUrlError(`Too many redirects (>${maxRedirects})`);
         chain.push(current.href);
         const nextUrl = new URL(location, current);
@@ -121,6 +129,8 @@ export async function safeFetch(input: string, opts: SafeFetchOptions = {}): Pro
         redirectChain: chain,
         headers: res.headers,
         body: res.body,
+        ...(opts.includeBodyBytes ? { bodyBytes: res.bodyBytes } : {}),
+        bytesRead,
         truncated: res.truncated,
         timing: { ttfbMs: res.ttfbMs, totalMs: Math.round(performance.now() - started) },
       };
@@ -146,7 +156,7 @@ interface RequestOnceOpts {
 function requestOnce(
   url: URL,
   o: RequestOnceOpts,
-): Promise<{ status: number; headers: Record<string, string>; body: string; truncated: boolean; ttfbMs: number }> {
+): Promise<{ status: number; headers: Record<string, string>; body: string; bodyBytes: Buffer; truncated: boolean; ttfbMs: number }> {
   const mod = url.protocol === "https:" ? https : http;
   return new Promise((resolve, reject) => {
     const req = mod.request(
@@ -194,10 +204,12 @@ function requestOnce(
         const finish = () => {
           if (done) return;
           done = true;
+          const bodyBytes = Buffer.concat(chunks);
           resolve({
             status: res.statusCode ?? 0,
             headers,
-            body: Buffer.concat(chunks).toString("utf8"),
+            body: bodyBytes.toString("utf8"),
+            bodyBytes,
             truncated,
             ttfbMs,
           });

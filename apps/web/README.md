@@ -25,6 +25,8 @@ bun run --cwd apps/web test
 bun run --cwd apps/web build
 ```
 
-`src/server/jobs.ts` provides `JobStore`, `AuditPipeline` and bounded `InProcessQueue` interfaces. The current store and rate limiter are process-local; audits disappear on restart. Before multi-instance deployment, use a durable store, shared rate limiter and worker queue. Persist event sequences for SSE resume. Configure the edge proxy to overwrite forwarding headers before using forwarded IPs for rate limiting.
+`src/server/jobs.ts` provides `JobStore`, `AuditPipeline` and bounded `InProcessQueue` interfaces. One process runs two audits with at most ten waiting; excess admission returns HTTP 503 with `Retry-After`. The store retains at most 50 jobs, 64 MiB in total and 8 MiB per job including events, reports and traces. Completed/failed jobs expire after 30 minutes and may be evicted sooner for capacity. Oversized output fails the audit and releases partial output. Audit execution receives a five-minute cancellation deadline; crawler and provider requests also enforce their own limits. Request JSON is limited to 8 KiB (HTTP 413).
+
+The store and rate limiter are process-local; audits disappear on restart. The token bucket retains at most 10,000 client keys. Forwarding headers are ignored by default, so direct requests share a conservative anonymous bucket. Set `TRUST_PROXY=true` only behind a trusted proxy that overwrites `x-forwarded-for`; it enables validated forwarded IPs. Before multi-instance deployment, use a durable store, shared rate limiter and worker queue while retaining capacity limits. Persist event sequences for SSE resume.
 
 The build keeps `playwright-core` external; install it and the browser in the runtime when rendering is enabled. Probes are samples from configured models and require retrieval-enabled models to observe current sources. No production hosting deployment is configured.

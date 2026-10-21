@@ -16,4 +16,6 @@ export interface UsageSummary {
   inputTokens: number;
   outputTokens: number;
   costUsd: number;
+  /** False means costUsd contains known charges only; at least one dispatched request has unknown cost. */
+  costKnown?: false;
 }

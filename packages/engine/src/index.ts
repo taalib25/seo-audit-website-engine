@@ -58,6 +58,8 @@ function safeTraces(traces: readonly PromptTrace[], secrets: string[]): PromptTr
 }
 
 export async function runFullAudit(input: FullAuditInput, deps: EngineDependencies = {}): Promise<FullAuditResult> {
+  const work = new AbortController();
+  const signal = input.signal ? AbortSignal.any([input.signal, work.signal]) : work.signal;
   const env = deps.env ?? process.env;
   const crawl = deps.crawl ?? crawlSite;
   const stackDetector = deps.detectStack ?? detectStack;
@@ -73,7 +75,7 @@ export async function runFullAudit(input: FullAuditInput, deps: EngineDependenci
       maxPages: input.maxPages,
       render: input.render,
       ...(renderer ? { renderer } : {}),
-      ...(input.signal ? { signal: input.signal } : {}),
+      signal,
       onProgress: (event) => { if (event.type === "page") input.onProgress?.({ type: "crawl:page", ...(event.url ? { url: event.url } : {}), ...(event.index === undefined ? {} : { index: event.index }), ...(event.total === undefined ? {} : { total: event.total }) }); },
     });
     const stack = site.pages[0] ? stackDetector(site.pages[0]) : [];
@@ -82,7 +84,7 @@ export async function runFullAudit(input: FullAuditInput, deps: EngineDependenci
     if (input.llm && client) services = { ...services, llm: client };
     if (input.probe && client) {
       const probeLlm = client;
-      const probeClient = { complete: async (model: string, prompt: string) => probeLlm.judge({ task: "geo.visibility.probe", system: "Answer this sampled visibility question concisely. Cite sources only when available; never invent citations or claim a live search was performed without retrieval access.", user: prompt, schema: onlineAnswer, model, ...(input.signal ? { signal: input.signal } : {}) }) };
+      const probeClient = { complete: async (model: string, prompt: string) => probeLlm.judge({ task: "geo.visibility.probe", system: "Answer this sampled visibility question concisely. Cite sources only when available; never invent citations or claim a live search was performed without retrieval access.", user: prompt, schema: onlineAnswer, model, signal }) };
       services = { ...services, ...(deps.serviceBuilder ?? buildServices)(env, { probeClient }) };
     }
     const checks = [...(deps.checks ?? builtinChecks), ...llmChecks, ...integrationChecks];
@@ -93,7 +95,7 @@ export async function runFullAudit(input: FullAuditInput, deps: EngineDependenci
     input.onProgress?.({ type: "checks:start", count: registry.list(filters).length });
     const report = await runAudit(site, registry, {
       services, stack, ...(input.ids ? { ids: input.ids } : {}), ...(input.pillars ? { pillars: input.pillars } : {}),
-      ...(input.signal ? { signal: input.signal } : {}),
+      signal,
       onResult: (result) => input.onProgress?.({ type: "check:result", id: result.id, status: result.status, title: result.title, result }),
     });
     const prompt = buildFixPrompt(report);
@@ -102,6 +104,7 @@ export async function runFullAudit(input: FullAuditInput, deps: EngineDependenci
     input.onProgress?.({ type: "done", pages: site.pages.length });
     return { report, prompt, traces: safeTraces(client?.getPromptTraces() ?? [], secrets), usage };
   } catch (error) {
+    work.abort(error);
     const message = redact(error instanceof Error ? error.message : String(error), secrets);
     input.onProgress?.({ type: "error", message });
     throw error instanceof Error ? new Error(message, { cause: error }) : new Error(message);

@@ -1,4 +1,5 @@
 import { load } from "cheerio";
+import { setTimeout as sleep } from "node:timers/promises";
 import robotsParser from "robots-parser";
 import type { PageSnapshot, SiteSnapshot, SitemapEntry, TextFile, LinkEdge } from "@aeo/core";
 import { assertSafeUrl, safeFetch, type SafeFetchOptions } from "@aeo/core";
@@ -39,6 +40,12 @@ export interface CrawlOptions {
   testOnlyAllowPrivate?: boolean;
   maxBytes?: number;
   totalByteBudgetBytes?: number;
+  /** Discovery HTTP operations (robots, llms files, sitemaps), capped at 24. */
+  maxDiscoveryRequests?: number;
+  /** Frontier candidates inspected, including failures and non-HTML URLs; capped at 1,000. */
+  maxPageAttempts?: number;
+  /** All HTTP operations, including browser resources and redirects; capped at 1,024. */
+  maxRequests?: number;
 }
 
 interface QueueEntry { url: string; depth: number; priority: number }
@@ -62,33 +69,90 @@ export async function crawlSite(startUrl: string, opts: CrawlOptions = {}): Prom
   const initial = opts.testOnlyAllowPrivate ? new URL(startUrl) : assertSafeUrl(startUrl);
   if (initial.protocol !== "http:" && initial.protocol !== "https:") throw new Error("Unsupported URL scheme");
   const normalizedStart = normalizeUrl(initial.href);
-  const origin = new URL(normalizedStart).origin;
+  let origin = new URL(normalizedStart).origin;
+  const scopeOrigins = new Set([origin]);
+  const inScope = (url: string): boolean => [...scopeOrigins].some((root) => isInScope(url, root, opts.includeSubdomains ?? false));
   const started = performance.now();
   const maxPages = Math.min(200, Math.max(1, opts.maxPages ?? 10));
+  const maxPageAttempts = Math.min(1000, Math.max(maxPages, opts.maxPageAttempts ?? maxPages * 5));
   const maxDepth = Math.max(0, opts.maxDepth ?? 3);
   const concurrency = Math.max(1, Math.min(16, opts.concurrency ?? 4));
   const timeoutMs = opts.timeoutMs ?? 15_000;
   const maxBytes = opts.maxBytes ?? 5 * 1024 * 1024;
   const userAgent = opts.userAgent ?? DEFAULT_UA;
+  const totalBudgetMs = Math.ceil(Math.min(600_000, Math.max(1, opts.totalBudgetMs ?? 120_000)));
+  const deadlineSignal = AbortSignal.timeout(totalBudgetMs);
+  const signal = opts.signal ? AbortSignal.any([opts.signal, deadlineSignal]) : deadlineSignal;
+  let budgetBytes = 0;
+  let reservedBytes = 0;
+  const totalByteBudget = opts.totalByteBudgetBytes ?? 25 * 1024 * 1024;
+  let discoveryRequests = 0;
+  let httpRequests = 0;
+  const maxRequests = Math.floor(Math.min(1024, Math.max(0, opts.maxRequests ?? 1024)));
+  const maxDiscoveryRequests = Math.min(24, Math.max(0, opts.maxDiscoveryRequests ?? 24));
   const fetchOptions: SafeFetchOptions = {
     timeoutMs,
     maxBytes,
     userAgent,
-    ...(opts.signal ? { signal: opts.signal } : {}),
+    signal,
     ...(opts.testOnlyAllowPrivate ? { allowPrivate: true } : {}),
   };
-  const fetch = (url: string) => safeFetch(url, fetchOptions);
-  const robotsUrl = new URL("/robots.txt", origin).href;
-  const robotsResponse = await fetch(robotsUrl).catch(() => undefined);
+  const fetch = async (url: string, requestOptions: SafeFetchOptions = {}, discovery = false): Promise<Awaited<ReturnType<typeof safeFetch>>> => {
+    const remainingMs = totalBudgetMs - (performance.now() - started);
+    const reservation = Math.min(maxBytes, requestOptions.maxBytes ?? maxBytes, totalByteBudget - budgetBytes - reservedBytes);
+    if (signal.aborted || remainingMs <= 0 || reservation <= 0) throw new Error("Crawl budget exhausted");
+    const requestReservation = Math.min(1 + Math.min(5, requestOptions.maxRedirects ?? 5), maxRequests - httpRequests);
+    if (requestReservation <= 0) throw new Error("Crawl HTTP request limit reached");
+    if (discovery && discoveryRequests >= maxDiscoveryRequests) throw new Error("Discovery request limit reached");
+    if (discovery) discoveryRequests++;
+    httpRequests += requestReservation;
+    reservedBytes += reservation;
+    try {
+      const response = await safeFetch(url, {
+        ...requestOptions, ...fetchOptions,
+        timeoutMs: Math.min(timeoutMs, requestOptions.timeoutMs ?? timeoutMs, Math.max(1, Math.ceil(remainingMs))),
+        maxBytes: reservation, maxRedirects: requestReservation - 1, includeBodyBytes: true,
+        signal: requestOptions.signal ? AbortSignal.any([signal, requestOptions.signal]) : signal,
+        allowPrivate: opts.testOnlyAllowPrivate === true,
+      });
+      httpRequests -= requestReservation - (response.redirectChain.length + 1);
+      budgetBytes += Math.min(reservation, response.bytesRead ?? response.bodyBytes?.byteLength ?? Buffer.byteLength(response.body));
+      return response;
+    } catch (error) {
+      // A failed transfer may already have consumed bytes; charge its reservation conservatively.
+      budgetBytes += reservation;
+      throw error;
+    } finally { reservedBytes -= reservation; }
+  };
+  const discover = (url: string) => fetch(url, {}, true);
+  let robotsUrl = new URL("/robots.txt", origin).href;
+  let robotsResponse = await discover(robotsUrl).catch(() => undefined);
+  if (robotsResponse && isCanonicalRedirect(origin, robotsResponse.finalUrl)) {
+    origin = new URL(robotsResponse.finalUrl).origin;
+    scopeOrigins.add(origin);
+    robotsUrl = robotsResponse.finalUrl;
+  }
+  let robots = robotsParser(robotsUrl, robotsResponse?.body ?? "");
+  const initialRobotsTarget = new URL(initial.pathname + initial.search, origin).href;
+  const initialResponse = opts.respectRobots !== false && robots.isAllowed(initialRobotsTarget, userAgent) === false
+    ? undefined : await fetch(normalizedStart).catch(() => undefined);
+  if (initialResponse && new URL(initialResponse.finalUrl).origin !== origin && isCanonicalRedirect(origin, initialResponse.finalUrl)) {
+    origin = new URL(initialResponse.finalUrl).origin;
+    scopeOrigins.add(origin);
+    robotsUrl = new URL("/robots.txt", origin).href;
+    robotsResponse = await discover(robotsUrl).catch(() => undefined);
+    robots = robotsParser(robotsUrl, robotsResponse?.body ?? "");
+  }
   const robotsFile = toTextFile(robotsUrl, robotsResponse);
-  const robots = robotsParser(robotsUrl, robotsResponse?.body ?? "");
-  const llmsTxt = await readTextFile(new URL("/llms.txt", origin).href, fetch);
-  const llmsFullTxt = await readTextFile(new URL("/llms-full.txt", origin).href, fetch);
+  const llmsTxt = await readTextFile(new URL("/llms.txt", origin).href, discover);
+  const llmsFullTxt = await readTextFile(new URL("/llms-full.txt", origin).href, discover);
 
   const sitemapUrls = new Set<string>();
   for (const line of (robotsResponse?.body ?? "").split(/\r?\n/)) {
     const match = /^\s*Sitemap:\s*(\S+)/i.exec(line);
-    if (match?.[1]) sitemapUrls.add(match[1]);
+    if (match?.[1]) {
+      try { sitemapUrls.add(new URL(match[1], robotsUrl).href); } catch { /* invalid declaration */ }
+    }
   }
   sitemapUrls.add(new URL("/sitemap.xml", origin).href);
   const sitemapRecords: SiteSnapshot["sitemaps"] = [];
@@ -98,7 +162,7 @@ export async function crawlSite(startUrl: string, opts: CrawlOptions = {}): Prom
     if (depth > 3 || sitemapVisited.has(sitemapUrl) || sitemapVisited.size >= 20) return;
     sitemapVisited.add(sitemapUrl);
     let response;
-    try { response = await fetch(sitemapUrl); } catch { sitemapRecords.push({ url: sitemapUrl, status: 0, entries: [] }); return; }
+    try { response = await discover(sitemapUrl); } catch { sitemapRecords.push({ url: sitemapUrl, status: 0, entries: [] }); return; }
     const locations = [...response.body.matchAll(/<(?:loc)\b[^>]*>([\s\S]*?)<\/loc\s*>/gi)]
       .map((match) => decodeXml(match[1] ?? "").trim()).filter(Boolean);
     const isIndex = /<sitemapindex\b/i.test(response.body);
@@ -119,10 +183,11 @@ export async function crawlSite(startUrl: string, opts: CrawlOptions = {}): Prom
 
   const queue: QueueEntry[] = [{ url: normalizedStart, depth: 0, priority: -2 }];
   const queued = new Set([normalizedStart]);
+  if (initialResponse && inScope(initialResponse.finalUrl)) queued.add(normalizeUrl(initialResponse.finalUrl));
   for (const entry of sitemapEntries) {
     try {
       const url = normalizeUrl(entry.loc);
-      if (isInScope(url, origin, opts.includeSubdomains ?? false) && !queued.has(url)) {
+      if (inScope(url) && !queued.has(url)) {
         queued.add(url);
         queue.push({ url, depth: 1, priority: 2 });
       }
@@ -139,9 +204,6 @@ export async function crawlSite(startUrl: string, opts: CrawlOptions = {}): Prom
     : undefined;
   const allowRobots = opts.respectRobots !== false;
   const crawlDelayMs = Math.min(5_000, Math.max(0, (robots.getCrawlDelay(userAgent) ?? 0) * 1000));
-  let budgetBytes = 0;
-  let reservedBytes = 0;
-  const totalByteBudget = opts.totalByteBudgetBytes ?? 25 * 1024 * 1024;
   let lastRequestTime = 0;
   let rateQueue: Promise<void> = Promise.resolve();
   const paceRequest = async (): Promise<void> => {
@@ -150,21 +212,23 @@ export async function crawlSite(startUrl: string, opts: CrawlOptions = {}): Prom
     rateQueue = new Promise<void>((resolve) => { release = resolve; });
     await previous;
     const delay = Math.max(crawlDelayMs, 150) - (performance.now() - lastRequestTime);
-    if (delay > 0) await new Promise((resolve) => setTimeout(resolve, delay));
+    if (delay > 0) await sleep(delay, undefined, { signal }).catch(() => undefined);
     lastRequestTime = performance.now();
     release();
   };
   const tryChromiumFallback = async (url: string) => {
     try {
-      return await fallbackRenderer?.render({ url, timeoutMs, userAgent, ...(opts.signal ? { signal: opts.signal } : {}) });
+      if (signal.aborted) return undefined;
+      return await fallbackRenderer?.render({ url, timeoutMs: Math.min(timeoutMs, Math.max(1, Math.ceil(totalBudgetMs - (performance.now() - started)))), userAgent, signal, guardedFetch: fetch });
     } catch { return undefined; }
   };
+  let pageAttempts = 0;
 
   const crawlOne = async (item: QueueEntry): Promise<{ page?: PageSnapshot; children: QueueEntry[] }> => {
-    if (opts.signal?.aborted || (opts.totalBudgetMs !== undefined && performance.now() - started >= opts.totalBudgetMs)) {
+    if (signal.aborted || performance.now() - started >= totalBudgetMs) {
       uncrawled.add(item.url); return { children: [] };
     }
-    if (allowRobots && robots.isAllowed(item.url, userAgent) === false) {
+    if (allowRobots && robots.isAllowed(new URL(new URL(item.url).pathname + new URL(item.url).search, origin).href, userAgent) === false) {
       uncrawled.add(item.url); return { children: [] };
     }
     // Media linked from HTML must not consume the page-body budget before sitemap pages run.
@@ -173,59 +237,62 @@ export async function crawlSite(startUrl: string, opts: CrawlOptions = {}): Prom
     }
     await paceRequest();
     let response;
-    let reservation = 0;
     try {
-      reservation = Math.min(maxBytes, totalByteBudget - budgetBytes - reservedBytes);
-      if (reservation <= 0) { uncrawled.add(item.url); return { children: [] }; }
-      reservedBytes += reservation;
-      response = await safeFetch(item.url, { ...fetchOptions, maxBytes: reservation });
+      response = item.url === normalizedStart ? initialResponse : await fetch(item.url);
+      if (!response) { uncrawled.add(item.url); return { children: [] }; }
     } catch { uncrawled.add(item.url); return { children: [] }; }
-    finally { reservedBytes -= reservation; }
-    budgetBytes += Buffer.byteLength(response.body);
-    if (budgetBytes > totalByteBudget) { uncrawled.add(item.url); return { children: [] }; }
     const contentType = response.headers["content-type"] ?? "";
     if (!/html|xhtml/i.test(contentType) || NON_HTML_PATH.test(new URL(response.finalUrl).pathname)) {
       uncrawled.add(item.url);
       return { children: [] };
     }
-    const $ = load(response.body);
     const children: QueueEntry[] = [];
-    $("a[href]").each((_, element) => {
-      const href = $(element).attr("href");
-      if (!href) return;
-      try {
-        const to = normalizeUrl(href, response.finalUrl);
-        if (!isInScope(to, origin, opts.includeSubdomains ?? false)) return;
-        const rel = ($(element).attr("rel") ?? "").toLowerCase().split(/\s+/);
-        links.push({ from: response.finalUrl, to, anchor: $(element).text().replace(/\s+/g, " ").trim(), nofollow: rel.includes("nofollow") });
-        if (!discovered.has(to)) {
-          discovered.add(to);
-          opts.onProgress?.({ type: "discovery", url: to, total: discovered.size });
-          if (item.depth < maxDepth) children.push({ url: to, depth: item.depth + 1, priority: rel.includes("nofollow") ? 3 : 1 });
-          else uncrawled.add(to);
-        }
-      } catch { /* invalid href */ }
-    });
+    const seenLinks = new Set<string>();
+    const discoverLinks = (html: string, base: string): void => {
+      const $ = load(html);
+      $("a[href]").each((_, element) => {
+        const href = $(element).attr("href");
+        if (!href) return;
+        try {
+          const to = normalizeUrl(href, base);
+          if (!inScope(to)) return;
+          const rel = ($(element).attr("rel") ?? "").toLowerCase().split(/\s+/);
+          const edge = { from: response.finalUrl, to, anchor: $(element).text().replace(/\s+/g, " ").trim(), nofollow: rel.includes("nofollow") };
+          const key = JSON.stringify(edge);
+          if (!seenLinks.has(key)) { links.push(edge); seenLinks.add(key); }
+          if (!discovered.has(to)) {
+            discovered.add(to);
+            opts.onProgress?.({ type: "discovery", url: to, total: discovered.size });
+            if (item.depth < maxDepth) children.push({ url: to, depth: item.depth + 1, priority: rel.includes("nofollow") ? 3 : 1 });
+            else uncrawled.add(to);
+          }
+        } catch { /* invalid href */ }
+      });
+    };
+    discoverLinks(response.body, response.finalUrl);
     let renderedHtml: string | undefined;
     let rendererName: string | undefined;
+    let renderedBase: string | undefined;
     if (opts.render === "always" || (opts.render !== "never" && needsRendering(response.body))) {
       const useRenderer = selectedRenderer.mode === "none" ? undefined : selectedRenderer;
       if (useRenderer) {
         try {
-          const rendered = await useRenderer.render({ url: item.url, timeoutMs, userAgent, ...(opts.signal ? { signal: opts.signal } : {}) });
-          if (rendered.renderedHtml?.trim()) { renderedHtml = rendered.renderedHtml; rendererName = rendered.renderer ?? useRenderer.mode; }
+          signal.throwIfAborted();
+          const rendered = await useRenderer.render({ url: item.url, timeoutMs: Math.min(timeoutMs, Math.max(1, Math.ceil(totalBudgetMs - (performance.now() - started)))), userAgent, signal, guardedFetch: fetch });
+          if (rendered.renderedHtml?.trim()) { renderedHtml = rendered.renderedHtml; rendererName = rendered.renderer ?? useRenderer.mode; renderedBase = inScope(rendered.finalUrl) ? rendered.finalUrl : undefined; }
           if ((!renderedHtml || renderedHtml.length < 100) && useRenderer.mode !== "chromium") {
             const result = await tryChromiumFallback(item.url);
-            if (result?.renderedHtml?.trim()) { renderedHtml = result.renderedHtml; rendererName = "chromium"; }
+            if (result?.renderedHtml?.trim()) { renderedHtml = result.renderedHtml; rendererName = "chromium"; renderedBase = inScope(result.finalUrl) ? result.finalUrl : undefined; }
           }
         } catch {
           if (useRenderer.mode !== "chromium") {
             const result = await tryChromiumFallback(item.url);
-            if (result?.renderedHtml?.trim()) { renderedHtml = result.renderedHtml; rendererName = "chromium"; }
+            if (result?.renderedHtml?.trim()) { renderedHtml = result.renderedHtml; rendererName = "chromium"; renderedBase = inScope(result.finalUrl) ? result.finalUrl : undefined; }
           }
         }
       }
     }
+    if (renderedHtml && renderedBase) discoverLinks(renderedHtml, renderedBase);
     return {
       page: {
         url: item.url, finalUrl: response.finalUrl, status: response.status,
@@ -238,13 +305,15 @@ export async function crawlSite(startUrl: string, opts: CrawlOptions = {}): Prom
   };
 
   try {
-    while (queue.length && pages.length < maxPages) {
+    while (queue.length && pages.length < maxPages && pageAttempts < maxPageAttempts) {
       queue.sort((a, b) => a.depth - b.depth || a.priority - b.priority);
-      const slots = Math.min(concurrency, 2, maxPages - pages.length);
+      const slots = Math.min(concurrency, 2, maxPages - pages.length, maxPageAttempts - pageAttempts);
       const batch = queue.splice(0, slots);
+      pageAttempts += batch.length;
       const results = await Promise.all(batch.map(async (item) => {
         if (crawled.has(item.url)) return { children: [] as QueueEntry[] };
         crawled.add(item.url);
+        if (item.url === normalizedStart && initialResponse && inScope(initialResponse.finalUrl)) crawled.add(normalizeUrl(initialResponse.finalUrl));
         return crawlOne(item);
       }));
       for (let i = 0; i < results.length; i++) {
@@ -257,6 +326,7 @@ export async function crawlSite(startUrl: string, opts: CrawlOptions = {}): Prom
         }
         for (const child of result.children) queue.push(child);
       }
+      if (signal.aborted || budgetBytes >= totalByteBudget) break;
     }
     for (const item of queue) uncrawled.add(item.url);
     for (const url of discovered) if (!crawled.has(url)) uncrawled.add(url);
@@ -293,6 +363,13 @@ function isInScope(candidate: string, origin: string, includeSubdomains: boolean
   const target = new URL(candidate);
   const root = new URL(origin);
   return target.origin === root.origin || (includeSubdomains && target.protocol === root.protocol && target.hostname.endsWith(`.${root.hostname}`));
+}
+
+function isCanonicalRedirect(origin: string, destination: string): boolean {
+  const from = new URL(origin);
+  const to = new URL(destination);
+  const protocolAllowed = from.protocol === to.protocol || (from.protocol === "http:" && to.protocol === "https:");
+  return protocolAllowed && from.port === to.port && from.hostname.replace(/^www\./, "") === to.hostname.replace(/^www\./, "");
 }
 
 function toTextFile(url: string, response: Awaited<ReturnType<typeof safeFetch>> | undefined): TextFile | undefined {

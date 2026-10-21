@@ -1,6 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowDown, ArrowRight, ArrowUpRight, Bot, Check, CheckCheck, CircleAlert, Globe2, LoaderCircle, SearchCheck, ShieldCheck, Terminal } from "lucide-react";
 import { useState, type FormEvent } from "react";
+import { z } from "zod";
+
+const createdAudit = z.object({ id: z.string() });
+const auditError = z.object({ error: z.string() });
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -34,8 +38,12 @@ function Home() {
       const site = url.trim();
       const response = await fetch("/api/audits", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ url: site.includes("://") ? site : `https://${site}` }) });
       const data: unknown = await response.json();
-      if (!response.ok || typeof data !== "object" || data === null || !("id" in data) || typeof data.id !== "string") throw new Error("Enter a public website URL to begin.");
-      await navigate({ to: "/audit/$id", params: { id: data.id } });
+      if (!response.ok) {
+        const error = auditError.safeParse(data);
+        throw new Error(error.success ? error.data.error : "Audit could not be started. Try again shortly.");
+      }
+      const result = createdAudit.parse(data);
+      await navigate({ to: "/audit/$id", params: { id: result.id } });
     } catch (e) { setError(e instanceof Error ? e.message : "Audit could not be started."); setBusy(false); }
   }
 

@@ -1,3 +1,26 @@
+import { isIP } from "node:net";
+
+export class RequestBodyTooLargeError extends Error {}
+
+export async function boundedJson(request: Request, maxBytes = 8192): Promise<unknown> {
+  if (Number(request.headers.get("content-length")) > maxBytes) throw new RequestBodyTooLargeError();
+  const reader = request.body?.getReader();
+  if (!reader) throw new SyntaxError("Missing request body");
+  const chunks: Uint8Array[] = [];
+  let bytes = 0;
+  try {
+    for (;;) {
+      const chunk = await reader.read();
+      if (chunk.done) break;
+      bytes += chunk.value.byteLength;
+      if (bytes > maxBytes) { await reader.cancel(); throw new RequestBodyTooLargeError(); }
+      chunks.push(chunk.value);
+    }
+    const body: unknown = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+    return body;
+  } finally { reader.releaseLock(); }
+}
+
 const headers = {
   "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'",
   "X-Frame-Options": "DENY",
@@ -16,6 +39,7 @@ export function secureResponse(body: BodyInit | null, init: ResponseInit = {}): 
   return new Response(body, { ...init, headers: responseHeaders });
 }
 
-export function clientIp(request: Request): string {
-  return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+export function clientIp(request: Request, trustProxy = process.env.TRUST_PROXY === "true"): string {
+  const forwarded = trustProxy ? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() : undefined;
+  return forwarded && isIP(forwarded) ? forwarded : "unknown";
 }

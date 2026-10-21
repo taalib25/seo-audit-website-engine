@@ -48,4 +48,12 @@ describe("runFullAudit", () => {
     expect(models).toEqual(["provider/query-model"]);
     expect(result.report.results[0]?.status).toBe("pass");
   });
+
+  it("cancels remaining work when a consumer rejects progress output", async () => {
+    let signal: AbortSignal | undefined;
+    await expect(runFullAudit({ url: site.startUrl, maxPages: 1, render: "never", llm: false, probe: false, onProgress: (event) => { if (event.type === "checks:start") throw new Error("Output storage full"); } }, {
+      env: {}, crawl: async (_url, options) => { signal = options?.signal; return site; },
+    })).rejects.toThrow("Output storage full");
+    expect(signal?.aborted).toBe(true);
+  });
 });

@@ -1,6 +1,6 @@
 import { assertSafeUrl } from "@aeo/core";
 import { z } from "zod";
-import { auditQueue, emitProgress, jobStore, type AuditJob, type AuditPipeline } from "./jobs";
+import { auditQueue, emitProgress, jobStore, JobCapacityError, type AuditJob, type AuditPipeline } from "./jobs";
 import { runPipeline } from "./pipeline";
 
 export const CreateAuditSchema = z.object({
@@ -27,12 +27,13 @@ export async function createAudit(input: unknown, pipeline: AuditPipeline = { ru
     capabilityNotes.push(!llmEnabled ? "AI visibility probes skipped: no LLM key configured." : "AI visibility probes skipped: PROBE_QUERIES is not configured.");
   }
   const renderer = renderEnabled ? (env.RENDERER ?? (env.CDP_ENDPOINT ? "cdp" : undefined)) : undefined;
+  if (!auditQueue.hasCapacity()) throw new JobCapacityError("Audit queue is at capacity");
   const job = jobStore.create({ ...options, ...(renderer ? { renderer } : {}), ...(env.CDP_ENDPOINT ? { cdpEndpoint: env.CDP_ENDPOINT } : {}) }, capabilityNotes);
   auditQueue.enqueue(async () => {
     try {
       jobStore.update(job.id, { status: "running", stage: "Starting", progress: 5 });
       jobStore.addEvent(job.id, "progress", { stage: "Starting", progress: 5 });
-      const result = await pipeline.run(job, (stage, progress) => emitProgress(job.id, stage, progress), (event) => { jobStore.addEvent(job.id, "engine", event as unknown as Record<string, unknown>); });
+      const result = await pipeline.run(job, (stage, progress) => emitProgress(job.id, stage, progress), (event) => { jobStore.addEvent(job.id, "engine", event as unknown as Record<string, unknown>); }, AbortSignal.timeout(5 * 60_000));
       jobStore.update(job.id, { status: "complete", stage: "Complete", progress: 100, report: result.report, prompt: result.prompt, traces: result.traces, usage: result.usage });
       jobStore.addEvent(job.id, "complete", { progress: 100 });
     } catch {

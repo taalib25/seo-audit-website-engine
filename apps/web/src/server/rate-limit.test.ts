@@ -11,4 +11,16 @@ describe("MemoryTokenBucket", () => {
     expect(limiter.take("client")).toBe(true);
     vi.useRealTimers();
   });
+
+  it("bounds client keys and reclaims fully refilled inactive buckets", () => {
+    vi.useFakeTimers();
+    try {
+      const limiter = new MemoryTokenBucket(1, 1000, 2);
+      expect(limiter.take("a")).toBe(true);
+      expect(limiter.take("b")).toBe(true);
+      expect(limiter.take("c")).toBe(false);
+      vi.advanceTimersByTime(1000);
+      expect(limiter.take("c")).toBe(true);
+    } finally { vi.useRealTimers(); }
+  });
 });

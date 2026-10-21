@@ -2,11 +2,11 @@ import { AuditReport, type AuditReport as AuditReportType } from "@aeo/core";
 import { runFullAudit } from "@aeo/engine";
 import type { AuditPipeline, AuditJob } from "./jobs";
 
-export const runPipeline: AuditPipeline["run"] = async (job, progress, engineEvent) => {
+export const runPipeline: AuditPipeline["run"] = async (job, progress, engineEvent, signal) => {
   const result = await runFullAudit({
     url: job.options.url, maxPages: job.options.maxPages, render: job.options.render ? "auto" : "never",
     ...(job.options.renderer ? { renderer: job.options.renderer } : {}), ...(job.options.cdpEndpoint ? { cdpEndpoint: job.options.cdpEndpoint } : {}),
-    llm: job.options.llm, probe: job.options.probe,
+    llm: job.options.llm, probe: job.options.probe, signal,
     onProgress: (event) => {
       engineEvent(event);
       if (event.type === "crawl:start") progress("Crawling site", 15);

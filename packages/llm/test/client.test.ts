@@ -14,8 +14,9 @@ const config = {
 describe("createLlmClient", () => {
   it("parses validated output and records traces and OpenRouter usage without network access", async () => {
     const fakeFetch: typeof fetch = async (_input, init) => {
-      const body = JSON.parse(String(init?.body)) as { temperature: number; response_format: { type: string } };
+      const body = z.object({ temperature: z.number(), max_tokens: z.number(), response_format: z.object({ type: z.string() }) }).parse(JSON.parse(String(init?.body)));
       expect(body.temperature).toBe(0);
+      expect(body.max_tokens).toBe(2_048);
       expect(body.response_format.type).toBe("json_schema");
       return new Response(JSON.stringify({
         model: "test/model",
@@ -41,7 +42,7 @@ describe("createLlmClient", () => {
         usage: { prompt_tokens: 1, completion_tokens: 1, cost: 0.6 },
       }), { status: 200, headers: { "content-type": "application/json" } });
     };
-    const client = createLlmClient({ ...config, maxSpendPerAuditUsd: 1 }, { fetch: fakeFetch });
+    const client = createLlmClient({ ...config, maxRetries: 1, maxSpendPerAuditUsd: 1 }, { fetch: fakeFetch });
     await expect(client.judge({ task: "repair", system: "s", user: "u", schema: z.object({ ok: z.boolean() }) })).resolves.toEqual({ ok: true });
     await expect(client.judge({ task: "over-budget", system: "s", user: "u", schema: z.object({ ok: z.boolean() }) })).rejects.toThrow("spend cap");
     expect(calls).toBe(2);
@@ -53,16 +54,17 @@ describe("createLlmClient", () => {
     let calls = 0;
     const fakeFetch: typeof fetch = async (_input, init) => {
       calls += 1;
-      const request = JSON.parse(String(init?.body)) as { response_format: { type: string } };
+      const request = z.object({ max_tokens: z.number(), response_format: z.object({ type: z.string() }) }).parse(JSON.parse(String(init?.body)));
+      expect(request.max_tokens).toBe(512);
       if (request.response_format.type === "json_schema") {
         return new Response(JSON.stringify({ error: { message: "json_schema response_format is unsupported" } }), { status: 400 });
       }
-      return new Response(JSON.stringify({ model: "test/model", choices: [{ message: { content: '{"ok":true}' } }], usage: {} }), {
+      return new Response(JSON.stringify({ model: "test/model", choices: [{ message: { content: '{"ok":true}' } }], usage: { cost: 0 } }), {
         status: 200,
         headers: { "content-type": "application/json" },
       });
     };
-    const client = createLlmClient(config, { fetch: fakeFetch });
+    const client = createLlmClient({ ...config, maxOutputTokens: 512 }, { fetch: fakeFetch });
     await expect(client.judge({ task: "fallback", system: "s", user: "u", schema: z.object({ ok: z.boolean() }) })).resolves.toEqual({ ok: true });
     expect(calls).toBe(2);
     expect(client.getPromptTraces()).toHaveLength(2);

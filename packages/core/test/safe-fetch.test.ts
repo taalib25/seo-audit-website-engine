@@ -16,6 +16,31 @@ async function withServer(handler: http.RequestListener, run: (origin: string) =
 }
 
 describe("safeFetch absolute deadline", () => {
+  it("shares the decoded byte budget across redirect bodies", async () => {
+    await withServer((request, response) => {
+      if (request.url === "/start") { response.writeHead(302, { location: "/end" }); response.end("1234"); }
+      else response.end("abcdefgh");
+    }, async (origin) => {
+      const response = await safeFetch(`${origin}/start`, { allowPrivate: true, maxBytes: 10, includeBodyBytes: true });
+      expect(response.bytesRead).toBe(10);
+      expect(response.body).toBe("abcdef");
+      expect(response.bodyBytes).toEqual(Buffer.from("abcdef"));
+      expect(response.truncated).toBe(true);
+    });
+  });
+
+  it("does not follow redirects after their bodies exhaust the byte budget", async () => {
+    const paths: string[] = [];
+    await withServer((request, response) => {
+      paths.push(request.url ?? "");
+      response.writeHead(302, { location: "/next" });
+      response.end("1234");
+    }, async (origin) => {
+      await expect(safeFetch(origin, { allowPrivate: true, maxBytes: 4 })).rejects.toThrow("Response byte limit reached");
+      expect(paths).toEqual(["/"]);
+    });
+  });
+
   it("stops a body that keeps sending data before each inactivity timeout", async () => {
     let chunks = 0;
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });

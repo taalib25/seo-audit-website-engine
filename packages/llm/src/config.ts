@@ -12,8 +12,10 @@ export const LlmConfigSchema = z.object({
   taskModels: modelMap,
   fallbackModels: z.array(z.string().min(1)).default([]),
   timeoutMs: positiveInt.default(30_000),
+  maxOutputTokens: positiveInt.default(2_048),
+  /** Maximum metered JSON/schema repair attempts. SDK transport retries are disabled for cost safety. */
   maxRetries: z.coerce.number().int().min(0).max(5).default(2),
-  /** Max judge calls in flight; spend is re-checked before each call. */
+  /** Retained for compatibility; metered dispatch is serialized until costs are known. */
   concurrency: positiveInt.default(4),
   maxSpendPerAuditUsd: z.coerce.number().finite().nonnegative().default(1),
   httpReferer: z.url().optional(),
@@ -33,6 +35,7 @@ const EnvironmentSchema = z.object({
   LLM_CONCURRENCY: z.coerce.number().int().positive().optional(),
   LLM_FALLBACK_MODELS: z.string().optional(),
   LLM_TIMEOUT_MS: z.string().optional(),
+  LLM_MAX_OUTPUT_TOKENS: z.string().optional(),
   LLM_MAX_RETRIES: z.string().optional(),
   LLM_MAX_SPEND_PER_AUDIT_USD: z.string().optional(),
   OPENROUTER_HTTP_REFERER: z.url().optional(),
@@ -61,6 +64,7 @@ export function loadLlmConfig(env: NodeJS.ProcessEnv = process.env): LlmConfig {
     taskModels,
     fallbackModels,
     ...(parsed.LLM_TIMEOUT_MS === undefined ? {} : { timeoutMs: parsed.LLM_TIMEOUT_MS }),
+    ...(parsed.LLM_MAX_OUTPUT_TOKENS === undefined ? {} : { maxOutputTokens: parsed.LLM_MAX_OUTPUT_TOKENS }),
     ...(parsed.LLM_MAX_RETRIES === undefined ? {} : { maxRetries: parsed.LLM_MAX_RETRIES }),
     ...(parsed.LLM_CONCURRENCY === undefined ? {} : { concurrency: parsed.LLM_CONCURRENCY }),
     ...(parsed.LLM_MAX_SPEND_PER_AUDIT_USD === undefined ? {} : { maxSpendPerAuditUsd: parsed.LLM_MAX_SPEND_PER_AUDIT_USD }),

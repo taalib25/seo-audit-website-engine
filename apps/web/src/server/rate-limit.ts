@@ -4,9 +4,13 @@ export interface RateLimiter { take(key: string): boolean }
 /** Token bucket: burst 5 requests, refills at 1 token per 12 seconds per IP. */
 export class MemoryTokenBucket implements RateLimiter {
   private readonly buckets = new Map<string, Bucket>();
-  constructor(private readonly burst = 5, private readonly refillMs = 12_000) {}
+  constructor(private readonly burst = 5, private readonly refillMs = 12_000, private readonly maxKeys = 10_000) {}
   take(key: string) {
     const now = Date.now();
+    if (!this.buckets.has(key) && this.buckets.size >= this.maxKeys) {
+      for (const [id, bucket] of this.buckets) if (now - bucket.updatedAt >= this.refillMs * this.burst) this.buckets.delete(id);
+      if (this.buckets.size >= this.maxKeys) return false;
+    }
     const bucket = this.buckets.get(key) ?? { tokens: this.burst, updatedAt: now };
     bucket.tokens = Math.min(this.burst, bucket.tokens + (now - bucket.updatedAt) / this.refillMs);
     bucket.updatedAt = now;

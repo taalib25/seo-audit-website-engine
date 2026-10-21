@@ -13,6 +13,7 @@ describe("loadLlmConfig", () => {
     expect(config.apiKey).toBe("fixture-openrouter-key");
     expect(config.httpReferer).toBeUndefined();
     expect(config.fallbackModels).toEqual([]);
+    expect(config.maxOutputTokens).toBe(2_048);
   });
 
   it("uses defaults for whitespace-only options without mutating the supplied environment", () => {
@@ -30,5 +31,12 @@ describe("loadLlmConfig", () => {
     expect(loadLlmConfig({ LLM_API_KEY: "fixture-provider-key", OPENROUTER_API_KEY: "fixture-openrouter-key" }).apiKey).toBe("fixture-provider-key");
     expect(() => loadLlmConfig({ OPENROUTER_API_KEY: "fixture-openrouter-key", OPENROUTER_HTTP_REFERER: "invalid-url" })).toThrow();
     expect(() => loadLlmConfig({ OPENROUTER_API_KEY: " ", LLM_API_KEY: "" })).toThrow();
+  });
+
+  it("loads an output-token bound and rejects nonpositive or fractional bounds", () => {
+    expect(loadLlmConfig({ LLM_API_KEY: "fixture-key", LLM_MAX_OUTPUT_TOKENS: "512" }).maxOutputTokens).toBe(512);
+    for (const value of ["0", "-1", "1.5", "invalid"]) {
+      expect(() => loadLlmConfig({ LLM_API_KEY: "fixture-key", LLM_MAX_OUTPUT_TOKENS: value })).toThrow();
+    }
   });
 });
