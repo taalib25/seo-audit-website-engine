@@ -1,165 +1,63 @@
-# AI Website Audit Engine
+# SEO, AEO and GEO Audit Engine
 
-Enter a URL, get a structured breakdown of what's working and what 
-isn't — factual metrics separated cleanly from AI analysis, with full 
-visibility into every prompt sent and response received. Tested against 
-eight25media.com directly.
+Crawl a public website, run evidence-backed checks, and export a fix prompt for a coding agent. The CLI and web app use the same engine. Deterministic findings, optional LLM judgments and sampled external observations are identified separately.
 
-Built in 24 hours for EIGHT25MEDIA.
+## Run locally
 
-## Setup
+Install [Bun](https://bun.sh), then:
 
-Requires Node.js 18+ and a DashScope API key.
-```bash
-npm install
-cp .env.example .env   # add DASHSCOPE_API_KEY
-npm run dev
+```sh
+bun install
+bun run dev
 ```
 
-Open http://localhost:3000. Results take 20 - 30 seconds.
+Open the Vite URL printed in the terminal. `/demo` simulates a live audit offline in development; `/audit/demo` shows a sample report. Real audits stream findings into the animated checklist, then provide evidence, fixes, JSON reports and a copyable Markdown prompt.
 
-## Architecture
-```
-URL Input
-   │
-   ▼
-Layer 1 — Scraper (axios + cheerio)
-   │  extracts: word count, headings, CTAs, links, images, meta tags
-   │
-   ▼
-Layer 1.5 — Signal Engine (no AI)
-   │  interprets numbers into categories the AI can reason about
-   │  e.g. content depth, CTA density, heading structure, meta quality
-   │
-   ▼
-Layer 2 — AI Pipeline
-   │
-   ├── 2A: SEO analysis (qwen-turbo-latest) ──┐
-   │                                          │  parallel
-   ├── 2B: Content/UX analysis (qwen-turbo-latest)
-   │
-   └── 2C: Synthesis (qwen-plus)
-          merges both, removes duplicates, ranks by business impact
-   │
-   ▼
-Prompt Logger — full trace per layer
+No API key is required for deterministic audits. See [optional configuration](apps/web/.env.example). Copy that file to `apps/web/.env` for Vite development. For CLI use, export variables in your shell or put them in the root `.env` loaded by Bun. Leave unused optional variables unset.
+
+```sh
+# Exports report.json and fix-prompt.md under .audits/
+bun run audit https://example.com --pages 5 --render never
+
+bun run checks
+bun apps/cli/src/index.ts verify https://example.com --ids seo.title.present --render never
+
+# Requires OPENROUTER_API_KEY or LLM_API_KEY
+bun run audit https://example.com --pages 5 --render never --llm
 ```
 
-## Deliverables
+Browser rendering requires Chromium:
 
-### 1. Factual Metrics
-
-Extracted from HTML, no AI involved, clearly separated from insights 
-in the UI:
-
-| Metric | Source |
-|--------|--------|
-| Total word count | Body text, scripts and styles stripped |
-| Heading counts (H1–H3) | DOM traversal |
-| CTA count | Keyword scan on `<a>` and `<button>` text + `input[type=submit]` |
-| Internal / external links | Hostname comparison, www-normalized |
-| Images + % missing alt text | `<img>` tag analysis |
-| Meta title + description | `<title>` and `<meta name="description">` |
-
-### 2. AI Insights
-
-The AI receives structured metrics and pre-interpreted signals — never 
-raw HTML. Each insight covers all five dimensions the brief specifies:
-
-- SEO structure
-- Messaging clarity
-- CTA usage
-- Content depth
-- UX and structural concerns
-
-Every insight references at least one specific metric value by design — 
-the system prompt rejects any output that restates numbers without 
-analysis.
-
-### 3. Recommendations
-
-3–5 actions ranked by business impact, each tied to a specific metric 
-and specific enough for a developer or copywriter to act on directly.
-
-### 4. Prompt Logs
-
-Click **View Prompt Log** in the top-right corner:
-
-- **System** — system prompts for each model layer
-- **User** — user prompts as actually sent (all 3 layers)
-- **Input** — full metrics + signals JSON the AI received
-- **Output** — raw model responses before parsing
-
-## AI Design Decisions
-
-**Why 3 calls instead of one?**
-
-A single prompt covering SEO, content, and synthesis produces generic 
-output. Splitting them gives each model a focused brief with only the 
-relevant metrics. Layers 2A and 2B run in parallel, so total time is 
-roughly max(A, B) + C rather than A + B + C.
-
-**Why interpret metrics before sending to the AI?**
-
-The signal engine converts raw numbers into categories (thin / moderate 
-/ deep, valid / invalid) first. The model then reasons about what they 
-mean rather than re-deriving benchmarks it already knows.
-
-**Why put actual copy in the prompt?**
-
-The title, H1, H2 samples, and CTA text are surfaced explicitly in the 
-prompt. A model that can read "H1: 51 Excellent One Page Website 
-Examples..." can evaluate that copy — not just report its character count.
-
-## Trade-offs
-
-| Decision | Why | Cost |
-|----------|-----|------|
-| Cheerio over Puppeteer | Fast, no browser, deterministic | Misses JS-rendered content — SPAs show partial metrics |
-| `head > title` selector | Avoids picking up SVG `<title>` elements (e.g. logo carousels inflate the title string) | Relies on well-formed HTML with title in `<head>` |
-| Heading selectors exclude `svg *` | SVGs can contain `<h1>`–`<h6>` tags that aren't page headings | Same assumption about standard HTML structure |
-| 3 AI calls | Each layer stays focused | More orchestration; parallel execution offsets most of the latency |
-| Keyword-list CTA detection | No latency, no extra API cost | Misses unusual copy like "Claim Your Spot" |
-| Condensed prompt | ~75% fewer tokens | AI can't assess body copy tone directly |
-| Zod + retry | Catches malformed JSON automatically | One extra API call if validation fails |
-
-## What I'd Fix With More Time
-
-- **JS rendering** — the biggest gap. Tested against eight25media.com 
-  and the scraper returned 354 words — far below the real content count 
-  because most of the page is JS-rendered. `dynamicContentSuspected` 
-  also returned false, meaning the flag doesn't catch all cases. 
-  Playwright would fix this.
-- **TTFB as an actionable insight** — the signal engine correctly 
-  captures TTFB (eight25media returned 1808ms, above the 1500ms "poor" 
-  threshold) but no AI layer currently surfaces it as an insight. It 
-  should feed into Layer 2A as a performance finding.
-- **Dynamic CTA detection** — cosine similarity against a CTA prototype 
-  vector instead of a fixed keyword list; catches unusual copy like 
-  "Claim Your Spot"
-- **Streaming** — show Layer 2A/2B results as they arrive rather than 
-  waiting for synthesis
-- **Visual audit** — screenshot + vision model for layout, 
-  above-the-fold content, and visual CTA hierarchy
-- **Comparative audits** — diff two URLs side by side
-
-## API
-```
-POST /api/audit
-Body: { "url": "https://example.com" }
-
-Returns: metrics, signals, insights, recommendations, promptLog
-
-Error codes: 400 invalid URL · 401 bad API key · 502 target unreachable · 500 server error
+```sh
+bun packages/crawler/node_modules/playwright-core/cli.js install chromium-headless-shell
+bun run audit https://example.com --pages 5 --render always --renderer chromium
 ```
 
-## Stack
+See [crawler setup](packages/crawler/README.md) for CDP and Lightpanda. Web rendering additionally requires `ENABLE_BROWSER=true`. Probes need `PROBE_QUERIES` and a provider model with the desired retrieval capabilities. Citation samples describe those particular runs; they are not universal visibility or ranking scores.
 
-Next.js 16 · TypeScript · Tailwind CSS v4 · axios · cheerio · 
-OpenAI SDK · Zod
+## Workspaces
 
-## Environment
+| Path | Purpose |
+| --- | --- |
+| `packages/core` | Check contracts, scoring, extraction, deterministic checks, SSRF-safe fetch |
+| `packages/crawler` | Bounded crawling, sitemaps, raw and rendered snapshots |
+| `packages/llm` | OpenRouter/OpenAI-compatible judgments, usage and prompt traces |
+| `packages/integrations` | GSC, Bing, IndexNow helpers, Brave and visibility probes |
+| `packages/prompt` | Consolidated fix plans with evidence and verification commands |
+| `packages/engine` | Shared CLI/web orchestration |
+| `apps/cli` | Audit, checks, verify and prompt commands |
+| `apps/web` | TanStack Start UI, audit queue and SSE endpoints |
 
-| Variable | Description |
-|----------|-------------|
-| `DASHSCOPE_API_KEY` | Qwen models via DashScope (OpenAI-compatible) |
+The previous Next.js app remains in `src/`, available through `bun run dev:legacy`.
+
+## Verify changes
+
+```sh
+bun run typecheck
+bun run test
+bun run build
+```
+
+Missing capabilities are reported as skips and excluded from scoring. LLM judgments and heuristic scores cannot establish rankings or conversion lift. Fix prompts preserve routes, factual claims, private-path restrictions and operator choices about training bots.
+
+The web queue, reports and rate limiter currently live in one process and reset on restart. Use durable storage and a shared rate limiter before running multiple instances. GSC uses a supplied access token; an interactive OAuth UI is not implemented. See [engineering conventions](docs/ENGINEERING.md), [web API notes](apps/web/README.md), and [bookmark research](docs/research/bookmarks/integration.md).

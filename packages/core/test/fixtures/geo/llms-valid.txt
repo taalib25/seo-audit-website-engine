@@ -1,0 +1,12 @@
+# Acme Robotics
+
+> Warehouse robot grippers, documented.
+
+## Documentation
+
+- [Getting started](https://example.com/docs/start): Install guide.
+- [API reference](https://example.com/docs/api)
+
+## Optional
+
+- [Blog](https://example.com/blog)

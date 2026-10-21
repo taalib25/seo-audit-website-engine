@@ -1,0 +1,13 @@
+{
+  "name": "@aeo/cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": { "aeo": "./src/index.ts" },
+  "scripts": { "typecheck": "tsc --noEmit -p .", "test": "bun test" },
+  "dependencies": {
+    "@aeo/core": "workspace:*", "@aeo/engine": "workspace:*", "@aeo/crawler": "workspace:*", "@aeo/llm": "workspace:*", "@aeo/integrations": "workspace:*",
+    "@aeo/prompt": "workspace:*", "@commander-js/extra-typings": "^14.0.0", "commander": "^15.0.0", "zod": "^4.3.6"
+  },
+  "devDependencies": { "@types/node": "^22", "typescript": "^5" }
+}

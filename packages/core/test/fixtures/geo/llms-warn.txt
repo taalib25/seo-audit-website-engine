@@ -1,0 +1,5 @@
+# Acme Robotics
+
+## Documentation
+
+- [Getting started](/docs/start)
