@@ -55,7 +55,7 @@ export function AuditChecklist({ results, running = false, replay = false, liveR
   });
 
   return <section className="checklist-panel" aria-label="Audit checklist" data-large={results.length > 150} data-scrollable={results.length > 12}>
-    <div className="checklist-heading"><div><h2>Live checklist</h2><p>{running ? "Checks are resolving as the audit runs" : `${completedCount} of ${results.length} checks complete`}</p></div><span className={`live-indicator ${running ? "is-live" : ""}`}><i />{running ? "LIVE" : "SETTLED"}</span></div>
+    <div className="checklist-heading"><div><h2>Checklist</h2><p>{running ? `${completedCount} of ${results.length} checks complete` : `${completedCount} of ${results.length} complete`}</p></div><span className={`live-indicator ${running ? "is-live" : ""}`}><i />{running ? "LIVE" : "DONE"}</span></div>
     <div className="pillar-progress-grid">{pillarStats.map(({ pillar, rows, done }) => <div className="pillar-progress" key={pillar} aria-live="polite"><div className="pillar-progress-label"><span>{pillarNames[pillar]}</span><span>{done}/{rows.length} done</span></div><div className="pillar-track"><i style={{ transform: `scaleX(${rows.length ? done / rows.length : 0})` }} /></div>{rows.length > 0 && done === rows.length && <span className="sr-only">{pillarNames[pillar]} checks complete</span>}</div>)}</div>
     <div ref={listRef} className="checklist-scroll" onScroll={(event) => { const target = event.currentTarget; userPausedScroll.current = target.scrollHeight - target.scrollTop - target.clientHeight > 48; }}>
       {pillars.map((pillar) => {

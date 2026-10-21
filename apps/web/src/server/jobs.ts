@@ -105,8 +105,17 @@ export class InProcessQueue {
 
 // Swap this process-local store and queue for a DB-backed JobStore + BullMQ/Redis
 // queue in multi-instance deployments. Persist the event sequence for SSE resume.
-export const jobStore: JobStore = new MemoryJobStore();
-export const auditQueue = new InProcessQueue(2);
+declare global {
+  var __aeoAuditRuntime: { jobStore: JobStore; auditQueue: InProcessQueue } | undefined;
+}
+
+const runtime = globalThis.__aeoAuditRuntime ??= {
+  jobStore: new MemoryJobStore(),
+  auditQueue: new InProcessQueue(2),
+};
+
+export const jobStore = runtime.jobStore;
+export const auditQueue = runtime.auditQueue;
 
 export function emitProgress(id: string, stage: string, progress: number) {
   jobStore.update(id, { status: "running", stage, progress });

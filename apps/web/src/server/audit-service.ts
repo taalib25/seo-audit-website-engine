@@ -11,6 +11,17 @@ export const CreateAuditSchema = z.object({
   probe: z.boolean().default(false),
 }).strict();
 
+export function auditFailureReason(error: unknown): string {
+  if (error instanceof JobCapacityError || (error instanceof Error && error.name === "JobCapacityError")) return "The audit exceeded temporary storage limits. Try auditing fewer pages.";
+  if (error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError" || /timed out|crawl budget exhausted/i.test(error.message))) {
+    return "The site did not finish responding within the audit time limits. Try again later or audit fewer pages.";
+  }
+  if (error instanceof Error && /byte limit|response too large/i.test(error.message)) {
+    return "The site response exceeded the audit size limit. Try auditing fewer pages.";
+  }
+  return "The audit could not be completed. Try again later.";
+}
+
 export async function createAudit(input: unknown, pipeline: AuditPipeline = { run: runPipeline }, env: NodeJS.ProcessEnv = process.env): Promise<AuditJob> {
   const requested = CreateAuditSchema.parse(input);
   assertSafeUrl(requested.url);
@@ -36,9 +47,10 @@ export async function createAudit(input: unknown, pipeline: AuditPipeline = { ru
       const result = await pipeline.run(job, (stage, progress) => emitProgress(job.id, stage, progress), (event) => { jobStore.addEvent(job.id, "engine", event as unknown as Record<string, unknown>); }, AbortSignal.timeout(5 * 60_000));
       jobStore.update(job.id, { status: "complete", stage: "Complete", progress: 100, report: result.report, prompt: result.prompt, traces: result.traces, usage: result.usage });
       jobStore.addEvent(job.id, "complete", { progress: 100 });
-    } catch {
-      jobStore.update(job.id, { status: "failed", stage: "Failed", error: "Audit could not be completed" });
-      jobStore.addEvent(job.id, "error", { message: "Audit could not be completed" });
+    } catch (error) {
+      const message = auditFailureReason(error);
+      jobStore.update(job.id, { status: "failed", stage: "Failed", error: message });
+      jobStore.addEvent(job.id, "error", { message });
     }
   });
   return job;

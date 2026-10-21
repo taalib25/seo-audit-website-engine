@@ -15,7 +15,7 @@ export const Route = createFileRoute("/api/audits/")({
         return json({ id: job.id, capabilityNotes: job.capabilityNotes }, 202);
       } catch (error) {
         if (error instanceof RequestBodyTooLargeError) return json({ error: "Audit request is too large." }, 413);
-        if (error instanceof JobCapacityError) return json({ error: "Audit capacity is full. Try again shortly." }, 503, { "Retry-After": "15" });
+        if (error instanceof JobCapacityError || (error instanceof Error && error.name === "JobCapacityError")) return json({ error: "Audit capacity is full. Try again shortly." }, 503, { "Retry-After": "15" });
         if (error instanceof ZodError) return json({ error: "Invalid audit request." }, 400);
         return json({ error: "Audit could not be started." }, 400);
       }

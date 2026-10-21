@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { InProcessQueue, JobCapacityError, MemoryJobStore, type AuditOptions } from "./jobs";
+import { auditQueue, InProcessQueue, JobCapacityError, jobStore, MemoryJobStore, type AuditOptions } from "./jobs";
 
 const options: AuditOptions = { url: "https://example.test/", maxPages: 1, render: false, llm: false, probe: false };
 const limits = { maxJobs: 2, ttlMs: 1000, maxBytes: 20_000, maxJobBytes: 10_000 };
@@ -64,5 +64,21 @@ describe("bounded audit jobs", () => {
     rejectFirst(new Error("fixture failure"));
     await vi.waitFor(() => expect(started).toEqual([1, 2]));
     await vi.waitFor(() => expect(queue.hasCapacity()).toBe(true));
+  });
+
+  it("keeps audit jobs and scheduler state across a server module reload", async () => {
+    const job = jobStore.create(options);
+    jobStore.update(job.id, { status: "running", progress: 55 });
+    const originalStore = jobStore;
+    const originalQueue = auditQueue;
+
+    vi.resetModules();
+    const reloaded = await import("./jobs");
+
+    expect(reloaded.jobStore).toBe(originalStore);
+    expect(reloaded.auditQueue).toBe(originalQueue);
+    expect(reloaded.jobStore.get(job.id)).toMatchObject({ status: "running", progress: 55 });
+    reloaded.jobStore.update(job.id, { status: "complete" });
+    expect(reloaded.jobStore.get(job.id)?.status).toBe("complete");
   });
 });
