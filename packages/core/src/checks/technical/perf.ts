@@ -73,7 +73,29 @@ export const labLcpProxy = definePageCheck({
     "Lab runs find regressions before enough field traffic exists.",
     "https://web.dev/articles/lcp",
   ),
-  run: () => skip("Snapshot does not include repeated lab LCP measurements."),
+  run: ({ page: p }) => {
+    if (!p.renderedHtml) return skip("Rendered DOM is unavailable.");
+    const lcp = p.renderMetrics?.lcpMs;
+    if (lcp === undefined)
+      return skip(
+        "LCP was not captured during the single render; no lab verdict is inferred.",
+      );
+    const ev = {
+      lcpMs: lcp,
+      measuredScope: "single lab render (load only); field p75 is not inferred",
+    };
+    if (lcp <= 2_500)
+      return pass(`Lab LCP is ${lcp} ms, below the 2,500 ms good threshold.`, {
+        evidence: ev,
+      });
+    if (lcp <= 4_000)
+      return warn(`Lab LCP is ${lcp} ms, between 2,500 and 4,000 ms.`, {
+        evidence: ev,
+      });
+    return fail(`Lab LCP is ${lcp} ms, above the 4,000 ms poor threshold.`, {
+      evidence: ev,
+    });
+  },
 });
 
 export const longTaskProxy = definePageCheck({
@@ -89,6 +111,19 @@ export const longTaskProxy = definePageCheck({
   ),
   run: ({ page: p, dom }) => {
     if (!p.renderedHtml) return skip("Rendered DOM is unavailable.");
+    const measured = p.renderMetrics?.longTasks;
+    if (measured !== undefined) {
+      const ev = { longTasks: measured, measuredScope: "single lab render (load only)" };
+      return measured === 0
+        ? pass("No long tasks ran during the lab render.", { evidence: ev })
+        : measured <= 5
+          ? warn(`${measured} long task(s) ran during the lab render.`, {
+              evidence: ev,
+            })
+          : fail(`${measured} long tasks ran during the lab render; the main thread is frequently blocked.`, {
+              evidence: ev,
+            });
+    }
     const scripts = dom()("script")
       .toArray()
       .filter(

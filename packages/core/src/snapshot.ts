@@ -8,6 +8,14 @@ export interface FetchTiming {
   totalMs: number;
 }
 
+/** Metrics captured while the browser renderer loaded the page. */
+export interface RenderMetrics {
+  lcpMs?: number;
+  cls?: number;
+  longTasks?: number;
+  consoleErrors: number;
+}
+
 export interface PageSnapshot {
   /** URL as requested (normalized). */
   url: string;
@@ -26,6 +34,8 @@ export interface PageSnapshot {
   depth: number;
   /** Name of the renderer that produced renderedHtml, e.g. "lightpanda". */
   renderer?: string;
+  /** Rendering observability (rendering ran but browser metrics may still be partial). */
+  renderMetrics?: RenderMetrics;
 }
 
 export interface TextFile {

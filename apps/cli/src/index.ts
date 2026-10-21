@@ -6,10 +6,13 @@ import { Command } from "@commander-js/extra-typings";
 import { AuditReport } from "@aeo/core";
 import { buildFixPrompt } from "@aeo/prompt";
 import { executeAudit, listChecks, pillarsFrom } from "./engine.ts";
-import { AuditFlags, defaultVerificationPages, estimateProbeSpend, verificationPassed } from "./options.ts";
+import { defaultVerificationPages, estimateProbeSpend, parseAuditFlags, verificationPassed } from "./options.ts";
+import { EXIT_CODES, exitCodeForCommanderError } from "./exit-codes.ts";
 
-export const EXIT_CODES = { success: 0, auditFindings: 1, usage: 2, runtime: 3, probeConfirmation: 4 } as const;
+export { EXIT_CODES };
 const program = new Command().name("aeo").description("SEO/AEO/GEO site auditing").showHelpAfterError();
+// Usage errors must not be reported as audit findings: they exit with the usage code.
+program.exitOverride();
 function confirmProbeSpend(enabled: boolean | undefined, confirmed: boolean | undefined): boolean {
   if (!enabled) return true;
   const estimate = estimateProbeSpend(process.env);
@@ -36,7 +39,9 @@ program.command("audit <url>")
   .option("--yes", "confirm estimated probe spend")
   .action(async (url: string, opts: { pages: string; render: string; renderer?: string; cdpUrl?: string; llm?: boolean; probe?: boolean; pillars: string; json?: boolean; out: string; prompt?: boolean; yes?: boolean }) => {
     try {
-      const flags = AuditFlags.parse(opts);
+      const parsedFlags = parseAuditFlags(opts);
+      if (!parsedFlags.ok) { console.error(`Invalid options: ${parsedFlags.message}`); process.exitCode = EXIT_CODES.usage; return; }
+      const flags = parsedFlags.flags;
       if (!confirmProbeSpend(opts.probe, opts.yes)) return;
       const report = await executeAudit(url, { pages: flags.pages, render: flags.render, ...(flags.renderer ? { renderer: flags.renderer } : {}), ...(opts.cdpUrl ? { cdpUrl: opts.cdpUrl } : {}), llm: opts.llm ?? false, probe: opts.probe ?? false, pillars: pillarsFrom(opts.pillars) });
       const promptText = buildFixPrompt(report).markdown;
@@ -67,7 +72,9 @@ program.command("verify <url>")
       const all = await listChecks();
       const selected = ids.map((id) => all.find((check) => check.id === id)).filter((check) => check !== undefined);
       if (selected.length !== ids.length) { console.error(`Unknown check id(s): ${ids.filter((id) => !selected.some((check) => check.id === id)).join(", ")}`); process.exitCode = EXIT_CODES.usage; return; }
-      const flags = AuditFlags.parse({ ...opts, pages: opts.pages ?? defaultVerificationPages(selected) });
+      const parsedFlags = parseAuditFlags({ ...opts, pages: opts.pages ?? defaultVerificationPages(selected) });
+      if (!parsedFlags.ok) { console.error(`Invalid options: ${parsedFlags.message}`); process.exitCode = EXIT_CODES.usage; return; }
+      const flags = parsedFlags.flags;
       if (!confirmProbeSpend(opts.probe, opts.yes)) return;
       const report = await executeAudit(url, { pages: flags.pages, render: flags.render, ...(flags.renderer ? { renderer: flags.renderer } : {}), ...(opts.cdpUrl ? { cdpUrl: opts.cdpUrl } : {}), llm: opts.llm ?? false, probe: opts.probe ?? false, pillars: [...new Set(selected.map((check) => check.pillar))], ids });
       for (const result of report.results) process.stdout.write(`${result.id}\t${result.status}\t${result.message}\n`);
@@ -96,5 +103,10 @@ function printSummary(report: AuditReport, colors: boolean): void {
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const colors = process.env.NO_COLOR === undefined && process.stdout.isTTY;
   if (!colors) process.env.FORCE_COLOR = "0";
-  void program.parseAsync(process.argv);
+  void program.parseAsync(process.argv).catch((error: unknown) => {
+    const code = exitCodeForCommanderError(error);
+    // Commander already reported usage problems; only unexpected failures need a message.
+    if (code === EXIT_CODES.runtime) console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = code;
+  });
 }

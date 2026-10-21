@@ -495,6 +495,16 @@ exports[`fix prompt > matches the stable prompt snapshot > small report 1`] = `
 - Top issue 3: None
 - Estimated effort: 50 minutes across 2 prioritized tasks.
 
+## What AI agents can see
+
+| Agent | Coverage | Blocked |
+| --- | --- | --- |
+| OAI-SearchBot | 42% | no |
+| GPTBot | 100% | 1 page(s) |
+| browser | 100% | no |
+
+Lowest search/user-fetch coverage: **42%** (OAI-SearchBot). Not visible to non-JS agents: "Our story", "Leadership team". Server-render or pre-render that content in the served HTML, or allow blocked agents in robots.txt.
+
 # SEO/AEO/GEO fix plan — example.com
 
 You are working in the repository for **https://example.com**. Apply tasks in order. Do not invent extra work.

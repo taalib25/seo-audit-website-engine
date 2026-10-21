@@ -1,4 +1,4 @@
-import { isIP } from "node:net";
+import { clientIdentity } from "./client-ip";
 
 export class RequestBodyTooLargeError extends Error {}
 
@@ -40,6 +40,5 @@ export function secureResponse(body: BodyInit | null, init: ResponseInit = {}): 
 }
 
 export function clientIp(request: Request, trustProxy = process.env.TRUST_PROXY === "true"): string {
-  const forwarded = trustProxy ? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() : undefined;
-  return forwarded && isIP(forwarded) ? forwarded : "unknown";
+  return clientIdentity.ip(request, trustProxy);
 }

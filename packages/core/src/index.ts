@@ -3,6 +3,7 @@ export * from "./snapshot.ts";
 export * from "./check.ts";
 export * from "./registry.ts";
 export * from "./report.ts";
+export * from "./agent-view.ts";
 export * from "./scoring.ts";
 export * from "./runner.ts";
 export * from "./net/ip-guard.ts";

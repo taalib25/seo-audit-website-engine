@@ -25,3 +25,9 @@ export class MemoryTokenBucket implements RateLimiter {
 const burst = Number(process.env.RATE_LIMIT_BURST ?? 5);
 const refillMs = Number(process.env.RATE_LIMIT_REFILL_MS ?? 12_000);
 export const rateLimiter: RateLimiter = new MemoryTokenBucket(Number.isFinite(burst) && burst > 0 ? burst : 5, Number.isFinite(refillMs) && refillMs > 0 ? refillMs : 12_000);
+
+// Read routes are far more frequent than audit submissions, so they get their
+// own, more generous bucket instead of competing with the write limiter.
+const readBurst = Number(process.env.RATE_LIMIT_READ_BURST ?? 60);
+const readRefillMs = Number(process.env.RATE_LIMIT_READ_REFILL_MS ?? 1000);
+export const readRateLimiter: RateLimiter = new MemoryTokenBucket(Number.isFinite(readBurst) && readBurst > 0 ? readBurst : 60, Number.isFinite(readRefillMs) && readRefillMs > 0 ? readRefillMs : 1000);

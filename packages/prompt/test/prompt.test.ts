@@ -7,6 +7,17 @@ const report: AuditReport = {
   schemaVersion: 1, id: "fixture-report", startUrl: "https://example.com", origin: "https://example.com",
   createdAt: "2026-10-20T00:00:00.000Z", durationMs: 10, pagesCrawled: 2, capabilities: [],
   scores: { overall: 60, pillars: [] }, stack: ["Next.js App Router"],
+  agentView: {
+    estimated: false,
+    agents: [
+      { agent: "OAI-SearchBot", vendor: "OpenAI", purpose: "search", executesJs: false, coverage: 0.42, pagesBlocked: 0 },
+      { agent: "GPTBot", vendor: "OpenAI", purpose: "training", executesJs: false, coverage: 1, pagesBlocked: 1 },
+      { agent: "browser", vendor: "Browser", purpose: "browser", executesJs: true, coverage: 1, pagesBlocked: 0 },
+    ],
+    pages: [
+      { url: "https://example.com/about", agent: "OAI-SearchBot", executesJs: false, allowedByRobots: true, wordsSeen: 42, wordsTotal: 100, coverage: 0.42, headingsSeen: 1, headingsTotal: 3, linksSeen: 0, linksTotal: 2, jsonLdSeen: false, excerpt: "About us", missing: ["Our story", "Leadership team"] },
+    ],
+  },
   results: [
     { id: "seo.title.length", pillar: "seo", category: "on-page", kind: "deterministic", severity: "high", status: "fail", score: 0, title: "Title too long", message: "Title is 82 characters.", url: "https://example.com/about", evidence: { length: 82 }, fix: { summary: "Shorten the title to 60 characters.", snippet: "export const metadata = { title: 'About' };", snippetLang: "ts" } },
     { id: "geo.llms.missing", pillar: "geo", category: "site", kind: "deterministic", severity: "medium", status: "warn", score: 0.5, title: "Missing llms.txt", message: "llms.txt returned 404.", evidence: { status: 404 }, fix: { summary: "Publish a concise llms.txt." } },
@@ -16,6 +27,19 @@ const report: AuditReport = {
 describe("fix prompt", () => {
   it("matches the stable prompt snapshot", () => {
     expect(buildFixPrompt(report).markdown).toMatchSnapshot("small report");
+  });
+  it("summarizes what AI agents can see near the top", () => {
+    const markdown = buildFixPrompt(report).markdown;
+    expect(markdown).toContain("## What AI agents can see");
+    expect(markdown).toContain("| Agent | Coverage | Blocked |");
+    expect(markdown).toContain("| OAI-SearchBot | 42% | no |");
+    expect(markdown).toContain("| GPTBot | 100% | 1 page(s) |");
+    expect(markdown).toContain('"Our story", "Leadership team"');
+    expect(markdown.indexOf("## What AI agents can see")).toBeLessThan(markdown.indexOf("# SEO/AEO/GEO fix plan"));
+  });
+  it("omits the agent-view section when no view was measured", () => {
+    const { agentView: _agentView, ...withoutAgentView } = report;
+    expect(buildFixPrompt(withoutAgentView).markdown).not.toContain("## What AI agents can see");
   });
   it("matches the real eight25media prompt snapshot and stays concise", () => {
     const generated = buildFixPrompt(eight25Report as AuditReport);

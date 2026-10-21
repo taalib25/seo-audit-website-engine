@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { MemoryTokenBucket } from "./rate-limit";
+import { MemoryTokenBucket, readRateLimiter, rateLimiter } from "./rate-limit";
 
 describe("MemoryTokenBucket", () => {
   it("allows a burst of five, blocks the sixth, and refills over time", () => {
@@ -22,5 +22,12 @@ describe("MemoryTokenBucket", () => {
       vi.advanceTimersByTime(1000);
       expect(limiter.take("c")).toBe(true);
     } finally { vi.useRealTimers(); }
+  });
+
+  it("gives read routes a separate, more generous bucket than write routes", () => {
+    for (let index = 0; index < 5; index++) expect(rateLimiter.take("shared-client")).toBe(true);
+    expect(rateLimiter.take("shared-client")).toBe(false);
+    for (let index = 0; index < 5; index++) expect(readRateLimiter.take("shared-client")).toBe(true);
+    expect(readRateLimiter.take("shared-client")).toBe(true);
   });
 });

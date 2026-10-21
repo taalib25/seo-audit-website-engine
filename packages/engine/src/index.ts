@@ -1,4 +1,4 @@
-import { CheckRegistry, builtinChecks, runAudit, type AuditReport, type Check, type CheckResult, type Pillar, type Services } from "@aeo/core";
+import { CheckRegistry, builtinChecks, computeAgentView, runAudit, type AuditReport, type Check, type CheckResult, type Pillar, type Services } from "@aeo/core";
 import { buildServices, integrationChecks } from "@aeo/integrations";
 import { createLlmClient, llmChecks, loadLlmConfig, type ConfiguredLlmClient, type PromptTrace, type UsageSummary } from "@aeo/llm";
 import { buildFixPrompt, type FixTask } from "@aeo/prompt";
@@ -98,6 +98,7 @@ export async function runFullAudit(input: FullAuditInput, deps: EngineDependenci
       signal,
       onResult: (result) => input.onProgress?.({ type: "check:result", id: result.id, status: result.status, title: result.title, result }),
     });
+    report.agentView = computeAgentView(site);
     const prompt = buildFixPrompt(report);
     const usage = client?.getUsage() ?? emptyUsage();
     input.onProgress?.({ type: "llm:usage", usage });

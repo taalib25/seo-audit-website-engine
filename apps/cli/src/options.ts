@@ -7,6 +7,15 @@ export const AuditFlags = z.object({
   renderer: z.enum(["chromium", "lightpanda", "cdp"]).optional(),
 });
 
+export type AuditFlagResult = { ok: true; flags: z.infer<typeof AuditFlags> } | { ok: false; message: string };
+
+/** Parses CLI flags into a discriminated result so invalid options can exit with the usage code. */
+export function parseAuditFlags(input: unknown): AuditFlagResult {
+  const parsed = AuditFlags.safeParse(input);
+  if (parsed.success) return { ok: true, flags: parsed.data };
+  return { ok: false, message: parsed.error.issues.map((issue) => `${issue.path.join(".") || "option"}: ${issue.message}`).join("; ") };
+}
+
 export function defaultVerificationPages(checks: readonly Pick<Check, "scope">[]): number {
   return checks.every((check) => check.scope === "page") ? 1 : 20;
 }

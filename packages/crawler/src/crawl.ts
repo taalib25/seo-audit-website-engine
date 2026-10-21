@@ -8,6 +8,7 @@ import {
   HttpRenderer,
   LightpandaRenderer,
   PlaywrightRenderer,
+  type RenderResult,
   type Renderer,
   type RendererMode,
 } from "./renderers.ts";
@@ -224,6 +225,13 @@ export async function crawlSite(startUrl: string, opts: CrawlOptions = {}): Prom
   };
   let pageAttempts = 0;
 
+  const metricsFor = (result: RenderResult): PageSnapshot["renderMetrics"] => ({
+    ...(result.renderTiming?.lcpMs === undefined ? {} : { lcpMs: result.renderTiming.lcpMs }),
+    ...(result.renderTiming?.cls === undefined ? {} : { cls: result.renderTiming.cls }),
+    ...(result.renderTiming?.longTasks === undefined ? {} : { longTasks: result.renderTiming.longTasks }),
+    consoleErrors: result.consoleErrors,
+  });
+
   const crawlOne = async (item: QueueEntry): Promise<{ page?: PageSnapshot; children: QueueEntry[] }> => {
     if (signal.aborted || performance.now() - started >= totalBudgetMs) {
       uncrawled.add(item.url); return { children: [] };
@@ -273,21 +281,22 @@ export async function crawlSite(startUrl: string, opts: CrawlOptions = {}): Prom
     let renderedHtml: string | undefined;
     let rendererName: string | undefined;
     let renderedBase: string | undefined;
+    let renderMetrics: PageSnapshot["renderMetrics"];
     if (opts.render === "always" || (opts.render !== "never" && needsRendering(response.body))) {
       const useRenderer = selectedRenderer.mode === "none" ? undefined : selectedRenderer;
       if (useRenderer) {
         try {
           signal.throwIfAborted();
           const rendered = await useRenderer.render({ url: item.url, timeoutMs: Math.min(timeoutMs, Math.max(1, Math.ceil(totalBudgetMs - (performance.now() - started)))), userAgent, signal, guardedFetch: fetch });
-          if (rendered.renderedHtml?.trim()) { renderedHtml = rendered.renderedHtml; rendererName = rendered.renderer ?? useRenderer.mode; renderedBase = inScope(rendered.finalUrl) ? rendered.finalUrl : undefined; }
+          if (rendered.renderedHtml?.trim()) { renderedHtml = rendered.renderedHtml; rendererName = rendered.renderer ?? useRenderer.mode; renderedBase = inScope(rendered.finalUrl) ? rendered.finalUrl : undefined; renderMetrics = metricsFor(rendered); }
           if ((!renderedHtml || renderedHtml.length < 100) && useRenderer.mode !== "chromium") {
             const result = await tryChromiumFallback(item.url);
-            if (result?.renderedHtml?.trim()) { renderedHtml = result.renderedHtml; rendererName = "chromium"; renderedBase = inScope(result.finalUrl) ? result.finalUrl : undefined; }
+            if (result?.renderedHtml?.trim()) { renderedHtml = result.renderedHtml; rendererName = "chromium"; renderedBase = inScope(result.finalUrl) ? result.finalUrl : undefined; renderMetrics = metricsFor(result); }
           }
         } catch {
           if (useRenderer.mode !== "chromium") {
             const result = await tryChromiumFallback(item.url);
-            if (result?.renderedHtml?.trim()) { renderedHtml = result.renderedHtml; rendererName = "chromium"; renderedBase = inScope(result.finalUrl) ? result.finalUrl : undefined; }
+            if (result?.renderedHtml?.trim()) { renderedHtml = result.renderedHtml; rendererName = "chromium"; renderedBase = inScope(result.finalUrl) ? result.finalUrl : undefined; renderMetrics = metricsFor(result); }
           }
         }
       }
@@ -299,6 +308,7 @@ export async function crawlSite(startUrl: string, opts: CrawlOptions = {}): Prom
         redirectChain: response.redirectChain, headers: response.headers, rawHtml: response.body,
         ...(renderedHtml ? { renderedHtml } : {}), timing: response.timing, depth: item.depth,
         ...(rendererName ? { renderer: rendererName } : {}),
+        ...(renderMetrics ? { renderMetrics } : {}),
       },
       children,
     };

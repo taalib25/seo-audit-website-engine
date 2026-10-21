@@ -20,7 +20,13 @@ export interface RenderResult extends SafeResponse {
   renderedHtml?: string;
   renderer?: string;
   consoleErrors: number;
-  renderTiming?: { navigationMs: number; domReadyMs: number; lcpMs?: number; cls?: number };
+  renderTiming?: {
+    navigationMs: number;
+    domReadyMs: number;
+    lcpMs?: number;
+    cls?: number;
+    longTasks?: number;
+  };
 }
 
 export interface Renderer {
@@ -179,8 +185,8 @@ abstract class CdpBrowserRenderer implements Renderer {
           page.on("console", (message: ConsoleMessage) => { if (message.type() === "error") consoleErrors++; });
           page.on("pageerror", () => { consoleErrors++; });
           await page.addInitScript(() => {
-            const w = globalThis as unknown as { __aeoMetrics?: { lcp?: number; cls: number } };
-            w.__aeoMetrics = { cls: 0 };
+            const w = globalThis as unknown as { __aeoMetrics?: { lcp?: number; cls: number; longTasks: number } };
+            w.__aeoMetrics = { cls: 0, longTasks: 0 };
             try {
               const Observer = (globalThis as unknown as { PerformanceObserver: new (callback: (list: { getEntries(): Array<{ startTime: number }> }) => void) => { observe(options: { type: string; buffered: boolean }): void } }).PerformanceObserver;
               new Observer((list) => {
@@ -194,7 +200,12 @@ abstract class CdpBrowserRenderer implements Renderer {
                 for (const entry of list.getEntries()) {
                   if (!entry.hadRecentInput) w.__aeoMetrics.cls += entry.value ?? 0;
                 }
-              }).observe({ type: "layout-shift", buffered: true });
+                }).observe({ type: "layout-shift", buffered: true });
+              const LongTaskObserver = (globalThis as unknown as { PerformanceObserver: new (callback: (list: { getEntries(): unknown[] }) => void) => { observe(options: { type: string; buffered: boolean }): void } }).PerformanceObserver;
+              new LongTaskObserver((list) => {
+                if (!w.__aeoMetrics) return;
+                w.__aeoMetrics.longTasks += list.getEntries().length;
+              }).observe({ type: "longtask", buffered: true });
             } catch { /* PerformanceObserver types vary by browser. */ }
           });
           const started = performance.now();
@@ -203,7 +214,7 @@ abstract class CdpBrowserRenderer implements Renderer {
           // Bounded network quiet approximation: allow hydration a short window, but never wait on analytics forever.
           await page.waitForLoadState("networkidle", { timeout: Math.min(2_000, request.timeoutMs ?? 15_000) }).catch(() => undefined);
           const renderedHtml = await page.locator("html").evaluate((element: { outerHTML: string }) => element.outerHTML);
-          const metrics = await page.evaluate(() => (globalThis as unknown as { __aeoMetrics?: { lcp?: number; cls: number } }).__aeoMetrics);
+          const metrics = await page.evaluate(() => (globalThis as unknown as { __aeoMetrics?: { lcp?: number; cls: number; longTasks: number } }).__aeoMetrics);
           signal.throwIfAborted();
           return {
             ...raw,
@@ -216,6 +227,7 @@ abstract class CdpBrowserRenderer implements Renderer {
               domReadyMs,
               ...(metrics?.lcp === undefined ? {} : { lcpMs: Math.round(metrics.lcp) }),
               ...(metrics === undefined ? {} : { cls: metrics.cls }),
+              ...(metrics?.longTasks === undefined ? {} : { longTasks: metrics.longTasks }),
             },
           };
         } finally {

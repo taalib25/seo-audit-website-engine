@@ -1,6 +1,7 @@
 import http from "node:http";
 import { gzipSync } from "node:zlib";
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { chromium } from "playwright-core";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { safeFetch } from "@aeo/core";
@@ -63,6 +64,22 @@ afterAll(async () => {
 
 afterEach(() => { vi.restoreAllMocks(); requested.length = 0; });
 
+// Headless launches use the chromium-headless-shell install, not the full chromium
+// bundle that chromium.executablePath() points at.
+function headlessShellPath(): string | undefined {
+  const chrome = chromium.executablePath();
+  const shellRoot = dirname(dirname(chrome)).replace(/chromium-(\d+)$/, "chromium_headless_shell-$1");
+  if (!existsSync(shellRoot) || dirname(dirname(chrome)) === shellRoot) return undefined;
+  for (const entry of readdirSync(shellRoot, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const inner = join(shellRoot, entry.name);
+    if (existsSync(join(inner, "chrome-headless-shell.exe"))) return join(inner, "chrome-headless-shell.exe");
+    if (existsSync(join(inner, "chrome-headless-shell"))) return join(inner, "chrome-headless-shell");
+  }
+  return undefined;
+}
+const skipIfNoHeadlessShell = it.skipIf(!headlessShellPath());
+
 function fixtureTransport() {
   // Only the test's public fixture connection is remapped; safeFetch still validates every redirect URL.
   return vi.spyOn(http, "request").mockImplementation((url, options, callback) => {
@@ -86,7 +103,7 @@ describe("guarded browser transport", () => {
     expect(result.bodyBytes).toEqual(binary);
   });
 
-  it.skipIf(!existsSync(chromium.executablePath()))("hydrates pages through guarded requests and blocks bypass paths", async () => {
+  skipIfNoHeadlessShell("hydrates pages through guarded requests and blocks bypass paths", async () => {
     fixtureTransport();
     const renderer = new PlaywrightRenderer();
     try {
@@ -110,7 +127,7 @@ describe("guarded browser transport", () => {
     }
   }, 30_000);
 
-  it.skipIf(!existsSync(chromium.executablePath()))("stops the entire render when resource request count is exhausted", async () => {
+  skipIfNoHeadlessShell("stops the entire render when resource request count is exhausted", async () => {
     fixtureTransport();
     const renderer = new PlaywrightRenderer();
     try {
@@ -119,7 +136,7 @@ describe("guarded browser transport", () => {
     } finally { await renderer.close(); }
   }, 30_000);
 
-  it.skipIf(!existsSync(chromium.executablePath()))("stops the entire render when combined resource bytes are exhausted", async () => {
+  skipIfNoHeadlessShell("stops the entire render when combined resource bytes are exhausted", async () => {
     fixtureTransport();
     const renderer = new PlaywrightRenderer();
     try {

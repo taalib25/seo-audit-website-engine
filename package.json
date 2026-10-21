@@ -9,39 +9,12 @@
     "test": "bun run --filter '*' test",
     "audit": "bun apps/cli/src/index.ts audit",
     "checks": "bun apps/cli/src/index.ts checks",
-    "dev:legacy": "next dev",
-    "build:legacy": "next build",
-    "start:legacy": "next start",
-    "lint": "eslint"
-  },
-  "dependencies": {
-    "axios": "^1.13.6",
-    "cheerio": "^1.2.0",
-    "next": "16.2.1",
-    "openai": "^6.33.0",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "zod": "^4.3.6"
+    "verify": "bun apps/cli/src/index.ts verify"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "babel-plugin-react-compiler": "1.0.0",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.1",
-    "tailwindcss": "^4",
+    "@types/node": "^22",
     "typescript": "^5"
   },
-  "ignoreScripts": [
-    "sharp",
-    "unrs-resolver"
-  ],
-  "trustedDependencies": [
-    "sharp",
-    "unrs-resolver"
-  ],
   "workspaces": [
     "packages/*",
     "apps/*"

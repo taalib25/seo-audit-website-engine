@@ -16,6 +16,10 @@ describe("runFullAudit", () => {
     });
     expect(result.report.pagesCrawled).toBe(1);
     expect(result.report.stack).toEqual(["test-stack"]);
+    expect(result.report.agentView?.agents).toHaveLength(13);
+    expect(result.report.agentView?.pages).toHaveLength(13);
+    expect(result.report.agentView?.pages[0]?.coverage).toBe(1);
+    expect(result.report.agentView?.estimated).toBe(true);
     expect(result.prompt.markdown).toContain("SEO/AEO/GEO fix plan");
     expect(result.traces).toEqual([]);
     expect(result.usage).toEqual({ inputTokens: 0, outputTokens: 0, costUsd: 0 });
