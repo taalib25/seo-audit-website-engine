@@ -58,3 +58,10 @@
 .agent-lens__chip { top:calc(var(--lens-y,150px) - var(--lens-r,116px) - 32px); left:var(--lens-x,180px); transform:translateX(-50%); }
 @media(max-width:650px) { .agent-lens__rim { width:232px; height:232px; } }
 @media(prefers-reduced-motion:reduce) { .agent-lens__rim { transition:none; } }
+
+/* Accessibility floor: legible legend, 44px touch targets, no iOS input zoom. */
+.agent-lens__legend { font-size:.72rem; color:#b9c4be; }
+.agent-lens__toggle button { min-height:44px; min-width:64px; padding:.55rem .95rem; font-size:.8rem; }
+.agent-lens__chip,.agent-lens__full-label { font-size:.72rem; }
+.agent-lens__bot select { min-height:44px; }
+@media(max-width:650px) { .agent-lens__legend { font-size:.7rem; } .agent-lens__toggle button { font-size:.78rem; padding:.55rem .8rem; } }

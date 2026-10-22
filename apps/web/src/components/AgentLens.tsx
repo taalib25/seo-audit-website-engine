@@ -13,7 +13,7 @@ const metrics: Record<Bot, { words: number; headings: string; schema: string }> 
 };
 
 function MockSite({ agent, google }: { agent?: boolean; google?: boolean }) {
-  return <div className={`agent-lens__site${agent ? " agent-lens__site--agent" : ""}`}>
+  return <div className={`agent-lens__site${agent ? " agent-lens__site--agent" : ""}`} inert>
     <div className="agent-lens__browser"><span/><span/><span/><i>atelier.example</i><b>↗</b></div>
     <header className="agent-lens__nav"><strong>FORMA<span>®</span></strong><nav>Furniture <i>·</i> Lighting <i>·</i> Objects</nav><button>Bag <small>0</small></button></header>
     <section className="agent-lens__hero"><div><p className="agent-lens__overline"><span>01 — 04</span> Objects for everyday rituals</p><h3>Make room<br/>for <em>living.</em></h3><p className="agent-lens__body">Thoughtful pieces, made to stay. Designed in Copenhagen, crafted to last a lifetime.</p><a>Explore the collection <b>↗</b></a></div><div className="agent-lens__chair" aria-label="Sculptural walnut chair"><div className="chair-back"/><div className="chair-seat"/><div className="chair-leg chair-leg--a"/><div className="chair-leg chair-leg--b"/><i>F. 01</i></div><span className="agent-lens__hero-caption">THE FORM CHAIR · OAK / NATURAL</span></section>
