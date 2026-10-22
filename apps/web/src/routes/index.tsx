@@ -6,6 +6,7 @@ import { z } from "zod";
 import { CrawlAnimation } from "../components/CrawlAnimation";
 import { BuilderCredit } from "../components/BuilderCredit";
 import { AuditCoverage } from "../components/AuditCoverage";
+import { AgentLens } from "../components/AgentLens";
 
 const createdAudit = z.object({ id: z.string() });
 const auditError = z.object({ error: z.string() });
@@ -86,7 +87,7 @@ function Home() {
     <section className="hero">
       <div className="page-width hero-layout"><div className="hero-copy">
         <p className="kicker kicker--blue">Website audit</p>
-        <h1 className="display">get found.<br/><span className="line-blue">stay human.</span><span className="hero-asterisk" aria-hidden="true">✳</span></h1>
+        <h1 className="display">See your site<br/><span className="line-blue">the way AI does.</span><span className="hero-asterisk" aria-hidden="true">✳</span></h1>
         <p className="hero-intro">Check search foundations, page answers, structured data, and crawler access. Get findings with evidence and suggested fixes.</p>
 
         <form onSubmit={submit} className="audit-form" aria-label="Start a website audit">
@@ -105,6 +106,8 @@ function Home() {
       </div><CrawlAnimation/></div>
 
     </section>
+
+    <section className="landing-lens"><div className="page-width"><AgentLens/></div></section>
 
     <section className="pillars" id="pillars">
       <div className="page-width">

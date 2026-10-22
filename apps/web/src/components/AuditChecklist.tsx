@@ -2,6 +2,7 @@ import { Check, Circle, LoaderCircle, Minus, X } from "lucide-react";
 import { useEffect, useId, useMemo, useRef, useState, type CSSProperties } from "react";
 import { flushSync } from "react-dom";
 import type { CheckResult, Pillar, Status } from "@aeo/core";
+import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 
 const pillars: Pillar[] = ["seo", "aeo", "geo"];
 const pillarNames: Record<Pillar, string> = { seo: "SEO", aeo: "AEO", geo: "GEO" };
@@ -9,6 +10,7 @@ const pillarNames: Record<Pillar, string> = { seo: "SEO", aeo: "AEO", geo: "GEO"
 export function AuditChecklist({ results, running = false, replay = false, liveResolved = 0, onReplayDone }: { results: CheckResult[]; running?: boolean; replay?: boolean; liveResolved?: number; onReplayDone?: () => void }) {
   const [resolved, setResolved] = useState(replay ? 0 : results.length);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [selectedPillar, setSelectedPillar] = useState("all");
   const [reduceMotion, setReduceMotion] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
   const userPausedScroll = useRef(false);
@@ -57,8 +59,11 @@ export function AuditChecklist({ results, running = false, replay = false, liveR
   return <section className="checklist-panel" aria-label="Audit checklist" data-large={results.length > 150} data-scrollable={results.length > 12}>
     <div className="checklist-heading"><div><h2>Checklist</h2><p>{running ? `${completedCount} of ${results.length} checks complete` : `${completedCount} of ${results.length} complete`}</p></div><span className={`live-indicator ${running ? "is-live" : ""}`}><i />{running ? "LIVE" : "DONE"}</span></div>
     <div className="pillar-progress-grid">{pillarStats.map(({ pillar, rows, done }) => <div className="pillar-progress" key={pillar} aria-live="polite"><div className="pillar-progress-label"><span>{pillarNames[pillar]}</span><span>{done}/{rows.length} done</span></div><div className="pillar-track"><i style={{ transform: `scaleX(${rows.length ? done / rows.length : 0})` }} /></div>{rows.length > 0 && done === rows.length && <span className="sr-only">{pillarNames[pillar]} checks complete</span>}</div>)}</div>
+    <Tabs value={selectedPillar} onValueChange={setSelectedPillar} className="checklist-tabs">
+      <TabsList aria-label="Filter checklist by pillar"><TabsTrigger value="all">All</TabsTrigger>{pillars.map((item) => <TabsTrigger key={item} value={item}>{pillarNames[item]}</TabsTrigger>)}</TabsList>
+    </Tabs>
     <div ref={listRef} className="checklist-scroll" onScroll={(event) => { const target = event.currentTarget; userPausedScroll.current = target.scrollHeight - target.scrollTop - target.clientHeight > 48; }}>
-      {pillars.map((pillar) => {
+      {pillars.filter((item) => selectedPillar === "all" || selectedPillar === item).map((pillar) => {
         const grouped = new Map<string, CheckResult[]>();
         ordered.filter((result) => result.pillar === pillar).forEach((result) => grouped.set(result.category, [...(grouped.get(result.category) ?? []), result]));
         if (!grouped.size) return null;
