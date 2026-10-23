@@ -576,6 +576,9 @@ a.report-chip:hover { border-color: var(--rule); }
 .agent-block-summary span { display: flex; justify-content: space-between; gap: 8px; border-top: 1px solid var(--border); padding: 8px 2px 0; color: var(--muted); font-size: 11px; }
 .agent-block-summary b { color: var(--foreground); font-weight: 600; white-space: nowrap; }
 .chart-empty { display: grid; min-height: 180px; place-items: center; color: var(--muted); font-size: 12px; text-align: center; }
+.report-charts-skeleton { min-height: 900px; border: 1px solid var(--border); border-radius: 14px; background: var(--card); opacity: .75; animation: report-charts-pulse 1.4s ease-in-out infinite; }
+@keyframes report-charts-pulse { 0%, 100% { opacity: .55; } 50% { opacity: .9; } }
+@media (prefers-reduced-motion: reduce) { .report-charts-skeleton { animation: none; opacity: .65; } }
 @media (max-width: 700px) {
   .analytics-heading { align-items: start; flex-direction: column; gap: 10px; }
   .analytics-grid { grid-template-columns: 1fr; gap: 12px; }

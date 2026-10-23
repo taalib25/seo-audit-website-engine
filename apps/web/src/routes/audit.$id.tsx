@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowUpRight, Check, ChevronDown, Clipboard, Download, ExternalLink, LoaderCircle, SlidersHorizontal } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, lazy, useEffect, useMemo, useState } from "react";
 import type { AuditReport, Pillar, Severity } from "@aeo/core";
 import { CheckResult } from "@aeo/core/types";
 import { z } from "zod";
@@ -11,8 +11,7 @@ import { AuditChecklist } from "../components/AuditChecklist";
 import { BuilderCredit } from "../components/BuilderCredit";
 import { AgentVisibility } from "../components/AgentVisibility";
 import { AgentLensReport } from "../components/AgentLensReport";
-import { ReportCharts } from "../components/charts/ReportCharts";
-import { Progress } from "../components/ui/progress";
+const ReportCharts = lazy(() => import("../components/charts/ReportCharts").then(m => ({ default: m.ReportCharts })));import { Progress } from "../components/ui/progress";
 import { Badge } from "../components/ui/badge";
 
 type AuditState = { status: "queued" | "running" | "complete" | "failed" | "unavailable"; report?: AuditReport; prompt?: { markdown: string; tasks: FixTask[] }; traces?: PromptTrace[]; usage?: UsageSummary; capabilityNotes?: string[]; progress?: number; stage?: string; error?: string };
@@ -99,7 +98,7 @@ function AuditExperience({ auditId, demo = false }: { auditId: string; demo?: bo
   const categories = [...new Set(report.results.map((item) => item.category))].sort();
   return <main className="report-page"><header className="report-header"><div className="report-toolbar page-width"><Link to="/" className="report-back"><ArrowLeft size={17}/>New audit</Link><span className="report-header-label"><b>SIGNAL</b> <i>/</i> AUDIT</span><div className="report-actions"><div className="report-action-dock"><button onClick={() => void copyPrompt()} className={`copy-prompt-btn btn btn--blue btn--md ${copied ? "is-copied" : ""}`} aria-label={copied ? "Fix prompt copied" : "Copy fix prompt for your AI agent"}>{copied ? <Check size={17}/> : <Clipboard size={17}/>}<span>{copied ? "Copied to clipboard" : "Copy fix prompt"}</span></button><a href={`/api/audits/${auditId}/prompt.md`} download className="icon-button" aria-label="Download fix prompt"><Download size={18}/></a></div></div></div></header>
     <div className="report-content page-width"><div className="score-hero"><div><p className="kicker report-kicker">{auditId === "demo" ? "Illustrative demo" : "Website audit"} · {new Date(report.createdAt).toLocaleDateString()}</p><h1 className="report-title display">{new URL(report.startUrl).hostname}</h1><a className="report-site-link" href={report.startUrl} target="_blank" rel="noreferrer">{report.startUrl}<ExternalLink size={13}/></a><div className="report-chips"><span className="report-chip">{report.pagesCrawled} pages crawled</span><span className="report-chip report-chip--blue">{report.capabilities.includes("rendered-dom") ? "Rendered DOM + raw HTML" : "Raw HTML only"}</span><a href={`/api/audits/${auditId}/report.json`} className="report-chip">JSON report <ArrowUpRight size={12}/></a></div><p className="report-description">Review the findings below, including the evidence and suggested fixes for each check.</p></div><ScoreSummary report={report}/></div>
-      <ReportCharts report={report}/>
+      <Suspense fallback={<div className="report-charts-skeleton" />}><ReportCharts report={report}/></Suspense>
       <AgentVisibility view={report.agentView}/>
       <AgentLensReport {...(report.agentView ? { agentView: report.agentView } : {})}/>
       <div className="mt-8"><AuditChecklist results={report.results} replay={replay} onReplayDone={() => setReplay(false)}/></div>
